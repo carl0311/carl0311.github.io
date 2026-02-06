@@ -3,347 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee Wiki | Carl Louis</title>
+    <title>Coffee Lab | Carl Louis</title>
     <style>
         :root {
-            /* 咖啡主题配色 (Apple Style x Coffee Tone) */
-            --bg-color: #FDFBF7; /* 暖米色背景 */
-            --card-bg: rgba(255, 255, 255, 0.8);
-            --text-main: #3C2F2F; /* 深咖啡色 */
-            --text-sub: #857E7E;
-            --accent-brown: #6F4E37;
+            --bg-color: #F5F5F7;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #1D1D1F;
+            --text-sub: #86868B;
+            --accent-coffee: #96613d; /* 咖啡色主调 */
             --accent-gold: #D4AF37;
-            --accent-green: #5B7C62; /* 咖啡树叶绿 */
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
             --radius: 24px;
-            --shadow: 0 10px 30px rgba(111, 78, 55, 0.08);
-            --font-stack: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
 
         body {
             background-color: var(--bg-color);
-            font-family: var(--font-stack);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
             color: var(--text-main);
-            line-height: 1.6;
-            padding-bottom: 60px;
+            padding: 40px 20px;
         }
 
-        /* --- 顶部 Hero 区域 --- */
-        .hero {
-            position: relative;
-            height: 50vh;
-            min-height: 400px;
-            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') center/cover no-repeat;
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        /* 顶部导航 */
+        header {
+            margin-bottom: 40px;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            text-align: center;
-            color: white;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            margin-bottom: 50px;
         }
-
-        .hero h1 { font-size: 4rem; font-weight: 800; letter-spacing: -0.03em; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .hero p { font-size: 1.2rem; opacity: 0.9; margin-top: 10px; font-weight: 500; }
         
         .back-btn {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            color: white;
             text-decoration: none;
-            font-weight: 600;
-            background: rgba(0,0,0,0.3);
-            padding: 10px 20px;
-            border-radius: 100px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.2); transform: translateX(-2px); }
-
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-
-        /* --- 通用标题 --- */
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
             color: var(--text-main);
+            font-weight: 600;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
-        .section-title::before {
-            content: "";
-            display: block;
-            width: 6px;
-            height: 32px;
-            background: var(--accent-brown);
-            border-radius: 4px;
-        }
+        .back-btn:hover { transform: scale(1.05); }
 
-        /* --- 豆种卡片 (Bento Grid) --- */
-        .bean-grid {
+        h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; }
+        .subtitle { color: var(--text-sub); margin-top: 5px; font-size: 1.1rem; }
+
+        /* 布局网格 */
+        .grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 60px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
         }
 
-        .info-card {
+        /* 咖啡豆卡片 */
+        .bean-card {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: 30px;
+            overflow: hidden;
             box-shadow: var(--shadow);
             border: 1px solid rgba(255,255,255,0.5);
-            transition: transform 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .info-card:hover { transform: translateY(-5px); }
-
-        .card-tag {
-            position: absolute;
-            top: 20px; right: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: rgba(0,0,0,0.3);
-            text-transform: uppercase;
-        }
-
-        .bean-icon { font-size: 3rem; margin-bottom: 15px; display: block; }
-        
-        .info-card h3 { font-size: 1.5rem; margin-bottom: 10px; }
-        .info-card p { font-size: 0.95rem; color: var(--text-sub); margin-bottom: 15px; }
-
-        .flavor-tags span {
-            display: inline-block;
-            font-size: 0.75rem;
-            padding: 4px 10px;
-            border-radius: 8px;
-            margin-right: 5px;
-            background: rgba(111, 78, 55, 0.1);
-            color: var(--accent-brown);
-            font-weight: 600;
-        }
-
-        /* --- 产地地图风格 (横向滚动) --- */
-        .origin-scroll {
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            padding-bottom: 20px;
-            margin-bottom: 60px;
-            scrollbar-width: none; /* Firefox 隐藏滚动条 */
-        }
-        .origin-scroll::-webkit-scrollbar { display: none; } /* Chrome 隐藏滚动条 */
-
-        .origin-card {
-            min-width: 280px;
-            height: 350px;
-            border-radius: var(--radius);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
-            padding: 25px;
-            color: white;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            transition: transform 0.3s;
-        }
-        .origin-card:hover { transform: scale(1.02); }
-
-        /* 使用渐变叠加让文字更清晰 */
-        .overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            z-index: 1;
-        }
-        .origin-content { position: relative; z-index: 2; }
-        .origin-country { font-size: 1.8rem; font-weight: 800; line-height: 1; margin-bottom: 5px; }
-        .origin-desc { font-size: 0.9rem; opacity: 0.9; margin-top: 8px; }
-
-        /* --- 冲煮方式 (列表式) --- */
-        .brew-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
         }
 
-        .brew-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            display: flex;
-            align-items: flex-start;
-            gap: 20px;
-            box-shadow: var(--shadow);
+        .bean-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
         }
 
-        .brew-icon-box {
-            width: 60px; height: 60px;
-            background: #F2EFE9;
-            border-radius: 16px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem;
-            flex-shrink: 0;
+        /* 图片容器 */
+        .card-img {
+            height: 220px;
+            width: 100%;
+            background-color: #eee;
+            position: relative;
         }
-
-        .brew-info h4 { font-size: 1.2rem; margin-bottom: 5px; }
-        .brew-info p { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 10px; }
         
-        .brew-meta {
-            display: flex;
-            gap: 15px;
-            font-size: 0.8rem;
-            color: var(--accent-brown);
-            font-weight: 600;
+        .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 保证图片铺满不剪裁 */
         }
 
-        /* --- 手机适配 --- */
-        @media (max-width: 768px) {
-            .hero { height: 40vh; }
-            .hero h1 { font-size: 2.5rem; }
-            .bean-grid { grid-template-columns: 1fr; }
-            .section-title { font-size: 1.5rem; }
+        /* 标签 (如：浅烘焙) */
+        .roast-tag {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-body { padding: 25px; flex-grow: 1; display: flex; flex-direction: column; }
+
+        .bean-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 5px; }
+        .bean-origin { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; }
+
+        .flavor-notes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .note {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(150, 97, 61, 0.1);
+            color: var(--accent-coffee);
+            font-weight: 500;
+        }
+
+        .desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        /* 底部参数条 */
+        .specs {
+            margin-top: auto;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        /* 标题分割 */
+        .section-header {
+            margin: 60px 0 30px 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* 手机适配 */
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
-    <header class="hero">
-        <a href="index.html" class="back-btn">← Home</a>
-        <h1>Coffee Wiki</h1>
-        <p>探索从种子到杯子的旅程</p>
-    </header>
-
     <div class="container">
-
-        <div class="section-title">主要豆种 (Species)</div>
-        <div class="bean-grid">
-            <div class="info-card">
-                <span class="card-tag">Premium</span>
-                <span class="bean-icon">🌿</span>
-                <h3>Arabica (阿拉比卡)</h3>
-                <p>占据全球约 60%-70% 的产量。生长在海拔较高的地区，风味复杂，酸度明亮，拥有花香和果香。</p>
-                <div class="flavor-tags">
-                    <span>🌷 花香</span>
-                    <span>🍋 果酸</span>
-                    <span>🍬 甜感高</span>
-                </div>
+        <header>
+            <div>
+                <h1>Coffee Lab</h1>
+                <div class="subtitle">Manual Brew & Beans Collection</div>
             </div>
+            <a href="index.html" class="back-btn">← Home</a>
+        </header>
 
-            <div class="info-card" style="background: #F4F4F4;">
-                <span class="card-tag">Strong</span>
-                <span class="bean-icon">💪</span>
-                <h3>Robusta (罗布斯塔)</h3>
-                <p>生长在低海拔，抗病虫害能力强。咖啡因含量是阿拉比卡的两倍，口感醇厚，油脂丰富，带有橡胶或泥土味。</p>
-                <div class="flavor-tags">
-                    <span style="background: #e0e0e0; color: #555;">🍫 黑巧</span>
-                    <span style="background: #e0e0e0; color: #555;">🥜 坚果</span>
-                    <span style="background: #e0e0e0; color: #555;">🪵 醇厚</span>
+        <div class="grid">
+
+            <div class="bean-card">
+                <div class="card-img">
+                    <span class="roast-tag">浅中烘焙 | Light-Medium</span>
+                    <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=800&auto=format&fit=crop" alt="Yirgacheffe">
                 </div>
-            </div>
-        </div>
-
-        <div class="section-title">世界产地 (Origins)</div>
-        <div class="origin-scroll">
-            
-            <div class="origin-card" style="background: url('https://images.unsplash.com/photo-1524350876685-2740593328f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60') center/cover;">
-                <div class="overlay"></div>
-                <div class="origin-content">
-                    <div class="origin-country">Ethiopia</div>
-                    <div style="font-size:0.8rem; color:#FFD700; margin-bottom:5px;">★★★★★ 咖啡发源地</div>
-                    <p class="origin-desc">著名的耶加雪菲产区。特点是极致的花香、柠檬柑橘酸调，口感像茶一样清透。</p>
-                </div>
-            </div>
-
-            <div class="origin-card" style="background: url('https://images.unsplash.com/photo-1589533610925-1cffc309ebaa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60') center/cover;">
-                <div class="overlay"></div>
-                <div class="origin-content">
-                    <div class="origin-country">Colombia</div>
-                    <p class="origin-desc">水洗处理法的代表。风味平衡，常带有焦糖、坚果和柔和的热带水果酸质。</p>
-                </div>
-            </div>
-
-            <div class="origin-card" style="background: url('https://images.unsplash.com/photo-1514066558159-fc8c737ef259?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60') center/cover;">
-                <div class="overlay"></div>
-                <div class="origin-content">
-                    <div class="origin-country">Brazil</div>
-                    <p class="origin-desc">世界上最大的咖啡生产国。通常酸度低，具有浓郁的巧克力、坚果和奶油风味，适合做意式拼配。</p>
-                </div>
-            </div>
-
-            <div class="origin-card" style="background: url('https://images.unsplash.com/photo-1511537632536-34a7004ccd4f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60') center/cover;">
-                <div class="overlay"></div>
-                <div class="origin-content">
-                    <div class="origin-country">Indonesia</div>
-                    <p class="origin-desc">曼特宁的故乡。独特的“湿刨法”造就了草本、香料和泥土的厚重口感。</p>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="section-title">冲煮方式 (Brewing)</div>
-        <div class="brew-list">
-            
-            <div class="brew-card">
-                <div class="brew-icon-box">💧</div>
-                <div class="brew-info">
-                    <h4>Pour Over (手冲)</h4>
-                    <p>最能展现豆子原味的方式。热水缓慢穿过粉层，萃取出干净、层次分明的风味。</p>
-                    <div class="brew-meta">
-                        <span>🏷 研磨度: 中细 (砂糖状)</span>
-                        <span>⏱ 2:30 分钟</span>
+                <div class="card-body">
+                    <div class="bean-name">Yirgacheffe 耶加雪啡</div>
+                    <div class="bean-origin">📍 Ethiopia 埃塞俄比亚</div>
+                    <div class="flavor-notes">
+                        <span class="note">茉莉花香</span>
+                        <span class="note">柑橘酸</span>
+                        <span class="note">茶感</span>
+                    </div>
+                    <p class="desc">
+                        水洗处理法的代表作。入口有着明亮的柠檬酸质，随后是浓郁的茉莉花香与红茶尾韵。就像在喝一杯加了柠檬的伯爵茶，干净透亮。
+                    </p>
+                    <div class="specs">
+                        <span>酸度: ★★★★★</span>
+                        <span>醇度: ★★☆☆☆</span>
                     </div>
                 </div>
             </div>
 
-            <div class="brew-card">
-                <div class="brew-icon-box">⚗️</div>
-                <div class="brew-info">
-                    <h4>French Press (法压壶)</h4>
-                    <p>浸泡式萃取。保留了咖啡的油脂（Crema），口感极其醇厚圆润，操作简单。</p>
-                    <div class="brew-meta">
-                        <span>🏷 研磨度: 粗 (海盐状)</span>
-                        <span>⏱ 4:00 分钟</span>
+            <div class="bean-card">
+                <div class="card-img">
+                    <span class="roast-tag">深烘焙 | Dark Roast</span>
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop" alt="Mandheling">
+                </div>
+                <div class="card-body">
+                    <div class="bean-name">Golden Mandheling 黄金曼特宁</div>
+                    <div class="bean-origin">📍 Indonesia 印尼苏门答腊</div>
+                    <div class="flavor-notes">
+                        <span class="note">草本香料</span>
+                        <span class="note">黑巧克力</span>
+                        <span class="note">焦糖</span>
+                    </div>
+                    <p class="desc">
+                        经过三次手选的精品曼特宁。几乎没有酸味，取而代之的是浓烈的醇厚口感和独特的草本香气，尾韵带有奶油与黑巧克力的甘甜。
+                    </p>
+                    <div class="specs">
+                        <span>酸度: ★☆☆☆☆</span>
+                        <span>醇度: ★★★★★</span>
                     </div>
                 </div>
             </div>
 
-            <div class="brew-card">
-                <div class="brew-icon-box">☕️</div>
-                <div class="brew-info">
-                    <h4>Espresso (意式浓缩)</h4>
-                    <p>高压快速萃取。风味极度浓缩，是拿铁、美式等花式咖啡的基底。</p>
-                    <div class="brew-meta">
-                        <span>🏷 研磨度: 极细 (面粉状)</span>
-                        <span>⏱ 25-30 秒</span>
-                    </div>
+            <div class="bean-card">
+                <div class="card-img">
+                    <span class="roast-tag" style="background: #D4AF37;">浅烘焙 | Light Roast</span>
+                    <img src="https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=800&auto=format&fit=crop" alt="Geisha">
                 </div>
-            </div>
-
-            <div class="brew-card">
-                <div class="brew-icon-box">🔥</div>
-                <div class="brew-info">
-                    <h4>Moka Pot (摩卡壶)</h4>
-                    <p>炉灶加热，蒸汽压力萃取。可以做出接近 Espresso 的浓郁咖啡，带有焦香。</p>
-                    <div class="brew-meta">
-                        <span>🏷 研磨度: 细</span>
+                <div class="card-body">
+                    <div class="bean-name">Panama Geisha 巴拿马瑰夏</div>
+                    <div class="bean-origin">📍 Panama 巴拿马</div>
+                    <div class="flavor-notes">
+                        <span class="note">白色花香</span>
+                        <span class="note">热带水果</span>
+                        <span class="note">极高甜感</span>
+                    </div>
+                    <p class="desc">
+                        咖啡中的王者。拥有极其复杂的香气层次，从入口的橘子味到中段的水蜜桃甜，再到尾段悠长的花香，每一口都是惊喜。
+                    </p>
+                    <div class="specs">
+                        <span>酸度: ★★★★☆</span>
+                        <span>醇度: ★★★☆☆</span>
                     </div>
                 </div>
             </div>
 
         </div>
 
-        <div style="text-align: center; margin-top: 80px; color: var(--text-sub); font-size: 0.9rem;">
-            Made with ☕️ by Carl Louis
+        <div class="section-header">My Gear</div>
+        <div class="bean-card" style="flex-direction: row; align-items: center; padding: 20px;">
+            <div style="width: 100px; height: 100px; background: #eee; border-radius: 50%; overflow: hidden; flex-shrink: 0; margin-right: 20px;">
+                <img src="https://images.unsplash.com/photo-1585856416124-72a39206d289?q=80&w=400&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 5px;">High-Precision Manual Grinder</h3>
+                <p style="color: #666; font-size: 0.9rem;">
+                    专注于手冲研磨精度。使用七星刀盘，追求极细粉率控制，确保每一杯手冲的风味纯净度。
+                </p>
+            </div>
         </div>
 
+        <div style="height: 60px;"></div>
     </div>
 
 </body>
