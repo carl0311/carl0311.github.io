@@ -7,45 +7,30 @@
     <style>
         :root {
             /* --- 苹果风核心配色 --- */
-            /* 背景：微妙的放射状渐变，不是纯死白 */
             --bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #f2f2f7 100%);
-            
-            /* 毛玻璃卡片核心 */
-            --card-bg: rgba(255, 255, 255, 0.7); /* 半透明白色 */
-            --card-border: rgba(255, 255, 255, 0.4); /* 极细微的边框 */
-            --backdrop-blur: 25px; /* 模糊程度 */
-
-            /* 文本颜色 */
-            --text-primary: #1d1d1f; /* 深灰黑 */
-            --text-secondary: #86868b; /* 次级灰 */
-
-            /* --- 多彩强调色 (iOS风格渐变) --- */
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(255, 255, 255, 0.4);
+            --backdrop-blur: 25px;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
             --gradient-blue: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --gradient-green: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
             --gradient-orange: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
             --gradient-purple: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            --gradient-yellow: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
             --accent-blue-solid: #0071e3;
-
-            /* --- 阴影与圆角 --- */
-            --shadow-sm: 0 4px 12px rgba(0,0,0,0.03);
             --shadow-md: 0 8px 30px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.5);
             --shadow-hover: 0 20px 40px rgba(0,0,0,0.1);
             --radius-card: 28px;
             --radius-icon: 16px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased; /* Mac字体平滑 */
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
 
         body {
             background: var(--bg-gradient);
             color: var(--text-primary);
-            /* 优先使用苹果系统字体，字间距稍微收紧以显精致 */
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
             letter-spacing: -0.02em;
             display: flex;
             justify-content: center;
@@ -58,17 +43,15 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(4, minmax(120px, auto));
-            gap: 24px; /* 更大的间距增加通透感 */
+            gap: 24px;
             max-width: 1000px;
             width: 100%;
         }
 
-        /* --- 核心卡片样式 (毛玻璃) --- */
         .card {
             background-color: var(--card-bg);
-            /* 关键：背景模糊滤镜 */
             backdrop-filter: blur(var(--backdrop-blur));
-            -webkit-backdrop-filter: blur(var(--backdrop-blur)); /* Safari兼容 */
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
             border: 1px solid var(--card-border);
             border-radius: var(--radius-card);
             padding: 32px;
@@ -77,138 +60,50 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* 苹果式的弹性过渡动画 */
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             box-shadow: var(--shadow-md);
             position: relative;
             overflow: hidden;
         }
 
-        .card:hover {
-            transform: scale(1.03) translateY(-4px); /* 上浮并轻微放大 */
-            box-shadow: var(--shadow-hover);
-            background-color: rgba(255, 255, 255, 0.85); /* 悬停时稍微变亮不透明 */
-        }
+        .card:hover { transform: scale(1.03) translateY(-4px); box-shadow: var(--shadow-hover); background-color: rgba(255, 255, 255, 0.85); }
 
-        /* --- 内容排版细节 --- */
-        h1 {
-            font-size: 3rem;
-            font-weight: 800;
-            letter-spacing: -0.04em; /* 标题字间距更紧 */
-            background: linear-gradient(120deg, #000000, #434343);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        h1 { font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(120deg, #000000, #434343); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-            letter-spacing: -0.03em;
-        }
-        
-        .card-desc {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-            line-height: 1.4;
-        }
+        .card-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.03em; }
+        .card-desc { font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; line-height: 1.4; }
 
-        /* --- iOS风格图标容器 --- */
         .icon-box {
-            width: 52px;
-            height: 52px;
-            border-radius: var(--radius-icon);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            color: white; /* 图标统一为白色 */
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-sm);
+            width: 52px; height: 52px; border-radius: var(--radius-icon);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; color: white; margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
-        /* 多彩渐变背景类 */
         .bg-blue { background: var(--gradient-blue); }
         .bg-green { background: var(--gradient-green); }
         .bg-orange { background: var(--gradient-orange); }
         .bg-purple { background: var(--gradient-purple); }
+        .bg-yellow { background: var(--gradient-yellow); }
 
-        /* --- 特殊卡片定制 --- */
+        /* 特殊卡片 */
+        .card-profile { grid-column: span 2; grid-row: span 2; justify-content: center; }
+        .tag { display: inline-block; font-size: 0.8rem; padding: 8px 16px; background: rgba(0, 113, 227, 0.1); color: var(--accent-blue-solid); border-radius: 100px; font-weight: 600; margin-top: 20px; }
 
-        /* 1. 个人简介 */
-        .card-profile {
-            grid-column: span 2;
-            grid-row: span 2;
-            justify-content: center;
-        }
-        .tag {
-            display: inline-block;
-            font-size: 0.8rem;
-            padding: 8px 16px;
-            background: rgba(0, 113, 227, 0.1); /* 浅蓝色背景 */
-            color: var(--accent-blue-solid);
-            border-radius: 100px;
-            font-weight: 600;
-            margin-top: 20px;
-        }
-
-        /* 2. 工具卡片 */
-        .card-tool {
-            grid-column: span 1;
-            grid-row: span 2;
-        }
-        .tool-mockup {
-            flex-grow: 1;
-            margin-top: 25px;
-            background: rgba(255,255,255,0.9); /* 比卡片背景更不透明一点，突出层次 */
-            border-radius: 18px;
-            box-shadow: var(--shadow-sm);
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        /* 模拟界面内部的横条 */
-        .mockup-bar {
-            height: 12px;
-            background: #ECECEC;
-            border-radius: 6px;
-            margin: 15px 15px 0 15px;
-            width: 60%;
-        }
+        .card-tool { grid-column: span 1; grid-row: span 2; }
+        .tool-mockup { flex-grow: 1; margin-top: 25px; background: rgba(255,255,255,0.9); border-radius: 18px; position: relative; border: 1px solid rgba(0,0,0,0.05); }
+        .mockup-bar { height: 12px; background: #ECECEC; border-radius: 6px; margin: 15px 15px 0 15px; width: 60%; }
         .mockup-bar.short { width: 40%; }
 
-        /* 3. 小方块 */
-        .card-small {
-            grid-column: span 1;
-            grid-row: span 1;
-            align-items: center;
-            justify-content: center;
-        }
+        .card-small { grid-column: span 1; grid-row: span 1; align-items: center; justify-content: center; text-align: center; }
+        
+        .card-wide { grid-column: span 2; grid-row: span 1; flex-direction: row; align-items: center; }
+        .arrow-btn { width: 40px; height: 40px; background: rgba(0,0,0,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent-blue-solid); }
 
-        /* 4. 横长条 */
-        .card-wide {
-            grid-column: span 2;
-            grid-row: span 1;
-            flex-direction: row;
-            align-items: center;
-        }
-        .arrow-btn {
-            width: 40px;
-            height: 40px;
-            background: rgba(0,0,0,0.05);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: var(--accent-blue-solid);
-        }
-
-        /* 手机适配 */
         @media (max-width: 768px) {
             body { padding: 20px 15px; }
             .bento-grid { grid-template-columns: 1fr; gap: 20px; }
             .card { grid-column: span 1 !important; grid-row: span 1 !important; min-height: 180px; }
+            .card-small { align-items: flex-start; padding: 25px; text-align: left; }
             h1 { font-size: 2.2rem; }
         }
     </style>
@@ -223,12 +118,6 @@
                     Creating digital experiences &<br>exploring the unknown.
                 </p>
                 <span class="tag"> Developer & Writer</span>
-                <a href="./bookmarks.html" class="card card-small" style="text-decoration: none;">
-            <div class="icon-box" style="background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); width: 60px; height: 60px; margin-bottom: 0; font-size: 30px;">
-                ⭐️
-            </div>
-            <div class="card-title" style="font-size: 0.9rem; margin-top: 10px;">Library</div>
-        </a>
             </div>
         </div>
 
@@ -256,12 +145,15 @@
             </div>
         </a>
 
-        <div class="card card-small">
-            <div class="icon-box bg-orange" style="margin-bottom: 0; width: 60px; height: 60px; font-size: 32px;">☕️</div>
-        </div>
+        <a href="./bookmarks.html" class="card card-small">
+            <div class="icon-box bg-yellow" style="margin-bottom: 5px;">⭐️</div>
+            <div class="card-title" style="font-size: 1rem; margin-top: 5px;">Library</div>
+            <div class="card-desc" style="font-size: 0.8rem;">我的收藏库</div>
+        </a>
 
         <div class="card card-small">
-            <div class="icon-box bg-purple" style="margin-bottom: 0; width: 60px; height: 60px; font-size: 32px;">🖊️</div>
+            <div class="icon-box bg-orange" style="margin-bottom: 5px;">☕️</div>
+            <div class="card-title" style="font-size: 1rem; margin-top: 5px;">Brew</div>
         </div>
 
         <div class="card card-wide">
@@ -283,5 +175,4 @@
     </div>
 
 </body>
-
 </html>
