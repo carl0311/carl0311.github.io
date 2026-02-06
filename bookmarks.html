@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Library | Carl Louis</title>
+    <style>
+        :root {
+            --bg-color: #F5F5F7;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-main: #1D1D1F;
+            --text-sub: #86868B;
+            --accent-blue: #0071E3;
+            --radius: 20px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            color: var(--text-main);
+            padding: 40px 20px;
+            line-height: 1.5;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        /* 顶部导航 */
+        header {
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .back-btn {
+            text-decoration: none;
+            color: var(--text-sub);
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .back-btn:hover { color: var(--accent-blue); }
+
+        h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; }
+
+        /* 瀑布流/网格布局 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* 分类卡片 */
+        .category-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover { transform: translateY(-3px); }
+
+        .cat-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .cat-icon { font-size: 1.5rem; }
+        .cat-title { font-weight: 600; font-size: 1.1rem; }
+
+        /* 链接列表 */
+        .link-list { list-style: none; }
+        
+        .link-item { margin-bottom: 12px; }
+        
+        .link-item a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            transition: color 0.2s;
+        }
+
+        .link-item a:hover { color: var(--accent-blue); }
+        
+        .link-item a::before {
+            content: "↗";
+            color: var(--text-sub);
+            font-size: 0.8em;
+            margin-top: 3px;
+        }
+
+        .tag-work { background: #E8F2FF; color: #0071E3; font-size: 0.7em; padding: 2px 6px; border-radius: 4px; margin-left: auto;}
+
+        /* 手机适配 */
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Web Library</h1>
+            <a href="index.html" class="back-btn">← Back to Home</a>
+        </header>
+
+        <div class="grid">
+            
+            <div class="category-card">
+                <div class="cat-header">
+                    <span class="cat-icon">⭐️</span>
+                    <span class="cat-title">Top Picks</span>
+                </div>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://carl0311.github.io/phone-validator/">ISO 3166-1 号码解析专家</a></li>
+                    <li class="link-item"><a href="https://carl0311.github.io/ai_translator_cn/">AI 智能翻译 (终极版)</a></li>
+                    <li class="link-item"><a href="https://app.flowoss.com/">Flow 生产力工具</a></li>
+                    <li class="link-item"><a href="https://www.xue8nav.com/">学吧导航</a></li>
+                    <li class="link-item"><a href="https://translate.google.com/?hl=zh-CN">Google 翻译</a></li>
+                    <li class="link-item"><a href="https://www.google.com/maps/@34.4553851,86.0789369,4z?hl=zh-CN">Google 地图</a></li>
+                </ul>
+            </div>
+
+            <div class="category-card">
+                <div class="cat-header">
+                    <span class="cat-icon">👨‍💻</span>
+                    <span class="cat-title">Coding & Dev</span>
+                </div>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://github.com/is-a-dev/register/pull/32008">My PR on GitHub</a></li>
+                    <li class="link-item"><a href="https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/download/">MIT Python 课程</a></li>
+                    <li class="link-item"><a href="https://www.udacity.com/blog/2015/02/georgia-tech-omscs-courses-now-free-udacity.html">Udacity CS 课程</a></li>
+                    <li class="link-item"><a href="https://github.com/jwasham/coding-interview-university">Coding Interview Univ</a></li>
+                    <li class="link-item"><a href="https://roadmap.sh/">Developer Roadmaps</a></li>
+                    <li class="link-item"><a href="https://exercism.org/dashboard">Exercism 练习</a></li>
+                </ul>
+            </div>
+
+            <div class="category-card">
+                <div class="cat-header">
+                    <span class="cat-icon">📚</span>
+                    <span class="cat-title">English Learning</span>
+                </div>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://youglish.com/">Youglish 发音库</a></li>
+                    <li class="link-item"><a href="https://zh.z-library.sk/">Z-Library 电子书</a></li>
+                    <li class="link-item"><a href="https://www.bloomberg.com/account/newsletters/next-china">Bloomberg Next China</a></li>
+                    <li class="link-item"><a href="https://github.com/linyqh/NarratoAI">NarratoAI 视频解说</a></li>
+                    <li class="link-item"><a href="https://tv.garden/">Global Live TV</a></li>
+                </ul>
+            </div>
+
+            <div class="category-card">
+                <div class="cat-header">
+                    <span class="cat-icon">🧭</span>
+                    <span class="cat-title">Resources</span>
+                </div>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://ai-bot.cn/">AI 工具集官网</a></li>
+                    <li class="link-item"><a href="https://www.navs.cc/favorites/tools">奶芙导航</a></li>
+                    <li class="link-item"><a href="https://www.m123.com/">M123 跨境导航</a></li>
+                    <li class="link-item"><a href="https://hao.uisdc.com/">优设设计师导航</a></li>
+                    <li class="link-item"><a href="https://www.ghxi.com/">果核剥壳</a></li>
+                </ul>
+            </div>
+
+            <div class="category-card">
+                <div class="cat-header">
+                    <span class="cat-icon">💼</span>
+                    <span class="cat-title">Work & Daily</span>
+                </div>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://salesiq.zoho.in/bodorportal/liveview">Bodor LiveView</a></li>
+                    <li class="link-item"><a href="https://crm.zoho.in/">Zoho CRM Leads</a></li>
+                    <li class="link-item"><a href="https://salesiq.zoho.in/bodorportal/mychats/">My Chats (Zoho)</a></li>
+                    <li class="link-item"><a href="https://qy.163.com/login/">网易企业邮箱</a></li>
+                    <li class="link-item"><a href="https://business.facebook.com/">Meta Business Suite</a></li>
+                    <li class="link-item"><a href="https://www.orange-class.com/certificates">橙点同学</a></li>
+                </ul>
+            </div>
+
+            <div class="category-card">
+                <div class="cat-header">
+                    <span class="cat-icon">🛠️</span>
+                    <span class="cat-title">Tools & Proxy</span>
+                </div>
+                <ul class="link-list">
+                    <li class="link-item"><a href="https://ikuuu.one/user">iKuuu VPN</a></li>
+                    <li class="link-item"><a href="https://rennen.dev/archives/how-to-build-a-vmess-proxy-node">Vmess 节点教程</a></li>
+                    <li class="link-item"><a href="https://free-ss.site/">免费 vless 账号</a></li>
+                    <li class="link-item"><a href="https://jichangtuijian.com/">机场推荐评测</a></li>
+                    <li class="link-item"><a href="https://fdownloader.net/zh-cn/facebook-reels-downloader">FB Video Downloader</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
