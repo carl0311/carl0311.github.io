@@ -14,6 +14,7 @@
             --accent-purple: #5E5CE6;
             --accent-orange: #FF9500;
             --accent-green: #34C759;
+            --accent-red: #FF3B30;
             --radius: 20px;
             --shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
@@ -52,6 +53,18 @@
             transition: all 0.2s;
         }
         .back-btn:hover { background: #fff; color: var(--accent-blue); transform: translateX(-2px); }
+
+        /* 分割线标题 */
+        .section-title {
+            margin: 40px 0 20px 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-sub);
+            font-weight: 600;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: 10px;
+        }
 
         /* 瀑布流布局 */
         .grid {
@@ -129,6 +142,7 @@
             <a href="index.html" class="back-btn">← 返回主页</a>
         </header>
 
+        <div class="section-title">Personal Bookmarks</div>
         <div class="grid">
             
             <div class="category-card">
@@ -153,7 +167,7 @@
             <div class="category-card">
                 <div class="cat-header">
                     <span class="cat-icon">📚</span>
-                    <span class="cat-title" style="color: var(--accent-purple);">英语学习 (English)</span>
+                    <span class="cat-title" style="color: var(--accent-purple);">英语学习 (My English)</span>
                 </div>
                 <ul class="link-list">
                     <li class="link-item"><a href="https://youglish.com/"><span class="link-name">Youglish 发音库</span><span class="arrow">↗</span></a></li>
@@ -167,14 +181,13 @@
                     <li class="link-item"><a href="https://www.iheart.com/podcast/"><span class="link-name">iHeart Podcasts</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://freepodcasttranscription.com/"><span class="link-name">Podcast Transcription</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://github.com/knowledgefxg/learning-english"><span class="link-name">Github: Learning English</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://github.com/hehonghui/awesome-english-ebooks"><span class="link-name">Awesome English Ebooks</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
 
             <div class="category-card">
                 <div class="cat-header">
                     <span class="cat-icon">👨‍💻</span>
-                    <span class="cat-title" style="color: var(--accent-blue);">编程与技术 (Dev)</span>
+                    <span class="cat-title" style="color: var(--accent-blue);">编程与技术 (My Dev)</span>
                 </div>
                 <ul class="link-list">
                     <li class="link-item"><a href="https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/download/"><span class="link-name">MIT Python 课程</span><span class="arrow">↗</span></a></li>
@@ -184,12 +197,7 @@
                     <li class="link-item"><a href="https://exercism.org/dashboard"><span class="link-name">Exercism 练习</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.runoob.com/"><span class="link-name">菜鸟教程</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://github.com/jackfrued/Python-100-Days"><span class="link-name">Python 100 Days</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://github.com/jackfrued/Python-Core-50-Courses"><span class="link-name">Python 基础 50 课</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://docs.pythontab.com/"><span class="link-name">Python 在线手册中心</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://python3-cookbook.readthedocs.io/zh_CN/latest/index.html"><span class="link-name">Python Cookbook</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://github.com/microsoft/Web-Dev-For-Beginners"><span class="link-name">MS Web Dev Beginners</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://huggingface.co/"><span class="link-name">Hugging Face</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://github.com/sindresorhus/awesome"><span class="link-name">Awesome Lists</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
 
@@ -209,7 +217,6 @@
                     <li class="link-item"><a href="https://max.book118.com/"><span class="link-name">原创力文档</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://koyso.to/"><span class="link-name">Koyso</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.gamer520.com/"><span class="link-name">Switch520</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.kdocs.cn/l/cgB4uhRbBYAX"><span class="link-name">小樱桃资源库</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
 
@@ -222,10 +229,8 @@
                     <li class="link-item"><a href="https://crm.zoho.in/"><span class="link-name">Zoho CRM Leads</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://salesiq.zoho.in/bodorportal/mychats/"><span class="link-name">Zoho My Chats</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://mail.google.com/mail/u/0/"><span class="link-name">Gmail</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://mail.proton.me/u/0/all-drafts"><span class="link-name">Proton Mail</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://phb.onesight.com/"><span class="link-name">OneSight 社媒排行</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.thinkwithgoogle.com/intl/en-apac/"><span class="link-name">Think with Google</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.jgjs.net.cn/"><span class="link-name">激光技术</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://shop.adhmt.com/blog/"><span class="link-name">ADH Machine Blog</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://oa.bodor.com:8443/portal/"><span class="link-name">AWS BPM PaaS 门户</span><span class="arrow">↗</span></a></li>
                 </ul>
@@ -241,74 +246,39 @@
                     <li class="link-item"><a href="https://rennen.dev/archives/how-to-build-a-vmess-proxy-node"><span class="link-name">Vmess 节点搭建教程</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://free-ss.site/"><span class="link-name">免费 VLESS 账号</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://jichangtuijian.com/"><span class="link-name">机场推荐与评测</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://github.com/hwanz/SSR-V2ray-Trojan-vpn"><span class="link-name">SSR/V2ray 收集</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.ip2proxy.com/"><span class="link-name">IP2Proxy 检测</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://massgrave.dev/"><span class="link-name">MAS 激活脚本</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://12ft.io/"><span class="link-name">12ft (Paywall Remover)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://smallpdf.com/cn/translate-pdf"><span class="link-name">PDF 在线翻译</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://pan.baidusu.com/"><span class="link-name">百度网盘链接解析</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
 
             <div class="category-card">
                 <div class="cat-header">
                     <span class="cat-icon">🎬</span>
-                    <span class="cat-title">影视娱乐 (Media)</span>
+                    <span class="cat-title">娱乐与资讯 (Media)</span>
                 </div>
                 <ul class="link-list">
                     <li class="link-item"><a href="https://tv.garden/"><span class="link-name">Global Live TV</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="http://549.fr/"><span class="link-name">影视森林</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://yingshi.xiaok1.cn/"><span class="link-name">影视导航 (大白)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.novipnoad.com/"><span class="link-name">NO 视频</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.pianku.tv/"><span class="link-name">片库网</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="http://www.meijuhui520.com/"><span class="link-name">美剧汇</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.rebooo.com/"><span class="link-name">热播美剧</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://twitterxz.com/"><span class="link-name">Twitter 视频下载</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://fdownloader.net/zh-cn/facebook-reels-downloader"><span class="link-name">FB Reels Downloader</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="http://2581.replace.favo.gengnie.com/"><span class="link-name">虎牙直播</span><span class="arrow">↗</span></a></li>
-                </ul>
-            </div>
-
-            <div class="category-card">
-                <div class="cat-header">
-                    <span class="cat-icon">📰</span>
-                    <span class="cat-title">阅读资讯 (Read)</span>
-                </div>
-                <ul class="link-list">
                     <li class="link-item"><a href="https://www.bloomberg.com/asia"><span class="link-name">Bloomberg Asia</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://theonion.com/"><span class="link-name">The Onion (洋葱新闻)</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://theonion.com/"><span class="link-name">The Onion</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://chinadigitaltimes.net/chinese/146636.html"><span class="link-name">中国数字时代</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.urbandictionary.com/"><span class="link-name">Urban Dictionary</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.sciencedirect.com/"><span class="link-name">ScienceDirect</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://freemagazines.top/"><span class="link-name">Free Magazines</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.bookbub.com/"><span class="link-name">BookBub Ebooks</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://bookyell.com/"><span class="link-name">经典英文名著</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.woshipm.com/"><span class="link-name">人人都是产品经理</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://transit.jp/"><span class="link-name">TRANSIT.jp</span><span class="arrow">↗</span></a></li>
-                </ul>
-            </div>
-
-            <div class="category-card">
-                <div class="cat-header">
-                    <span class="cat-icon">🧩</span>
-                    <span class="cat-title">其他 (Misc)</span>
-                </div>
-                <ul class="link-list">
-                    <li class="link-item"><a href="https://www.52pojie.cn/"><span class="link-name">吾爱破解</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://archive.org/"><span class="link-name">Internet Archive</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://chatgpt.com/"><span class="link-name">ChatGPT</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://notegpt.io/"><span class="link-name">NoteGPT</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://transmart.qq.com/zh-CN/file"><span class="link-name">腾讯交互翻译</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.smry.ai/"><span class="link-name">Smry.ai</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://sjgwy.cpta.com.cn/lngwy2026/personalCenter.html"><span class="link-name">公考考生管理系统</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.fenbi.com/spa/pwa/remote/exam/"><span class="link-name">粉笔公考笔试</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://blog.share888.top/nav/"><span class="link-name">卡卡罗特导航</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
-<div class="category-card">
+            
+        </div>
+
+        <div class="section-title">Recommended Learning Resources</div>
+        <div class="grid">
+
+            <div class="category-card">
                 <div class="cat-header">
                     <span class="cat-icon">🔥</span>
-                    <span class="cat-title" style="color: #e74c3c;">硬核编程 (Coding)</span>
+                    <span class="cat-title" style="color: var(--accent-red);">硬核编程 (Coding)</span>
                 </div>
                 <ul class="link-list">
                     <li class="link-item"><a href="https://www.freecodecamp.org/"><span class="link-name">FreeCodeCamp (全球最强)</span><span class="arrow">↗</span></a></li>
@@ -316,7 +286,6 @@
                     <li class="link-item"><a href="https://cs50.harvard.edu/x/"><span class="link-name">CS50 (哈佛计算机神课)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://fullstackopen.com/zh/"><span class="link-name">Full Stack Open (芬兰赫大)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://developer.mozilla.org/zh-CN/"><span class="link-name">MDN Web Docs (前端圣经)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://roadmap.sh/"><span class="link-name">Roadmap.sh (学习路线图)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://leetcode.cn/"><span class="link-name">LeetCode (力扣刷题)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://skills.github.com/"><span class="link-name">GitHub Skills (官方互动课)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.kaggle.com/learn"><span class="link-name">Kaggle (数据科学首选)</span><span class="arrow">↗</span></a></li>
@@ -327,34 +296,32 @@
             <div class="category-card">
                 <div class="cat-header">
                     <span class="cat-icon">🏛</span>
-                    <span class="cat-title" style="color: #2980b9;">名校公开课 (University)</span>
+                    <span class="cat-title" style="color: var(--accent-blue);">名校公开课 (University)</span>
                 </div>
                 <ul class="link-list">
-                    <li class="link-item"><a href="https://ocw.mit.edu/"><span class="link-name">MIT OpenCourseWare (麻省)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://online.stanford.edu/free-courses"><span class="link-name">Stanford Online (斯坦福)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.coursera.org/courses?query=free"><span class="link-name">Coursera (免费旁听模式)</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://ocw.mit.edu/"><span class="link-name">MIT OpenCourseWare</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://online.stanford.edu/free-courses"><span class="link-name">Stanford Online</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://www.coursera.org/courses?query=free"><span class="link-name">Coursera (免费旁听)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.edx.org/"><span class="link-name">edX (哈佛/MIT联合)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://zh.khanacademy.org/"><span class="link-name">Khan Academy (可汗学院)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://oli.cmu.edu/open-learning-initiative-courses/"><span class="link-name">CMU Open Learning (卡梅)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://oyc.yale.edu/"><span class="link-name">Open Yale Courses (耶鲁)</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://oli.cmu.edu/open-learning-initiative-courses/"><span class="link-name">CMU Open Learning</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://oyc.yale.edu/"><span class="link-name">Open Yale Courses</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.icourse163.org/"><span class="link-name">中国大学 MOOC</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.xuetangx.com/"><span class="link-name">学堂在线 (清华主导)</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
 
             <div class="category-card">
                 <div class="cat-header">
                     <span class="cat-icon">🎨</span>
-                    <span class="cat-title" style="color: #9b59b6;">设计与灵感 (Design)</span>
+                    <span class="cat-title" style="color: var(--accent-purple);">设计与灵感 (Design)</span>
                 </div>
                 <ul class="link-list">
                     <li class="link-item"><a href="https://www.figma.com/resource-library/"><span class="link-name">Figma Learn (UI设计)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://dribbble.com/"><span class="link-name">Dribbble (顶级灵感库)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.behance.net/"><span class="link-name">Behance (Adobe作品集)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.awwwards.com/"><span class="link-name">Awwwards (网页设计奖)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://fonts.google.com/"><span class="link-name">Google Fonts (字体库)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://color.adobe.com/"><span class="link-name">Adobe Color (配色工具)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.canva.com/designschool/"><span class="link-name">Canva Design School</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://fonts.google.com/"><span class="link-name">Google Fonts</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://color.adobe.com/"><span class="link-name">Adobe Color</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://unsplash.com/"><span class="link-name">Unsplash (免费商用图)</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
@@ -362,29 +329,29 @@
             <div class="category-card">
                 <div class="cat-header">
                     <span class="cat-icon">🚀</span>
-                    <span class="cat-title" style="color: #f39c12;">职场与商业 (Business)</span>
+                    <span class="cat-title" style="color: var(--accent-orange);">职场与商业 (Business)</span>
                 </div>
                 <ul class="link-list">
                     <li class="link-item"><a href="https://www.ycombinator.com/library"><span class="link-name">Y Combinator (创业圣经)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://skillshop.withgoogle.com/"><span class="link-name">Google Digital Garage</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://academy.hubspot.com/"><span class="link-name">HubSpot Academy (营销)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://aws.amazon.com/cn/training/"><span class="link-name">AWS 免费培训 (云技术)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.notion.so/help/guides"><span class="link-name">Notion Academy (生产力)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.ted.com/talks"><span class="link-name">TED Talks (演讲技巧)</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://www.notion.so/help/guides"><span class="link-name">Notion Academy</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://www.ted.com/talks"><span class="link-name">TED Talks</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
 
             <div class="category-card">
                 <div class="cat-header">
                     <span class="cat-icon">📖</span>
-                    <span class="cat-title" style="color: #27ae60;">图书与文献 (Books)</span>
+                    <span class="cat-title" style="color: var(--accent-green);">图书与文献 (Books)</span>
                 </div>
                 <ul class="link-list">
-                    <li class="link-item"><a href="https://www.gutenberg.org/"><span class="link-name">Project Gutenberg (公版书)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://archive.org/"><span class="link-name">Internet Archive (档案馆)</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://www.gutenberg.org/"><span class="link-name">Project Gutenberg (公版)</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://archive.org/"><span class="link-name">Internet Archive</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://arxiv.org/"><span class="link-name">arXiv (最新学术论文)</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://scholar.google.com/"><span class="link-name">Google Scholar</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.wikihow.com/Main-Page"><span class="link-name">WikiHow (万物指南)</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://www.wikihow.com/Main-Page"><span class="link-name">WikiHow</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://openlibrary.org/"><span class="link-name">Open Library</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
@@ -395,109 +362,14 @@
                     <span class="cat-title" style="color: #16a085;">语言学习 (Language)</span>
                 </div>
                 <ul class="link-list">
-                    <li class="link-item"><a href="https://www.duolingo.com/"><span class="link-name">Duolingo (多邻国)</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://www.duolingo.com/"><span class="link-name">Duolingo</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.bbc.co.uk/learningenglish/"><span class="link-name">BBC Learning English</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.memrise.com/"><span class="link-name">Memrise (忆术家)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.cambridgeenglish.org/learning-english/"><span class="link-name">Cambridge English</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.nhk.or.jp/lesson/zh/"><span class="link-name">NHK 简明日语</span><span class="arrow">↗</span></a></li>
-                </ul>
-            </div><div class="category-card">
-                <div class="cat-header">
-                    <span class="cat-icon">🔥</span>
-                    <span class="cat-title" style="color: #e74c3c;">硬核编程 (Coding)</span>
-                </div>
-                <ul class="link-list">
-                    <li class="link-item"><a href="https://www.freecodecamp.org/"><span class="link-name">FreeCodeCamp (全球最强)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.theodinproject.com/"><span class="link-name">The Odin Project (全栈必修)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://cs50.harvard.edu/x/"><span class="link-name">CS50 (哈佛计算机神课)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://fullstackopen.com/zh/"><span class="link-name">Full Stack Open (芬兰赫大)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://developer.mozilla.org/zh-CN/"><span class="link-name">MDN Web Docs (前端圣经)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://roadmap.sh/"><span class="link-name">Roadmap.sh (学习路线图)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://leetcode.cn/"><span class="link-name">LeetCode (力扣刷题)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://skills.github.com/"><span class="link-name">GitHub Skills (官方互动课)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.kaggle.com/learn"><span class="link-name">Kaggle (数据科学首选)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://learn.microsoft.com/zh-cn/training/"><span class="link-name">Microsoft Learn</span><span class="arrow">↗</span></a></li>
-                </ul>
-            </div>
-
-            <div class="category-card">
-                <div class="cat-header">
-                    <span class="cat-icon">🏛</span>
-                    <span class="cat-title" style="color: #2980b9;">名校公开课 (University)</span>
-                </div>
-                <ul class="link-list">
-                    <li class="link-item"><a href="https://ocw.mit.edu/"><span class="link-name">MIT OpenCourseWare (麻省)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://online.stanford.edu/free-courses"><span class="link-name">Stanford Online (斯坦福)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.coursera.org/courses?query=free"><span class="link-name">Coursera (免费旁听模式)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.edx.org/"><span class="link-name">edX (哈佛/MIT联合)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://zh.khanacademy.org/"><span class="link-name">Khan Academy (可汗学院)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://oli.cmu.edu/open-learning-initiative-courses/"><span class="link-name">CMU Open Learning (卡梅)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://oyc.yale.edu/"><span class="link-name">Open Yale Courses (耶鲁)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.icourse163.org/"><span class="link-name">中国大学 MOOC</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.xuetangx.com/"><span class="link-name">学堂在线 (清华主导)</span><span class="arrow">↗</span></a></li>
-                </ul>
-            </div>
-
-            <div class="category-card">
-                <div class="cat-header">
-                    <span class="cat-icon">🎨</span>
-                    <span class="cat-title" style="color: #9b59b6;">设计与灵感 (Design)</span>
-                </div>
-                <ul class="link-list">
-                    <li class="link-item"><a href="https://www.figma.com/resource-library/"><span class="link-name">Figma Learn (UI设计)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://dribbble.com/"><span class="link-name">Dribbble (顶级灵感库)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.behance.net/"><span class="link-name">Behance (Adobe作品集)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.awwwards.com/"><span class="link-name">Awwwards (网页设计奖)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://fonts.google.com/"><span class="link-name">Google Fonts (字体库)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://color.adobe.com/"><span class="link-name">Adobe Color (配色工具)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.canva.com/designschool/"><span class="link-name">Canva Design School</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://unsplash.com/"><span class="link-name">Unsplash (免费商用图)</span><span class="arrow">↗</span></a></li>
-                </ul>
-            </div>
-
-            <div class="category-card">
-                <div class="cat-header">
-                    <span class="cat-icon">🚀</span>
-                    <span class="cat-title" style="color: #f39c12;">职场与商业 (Business)</span>
-                </div>
-                <ul class="link-list">
-                    <li class="link-item"><a href="https://www.ycombinator.com/library"><span class="link-name">Y Combinator (创业圣经)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://skillshop.withgoogle.com/"><span class="link-name">Google Digital Garage</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://academy.hubspot.com/"><span class="link-name">HubSpot Academy (营销)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://aws.amazon.com/cn/training/"><span class="link-name">AWS 免费培训 (云技术)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.notion.so/help/guides"><span class="link-name">Notion Academy (生产力)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.ted.com/talks"><span class="link-name">TED Talks (演讲技巧)</span><span class="arrow">↗</span></a></li>
-                </ul>
-            </div>
-
-            <div class="category-card">
-                <div class="cat-header">
-                    <span class="cat-icon">📖</span>
-                    <span class="cat-title" style="color: #27ae60;">图书与文献 (Books)</span>
-                </div>
-                <ul class="link-list">
-                    <li class="link-item"><a href="https://www.gutenberg.org/"><span class="link-name">Project Gutenberg (公版书)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://archive.org/"><span class="link-name">Internet Archive (档案馆)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://arxiv.org/"><span class="link-name">arXiv (最新学术论文)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://scholar.google.com/"><span class="link-name">Google Scholar</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.wikihow.com/Main-Page"><span class="link-name">WikiHow (万物指南)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://openlibrary.org/"><span class="link-name">Open Library</span><span class="arrow">↗</span></a></li>
-                </ul>
-            </div>
-
-            <div class="category-card">
-                <div class="cat-header">
-                    <span class="cat-icon">🗣</span>
-                    <span class="cat-title" style="color: #16a085;">语言学习 (Language)</span>
-                </div>
-                <ul class="link-list">
-                    <li class="link-item"><a href="https://www.duolingo.com/"><span class="link-name">Duolingo (多邻国)</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.bbc.co.uk/learningenglish/"><span class="link-name">BBC Learning English</span><span class="arrow">↗</span></a></li>
-                    <li class="link-item"><a href="https://www.memrise.com/"><span class="link-name">Memrise (忆术家)</span><span class="arrow">↗</span></a></li>
+                    <li class="link-item"><a href="https://www.memrise.com/"><span class="link-name">Memrise</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.cambridgeenglish.org/learning-english/"><span class="link-name">Cambridge English</span><span class="arrow">↗</span></a></li>
                     <li class="link-item"><a href="https://www.nhk.or.jp/lesson/zh/"><span class="link-name">NHK 简明日语</span><span class="arrow">↗</span></a></li>
                 </ul>
             </div>
+
         </div>
     </div>
 
