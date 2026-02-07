@@ -3,187 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Trending | Carl Louis</title>
+    <title>GitHub Top 100 | Carl Louis</title>
     <style>
         :root {
-            --bg-color: #0D1117; /* GitHub 暗黑模式背景 */
-            --card-bg: #161B22;
-            --text-main: #C9D1D9;
-            --text-sub: #8B949E;
-            --accent-blue: #58A6FF;
-            --border: #30363D;
-            --gold: #FFD700;
-            --silver: #C0C0C0;
-            --bronze: #CD7F32;
-            --radius: 12px;
-            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            --bg-color: #F5F5F7;
+            --col-bg: #FFFFFF;
+            --text-main: #1D1D1F;
+            --text-sub: #86868B;
+            --accent-blue: #0071E3;
+            --accent-fire: #FF3B30;
+            --accent-fork: #5856D6;
+            --accent-trend: #34C759;
+            --border: rgba(0,0,0,0.08);
+            --shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
             color: var(--text-main);
-            font-family: var(--font-stack);
-            padding: 40px 20px;
-            min-height: 100vh;
-        }
-
-        .container { max-width: 800px; margin: 0 auto; }
-
-        /* --- Header --- */
-        header {
+            height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 20px;
+            flex-direction: column;
+            overflow: hidden; /* 禁止整页滚动，只允许列滚动 */
         }
 
-        .title h1 { font-size: 2rem; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        .title p { color: var(--text-sub); margin-top: 5px; font-size: 0.9rem; }
+        /* --- 顶部导航 --- */
+        header {
+            padding: 20px 30px;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .header-title h1 { font-size: 1.5rem; font-weight: 800; }
+        .header-title p { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
 
         .back-btn {
-            text-decoration: none; color: var(--accent-blue);
-            font-weight: 600; font-size: 0.9rem;
-            border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px;
+            text-decoration: none; color: var(--text-main); font-weight: 600;
+            padding: 8px 16px; background: white; border-radius: 100px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 0.9rem;
             transition: 0.2s;
         }
-        .back-btn:hover { background: var(--border); }
+        .back-btn:hover { transform: scale(1.05); }
 
-        /* --- 列表样式 --- */
-        .repo-list { display: flex; flex-direction: column; gap: 15px; }
-
-        .repo-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+        /* --- 三列布局容器 --- */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 三等分 */
+            gap: 20px;
             padding: 20px;
+            flex-grow: 1;
+            min-height: 0; /* 关键：允许子元素滚动 */
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 每一列的容器 */
+        .column {
+            background: var(--col-bg);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        /* 列标题 */
+        .col-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.9);
+            position: sticky; top: 0; z-index: 2;
+        }
+        .col-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .col-subtitle { font-size: 0.8rem; color: var(--text-sub); margin-top: 5px; }
+
+        /* 滚动列表区域 */
+        .list-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        /* 隐藏滚动条但保留功能 */
+        .list-container::-webkit-scrollbar { width: 6px; }
+        .list-container::-webkit-scrollbar-thumb { background: #E0E0E0; border-radius: 3px; }
+
+        /* --- 项目卡片 --- */
+        .item {
             display: flex;
             align-items: flex-start;
-            gap: 20px;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
             text-decoration: none;
             color: var(--text-main);
-            transition: transform 0.2s, border-color 0.2s;
+            transition: background 0.2s;
+            border-radius: 8px;
         }
-        .repo-card:hover { transform: translateY(-2px); border-color: var(--text-sub); }
+        .item:hover { background: #F5F7FA; }
 
-        /* 排名勋章 */
-        .rank-badge {
-            font-size: 1.5rem; font-weight: 800; width: 40px; text-align: center;
-            color: var(--text-sub); flex-shrink: 0; padding-top: 2px;
+        /* 排名数字 */
+        .rank {
+            font-size: 1.2rem; font-weight: 800; color: #D1D1D6;
+            min-width: 30px; text-align: center; margin-top: 2px;
         }
-        /* 前三名特效 */
-        .repo-card[data-rank="1"] .rank-badge { color: var(--gold); text-shadow: 0 0 10px rgba(255,215,0,0.3); font-size: 2rem; }
-        .repo-card[data-rank="2"] .rank-badge { color: var(--silver); font-size: 1.8rem; }
-        .repo-card[data-rank="3"] .rank-badge { color: var(--bronze); font-size: 1.8rem; }
+        /* 前三名颜色 */
+        .item:nth-child(1) .rank { color: #FFD700; }
+        .item:nth-child(2) .rank { color: #C0C0C0; }
+        .item:nth-child(3) .rank { color: #CD7F32; }
 
-        .content { flex-grow: 1; min-width: 0; }
+        .content { flex: 1; min-width: 0; }
+        .repo-name { font-size: 0.95rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        .repo-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .repo-name { font-size: 1.2rem; font-weight: 600; color: var(--accent-blue); }
-        .repo-desc { font-size: 0.9rem; color: var(--text-sub); line-height: 1.5; margin-bottom: 12px; }
+        .repo-desc { 
+            font-size: 0.8rem; color: var(--text-sub); line-height: 1.4; 
+            margin-bottom: 8px; 
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; /* 最多显示2行 */
+        }
 
-        /* 底部数据栏 */
-        .meta-row { display: flex; gap: 15px; font-size: 0.8rem; color: var(--text-sub); align-items: center; }
-        .meta-item { display: flex; align-items: center; gap: 4px; }
-        .lang-circle { width: 10px; height: 10px; border-radius: 50%; background: #ccc; }
-
-        /* 加载状态 */
-        .loading { text-align: center; padding: 50px; color: var(--text-sub); }
+        .meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-sub); }
+        .stat-badge { font-weight: 600; display: flex; align-items: center; gap: 4px; }
         
-        /* 手机适配 */
-        @media (max-width: 600px) {
-            .repo-card { flex-direction: column; gap: 10px; }
-            .rank-badge { width: 100%; text-align: left; margin-bottom: 5px; }
+        .loading { text-align: center; padding: 40px; color: var(--text-sub); font-size: 0.9rem; }
+
+        /* 移动端适配：变为竖向排列 */
+        @media (max-width: 900px) {
+            body { height: auto; overflow: auto; }
+            .dashboard { grid-template-columns: 1fr; overflow: visible; }
+            .column { height: 600px; margin-bottom: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <div class="title">
-                <h1>🔥 GitHub Trending</h1>
-                <p>Global Top Starred Repositories (Real-time)</p>
-            </div>
-            <a href="index.html" class="back-btn">Exit</a>
-        </header>
-
-        <div id="list" class="repo-list">
-            <div class="loading">Loading top projects...</div>
+    <header>
+        <div class="header-title">
+            <h1>GitHub Top 100 🚀</h1>
+            <p>全网开源项目实时监控看板 (Top 100/Column)</p>
         </div>
+        <a href="index.html" class="back-btn">Close</a>
+    </header>
+
+    <div class="dashboard">
+        
+        <div class="column">
+            <div class="col-header">
+                <div class="col-title" style="color: var(--accent-fire);">🔥 最多星星 (Most Stars)</div>
+                <div class="col-subtitle">历史累计 Star 数最高的殿堂级项目</div>
+            </div>
+            <div class="list-container" id="col-stars">
+                <div class="loading">正在加载 Top 100...</div>
+            </div>
+        </div>
+
+        <div class="column">
+            <div class="col-header">
+                <div class="col-title" style="color: var(--accent-fork);">⚡️ 最受欢迎 (Most Forks)</div>
+                <div class="col-subtitle">被引用、复制和学习次数最多的项目</div>
+            </div>
+            <div class="list-container" id="col-forks">
+                <div class="loading">正在加载 Top 100...</div>
+            </div>
+        </div>
+
+        <div class="column">
+            <div class="col-header">
+                <div class="col-title" style="color: var(--accent-trend);">🚀 飙升最快 (Skyrocketing)</div>
+                <div class="col-subtitle">最近 30 天内创建且爆火的新项目</div>
+            </div>
+            <div class="list-container" id="col-trend">
+                <div class="loading">正在加载 Top 100...</div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // 编程语言颜色表
-        const colors = {
-            'JavaScript': '#f1e05a', 'TypeScript': '#2b7489', 'Vue': '#41b883', 'Python': '#3572A5',
-            'Java': '#b07219', 'Go': '#00ADD8', 'C++': '#f34b7d', 'C': '#555555', 'HTML': '#e34c26'
-        };
+        // --- 简单的“中文化”替换字典 ---
+        // GitHub API 不提供中文，我们用 JS 简单替换常见的技术词汇，让界面看起来更像中文
+        function translateDesc(text) {
+            if (!text) return "暂无简介";
+            let cn = text;
+            cn = cn.replace(/A declarative, efficient, and flexible JavaScript library/gi, "一个高效、灵活的 JS 库");
+            cn = cn.replace(/framework/gi, "框架");
+            cn = cn.replace(/library/gi, "库");
+            cn = cn.replace(/collection/gi, "合集");
+            cn = cn.replace(/guide/gi, "指南");
+            cn = cn.replace(/tutorial/gi, "教程");
+            cn = cn.replace(/tool/gi, "工具");
+            cn = cn.replace(/for building/gi, "用于构建");
+            cn = cn.replace(/Open Source/gi, "开源");
+            cn = cn.replace(/interview/gi, "面试");
+            cn = cn.replace(/roadmap/gi, "路线图");
+            cn = cn.replace(/system/gi, "系统");
+            return cn;
+        }
 
-        async function loadTrending() {
-            try {
-                // 查询 GitHub API：按 star 数量倒序，取前 15 名
-                // q=stars:>100000 筛选超级热门项目
-                const res = await fetch('https://api.github.com/search/repositories?q=stars:>100000&sort=stars&order=desc&per_page=15');
-                const data = await res.json();
-                
-                const container = document.getElementById('list');
-                container.innerHTML = '';
+        // --- 通用渲染函数 ---
+        function renderList(containerId, items, icon, color) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            items.forEach((repo, index) => {
+                const rank = index + 1;
+                const starCount = (repo.stargazers_count / 1000).toFixed(1) + 'k';
+                const lang = repo.language || 'Code';
+                const desc = translateDesc(repo.description);
 
-                if (!data.items) {
-                    container.innerHTML = '<div class="loading">API Rate Limit. Please try later.</div>';
-                    return;
-                }
-
-                data.items.forEach((repo, i) => {
-                    const rank = i + 1;
-                    const langColor = colors[repo.language] || '#8b949e';
-                    // 格式化数字 (例如 300000 -> 300k)
-                    const stars = (repo.stargazers_count / 1000).toFixed(1) + 'k';
-                    const forks = (repo.forks_count / 1000).toFixed(1) + 'k';
-
-                    // 奖杯图标
-                    let trophy = `#${rank}`;
-                    if (rank === 1) trophy = '🏆';
-                    if (rank === 2) trophy = '🥈';
-                    if (rank === 3) trophy = '🥉';
-
-                    const html = `
-                        <a href="${repo.html_url}" target="_blank" class="repo-card" data-rank="${rank}">
-                            <div class="rank-badge">${trophy}</div>
-                            <div class="content">
-                                <div class="repo-header">
-                                    <span class="repo-name">${repo.full_name}</span>
-                                </div>
-                                <div class="repo-desc">${repo.description || 'No description.'}</div>
-                                <div class="meta-row">
-                                    <div class="meta-item" style="color:#E3B341">
-                                        <svg height="16" viewBox="0 0 16 16" width="16" fill="currentColor"><path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"></path></svg>
-                                        ${stars}
-                                    </div>
-                                    <div class="meta-item">
-                                        <svg height="16" viewBox="0 0 16 16" width="16" fill="currentColor"><path d="M5 3.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm0 2.122a2.25 2.25 0 10-1.5 0v.878A2.25 2.25 0 005.75 8.5h1.5v2.128a2.251 2.251 0 101.5 0V8.5h1.5a2.25 2.25 0 002.25-2.25v-.878a2.25 2.25 0 10-1.5 0v.878a.75.75 0 01-.75.75h-4.5A.75.75 0 015 6.25v-.878zm3.75 7.378a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm3-8.75a.75.75 0 100-1.5.75.75 0 000 1.5z"></path></svg>
-                                        ${forks}
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="lang-circle" style="background:${langColor}"></span>
-                                        ${repo.language || 'Unknown'}
-                                    </div>
-                                </div>
+                const html = `
+                    <a href="${repo.html_url}" target="_blank" class="item">
+                        <div class="rank">${rank}</div>
+                        <div class="content">
+                            <div class="repo-name">${repo.name}</div>
+                            <div class="repo-desc">${desc}</div>
+                            <div class="meta">
+                                <span class="stat-badge" style="color:${color}">
+                                    ${icon} ${starCount}
+                                </span>
+                                <span>${lang}</span>
                             </div>
-                        </a>
-                    `;
-                    container.innerHTML += html;
-                });
-            } catch (err) {
-                document.getElementById('list').innerHTML = '<div class="loading">Failed to load.</div>';
+                        </div>
+                    </a>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // --- 1. 获取最多星星 (Stars) ---
+        async function fetchMostStars() {
+            try {
+                // per_page=100 拿满100个
+                const res = await fetch('https://api.github.com/search/repositories?q=stars:>1000&sort=stars&per_page=100');
+                const data = await res.json();
+                renderList('col-stars', data.items, '★', '#FF3B30');
+            } catch (e) {
+                console.error(e);
             }
         }
 
-        loadTrending();
+        // --- 2. 获取最多 Forks (Popular) ---
+        async function fetchMostForks() {
+            try {
+                const res = await fetch('https://api.github.com/search/repositories?q=forks:>1000&sort=forks&per_page=100');
+                const data = await res.json();
+                renderList('col-forks', data.items, '⚡️', '#5856D6');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // --- 3. 获取飙升最快 (Trending New) ---
+        // 逻辑：搜索 "最近30天创建" 的项目，并按 Star 排序
+        async function fetchTrending() {
+            try {
+                // 计算30天前的日期
+                const date = new Date();
+                date.setDate(date.getDate() - 30);
+                const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+                const res = await fetch(`https://api.github.com/search/repositories?q=created:>${dateString}&sort=stars&per_page=100`);
+                const data = await res.json();
+                renderList('col-trend', data.items, '🚀', '#34C759');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // --- 执行加载 ---
+        // 为了防止同时触发 GitHub API 限制 (60次/小时)，我们稍微延时错开请求
+        fetchMostStars();
+        setTimeout(fetchMostForks, 1000);
+        setTimeout(fetchTrending, 2000);
+
     </script>
 
 </body>
