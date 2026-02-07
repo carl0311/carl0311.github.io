@@ -4,21 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carl Louis | Workspace</title>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.js"></script>
     <style>
         :root {
             /* --- 苹果风核心配色 --- */
             --bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #f2f2f7 100%);
-            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-bg: rgba(255, 255, 255, 0.65); /* 稍微调低透明度以适应动态内容 */
             --card-border: rgba(255, 255, 255, 0.4);
-            --backdrop-blur: 25px;
+            --backdrop-blur: 30px;
             --text-primary: #1d1d1f;
             --text-secondary: #86868b;
+            --accent-blue: #0071e3;
             --gradient-blue: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --gradient-green: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
             --gradient-orange: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
             --gradient-purple: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
             --gradient-yellow: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
-            --accent-blue-solid: #0071e3;
+            --gradient-dark: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
             --shadow-md: 0 8px 30px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.5);
             --shadow-hover: 0 20px 40px rgba(0,0,0,0.1);
             --radius-card: 28px;
@@ -42,19 +44,20 @@
         .bento-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(4, minmax(120px, auto));
+            grid-template-rows: repeat(4, minmax(130px, auto)); /* 稍微调高最小高度 */
             gap: 24px;
-            max-width: 1000px;
+            max-width: 1100px;
             width: 100%;
         }
 
+        /* --- 卡片通用样式 --- */
         .card {
             background-color: var(--card-bg);
             backdrop-filter: blur(var(--backdrop-blur));
             -webkit-backdrop-filter: blur(var(--backdrop-blur));
             border: 1px solid var(--card-border);
             border-radius: var(--radius-card);
-            padding: 32px;
+            padding: 30px;
             text-decoration: none;
             color: var(--text-primary);
             display: flex;
@@ -66,45 +69,72 @@
             overflow: hidden;
         }
 
-        .card:hover { transform: scale(1.03) translateY(-4px); box-shadow: var(--shadow-hover); background-color: rgba(255, 255, 255, 0.85); }
+        .card:hover { transform: scale(1.02) translateY(-4px); box-shadow: var(--shadow-hover); background-color: rgba(255, 255, 255, 0.85); }
 
-        h1 { font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(120deg, #000000, #434343); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(120deg, #000000, #434343); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .card-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.03em; }
-        .card-desc { font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; line-height: 1.4; }
+        .card-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em; }
+        .card-desc { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; line-height: 1.4; }
 
         .icon-box {
-            width: 52px; height: 52px; border-radius: var(--radius-icon);
+            width: 50px; height: 50px; border-radius: var(--radius-icon);
             display: flex; align-items: center; justify-content: center;
-            font-size: 26px; color: white; margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            font-size: 24px; color: white; margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
+        
+        /* 颜色类 */
         .bg-blue { background: var(--gradient-blue); }
         .bg-green { background: var(--gradient-green); }
         .bg-orange { background: var(--gradient-orange); }
         .bg-purple { background: var(--gradient-purple); }
         .bg-yellow { background: var(--gradient-yellow); }
+        .bg-dark { background: var(--gradient-dark); }
 
-        /* 特殊卡片 */
-        .card-profile { grid-column: span 2; grid-row: span 2; justify-content: center; }
-        .tag { display: inline-block; font-size: 0.8rem; padding: 8px 16px; background: rgba(0, 113, 227, 0.1); color: var(--accent-blue-solid); border-radius: 100px; font-weight: 600; margin-top: 20px; }
+        /* --- 特殊卡片布局 --- */
+        .card-profile { grid-column: span 2; grid-row: span 1; justify-content: center; }
+        .tag { display: inline-block; font-size: 0.75rem; padding: 6px 12px; background: rgba(0, 113, 227, 0.1); color: #0071e3; border-radius: 100px; font-weight: 600; margin-top: 15px; }
 
-        .card-tool { grid-column: span 1; grid-row: span 2; }
-        .tool-mockup { flex-grow: 1; margin-top: 25px; background: rgba(255,255,255,0.9); border-radius: 18px; position: relative; border: 1px solid rgba(0,0,0,0.05); }
-        .mockup-bar { height: 12px; background: #ECECEC; border-radius: 6px; margin: 15px 15px 0 15px; width: 60%; }
-        .mockup-bar.short { width: 40%; }
+        /* --- 全新的 Widget 卡片 (时间+天气) --- */
+        .card-widget {
+            grid-column: span 2;
+            grid-row: span 1;
+            padding: 25px 35px;
+            display: flex;
+            flex-direction: row; /* 横向排列 */
+            align-items: center;
+            justify-content: space-between;
+        }
 
-        .card-small { grid-column: span 1; grid-row: span 1; align-items: center; justify-content: center; text-align: center; }
+        /* 左侧：时间日期 */
+        .widget-left { display: flex; flex-direction: column; }
+        .clock { font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+        .date { font-size: 1rem; color: var(--text-secondary); margin-top: 5px; font-weight: 500; }
+        .lunar { font-size: 0.85rem; color: #0071e3; margin-top: 4px; font-weight: 600; }
+
+        /* 右侧：天气 */
+        .widget-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+        .weather-icon { font-size: 2.5rem; margin-bottom: 5px; }
+        .weather-temp { font-size: 1.5rem; font-weight: 700; }
+        .weather-loc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
         
-        .card-wide { grid-column: span 2; grid-row: span 1; flex-direction: row; align-items: center; }
-        .arrow-btn { width: 40px; height: 40px; background: rgba(0,0,0,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent-blue-solid); }
+        /* 工具卡片 */
+        .card-tool { grid-column: span 1; grid-row: span 2; }
+        .tool-mockup { flex-grow: 1; margin-top: 20px; background: rgba(255,255,255,0.9); border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); }
 
+        /* 小卡片 & 长条 */
+        .card-small { grid-column: span 1; grid-row: span 1; align-items: center; justify-content: center; text-align: center; }
+        .card-wide { grid-column: span 2; grid-row: span 1; flex-direction: row; align-items: center; }
+        .arrow-btn { width: 40px; height: 40px; background: rgba(0,0,0,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0071e3; }
+
+        /* 手机适配 */
         @media (max-width: 768px) {
             body { padding: 20px 15px; }
             .bento-grid { grid-template-columns: 1fr; gap: 20px; }
-            .card { grid-column: span 1 !important; grid-row: span 1 !important; min-height: 180px; }
-            .card-small { align-items: flex-start; padding: 25px; text-align: left; }
+            .card { grid-column: span 1 !important; grid-row: span 1 !important; min-height: 160px; }
             h1 { font-size: 2.2rem; }
+            .card-widget { flex-direction: row; justify-content: space-between; } 
+            .clock { font-size: 2.5rem; }
         }
     </style>
 </head>
@@ -113,11 +143,24 @@
     <div class="bento-grid">
         <div class="card card-profile">
             <div>
-                <h1>Carl Louis.</h1>
-                <p class="card-desc" style="font-size: 1.1rem; margin-top: 8px;">
-                    Creating digital experiences &<br>exploring the unknown.
-                </p>
+                <h1>Carl Louis</h1>
+                <p class="card-desc">Creating digital experiences & exploring the unknown.</p>
                 <span class="tag"> Developer & Writer</span>
+            </div>
+        </div>
+
+        <div class="card card-widget">
+            <div class="widget-left">
+                <div class="clock" id="bj-time">00:00</div>
+                <div class="date" id="bj-date">Loading...</div>
+                <div class="lunar" id="bj-lunar">正在计算...</div>
+            </div>
+            <div class="widget-right">
+                <div class="weather-icon" id="weather-icon">🌤</div>
+                <div class="weather-temp" id="weather-temp">--°C</div>
+                <div class="weather-loc">
+                    <span style="font-size:1rem;">📍</span> <span id="weather-city">Locating...</span>
+                </div>
             </div>
         </div>
 
@@ -127,10 +170,7 @@
                 <div class="card-title">号码验证</div>
                 <div class="card-desc">数据清洗与格式化</div>
             </div>
-            <div class="tool-mockup">
-                <div class="mockup-bar"></div>
-                <div class="mockup-bar short"></div>
-            </div>
+            <div class="tool-mockup"></div>
         </a>
 
         <a href="./translator.html" class="card card-tool">
@@ -139,38 +179,43 @@
                 <div class="card-title">智能翻译</div>
                 <div class="card-desc">多语言即时转换</div>
             </div>
-            <div class="tool-mockup" style="background: rgba(52, 199, 89, 0.1);">
-                <div class="mockup-bar" style="background: rgba(52, 199, 89, 0.2);"></div>
-                <div class="mockup-bar short" style="background: rgba(52, 199, 89, 0.2);"></div>
-            </div>
+            <div class="tool-mockup" style="background: rgba(52, 199, 89, 0.1);"></div>
         </a>
 
         <a href="./bookmarks.html" class="card card-small">
             <div class="icon-box bg-yellow" style="margin-bottom: 5px;">⭐️</div>
             <div class="card-title" style="font-size: 1rem; margin-top: 5px;">Library</div>
-            <div class="card-desc" style="font-size: 0.8rem;">我的收藏库</div>
+            <div class="card-desc" style="font-size: 0.8rem;">我的收藏</div>
         </a>
 
         <a href="./coffee.html" class="card card-small">
-    <div class="icon-box bg-orange" style="margin-bottom: 5px;">☕️</div>
-    <div class="card-title" style="font-size: 1rem; margin-top: 5px;">Wiki</div>
-    <div class="card-desc" style="font-size: 0.8rem;">咖啡百科</div>
-</a>
+            <div class="icon-box bg-orange" style="margin-bottom: 5px;">☕️</div>
+            <div class="card-title" style="font-size: 1rem; margin-top: 5px;">Wiki</div>
+            <div class="card-desc" style="font-size: 0.8rem;">咖啡百科</div>
+        </a>
+        
+        <a href="./games.html" class="card card-small">
+            <div class="icon-box bg-purple" style="margin-bottom: 5px;">🎮</div>
+            <div class="card-title" style="font-size: 1rem; margin-top: 5px;">Arcade</div>
+            <div class="card-desc" style="font-size: 0.8rem;">游戏厅</div>
+        </a>
 
-        <a href="./games.html" class="card card-small" style="text-decoration: none;">
-    <div class="icon-box" style="background: linear-gradient(135deg, #8E44AD 0%, #9B59B6 100%); margin-bottom: 5px;">
-        🎮
-    </div>
-    <div class="card-title" style="font-size: 1rem; margin-top: 5px;">Arcade</div>
-    <div class="card-desc" style="font-size: 0.8rem;">怀旧游戏厅</div>
-</a>
-        <a href="./projects.html" class="card card-small" style="text-decoration: none;">
-    <div class="icon-box" style="background: #24292e; margin-bottom: 5px;">
-        <span style="color:white; font-size: 1.5rem; font-weight:bold;">Git</span>
-    </div>
-    <div class="card-title" style="font-size: 1rem; margin-top: 5px;">Projects</div>
-    <div class="card-desc" style="font-size: 0.8rem;">开源贡献排行</div>
-</a>
+        <a href="./projects.html" class="card card-small">
+            <div class="icon-box bg-dark" style="margin-bottom: 5px;">
+                <span style="font-weight:bold; font-size:1.2rem;">Git</span>
+            </div>
+            <div class="card-title" style="font-size: 1rem; margin-top: 5px;">Projects</div>
+            <div class="card-desc" style="font-size: 0.8rem;">开源排行</div>
+        </a>
+
+        <div class="card card-wide">
+            <div style="flex-grow: 1;">
+                <div class="card-title">Project: Novel</div>
+                <div class="card-desc">关于古墓与超自然的构思</div>
+            </div>
+            <div class="arrow-btn">→</div>
+        </div>
+        
         <a href="mailto:your@email.com" class="card card-wide">
              <div style="flex-grow: 1;">
                 <div class="card-title">Get in Touch</div>
@@ -181,8 +226,97 @@
 
     </div>
 
+    <script>
+        // --- 1. 北京时间与日期逻辑 ---
+        function updateTime() {
+            const now = new Date();
+            // 强制转换为北京时间对象
+            const bjTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Shanghai"}));
+            
+            // 更新时间 (HH:MM)
+            const hours = String(bjTime.getHours()).padStart(2, '0');
+            const minutes = String(bjTime.getMinutes()).padStart(2, '0');
+            document.getElementById('bj-time').textContent = `${hours}:${minutes}`;
+
+            // 更新日期 (2月6日 周五)
+            const month = bjTime.getMonth() + 1;
+            const day = bjTime.getDate();
+            const weeks = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+            const week = weeks[bjTime.getDay()];
+            document.getElementById('bj-date').textContent = `${month}月${day}日 ${week}`;
+            
+            // --- 2. 农历逻辑 (使用 Lunar.js) ---
+            try {
+                // Solar.fromYmd(年, 月, 日)
+                const solar = Solar.fromYmd(bjTime.getFullYear(), month, day);
+                const lunar = solar.getLunar();
+                
+                // 格式：农历正月初一 [春节]
+                let lunarText = `农历${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`;
+                
+                // 如果有节日，显示节日
+                const festivals = lunar.getFestivals();
+                if (festivals.length > 0) {
+                    lunarText += ` · ${festivals[0]}`;
+                } else {
+                    // 如果没有节日，显示节气
+                    const jieqi = lunar.getJieQi();
+                    if (jieqi) lunarText += ` · ${jieqi}`;
+                }
+                
+                document.getElementById('bj-lunar').textContent = lunarText;
+            } catch (e) {
+                console.error("Lunar calc error:", e);
+                document.getElementById('bj-lunar').textContent = "农历计算中...";
+            }
+        }
+
+        // 每秒更新一次时间
+        setInterval(updateTime, 1000);
+        updateTime(); // 初始化执行
+
+        // --- 3. 天气逻辑 (使用 wttr.in JSON API) ---
+        async function fetchWeather() {
+            try {
+                // format=j1 返回 JSON 数据
+                const response = await fetch('https://wttr.in/?format=j1');
+                const data = await response.json();
+                
+                const current = data.current_condition[0];
+                const area = data.nearest_area[0];
+
+                // 温度
+                document.getElementById('weather-temp').textContent = `${current.temp_C}°C`;
+                
+                // 城市 (优先显示中文名，如无则显示英文)
+                const city = area.areaName[0].value;
+                document.getElementById('weather-city').textContent = city;
+
+                // 天气图标映射 (wttr.in 返回的是文字描述，我们需要手动映射成 Emoji)
+                const weatherDesc = current.weatherDesc[0].value.toLowerCase();
+                let icon = '☁️'; // 默认多云
+                
+                if (weatherDesc.includes('sun') || weatherDesc.includes('clear')) icon = '☀️';
+                else if (weatherDesc.includes('rain') || weatherDesc.includes('shower')) icon = 'Hz';
+                else if (weatherDesc.includes('snow')) icon = '❄️';
+                else if (weatherDesc.includes('thunder')) icon = '⚡️';
+                else if (weatherDesc.includes('fog') || weatherDesc.includes('mist')) icon = '🌫';
+                else if (weatherDesc.includes('cloud') || weatherDesc.includes('overcast')) icon = '☁️';
+
+                // 如果是下雨，用伞
+                if (weatherDesc.includes('rain')) icon = '🌧';
+
+                document.getElementById('weather-icon').textContent = icon;
+
+            } catch (error) {
+                console.error("Weather fetch failed:", error);
+                document.getElementById('weather-city').textContent = "Unavailable";
+            }
+        }
+
+        // 页面加载后获取天气
+        fetchWeather();
+    </script>
+
 </body>
 </html>
-
-
-
