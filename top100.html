@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Top 100 | AI 智能缓存版</title>
+    <title>GitHub Top 100 | 极速缓存版</title>
     <style>
         :root {
             --bg-color: #F5F5F7;
@@ -47,11 +47,11 @@
 
         .header-title h1 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
         .header-desc { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
+        .cache-status { font-size: 0.75rem; color: #34C759; margin-left: 10px; opacity: 0; transition: opacity 0.5s; font-weight: 600; }
         
         /* 顶部操作区 */
         .header-actions { display: flex; align-items: center; gap: 10px; }
 
-        /* 模型输入框 */
         .model-input-group { position: relative; display: flex; align-items: center; }
         
         .model-input {
@@ -61,7 +61,7 @@
             background: #fff;
             color: var(--text-main);
             font-size: 0.8rem;
-            width: 240px;
+            width: 220px;
             outline: none;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             transition: 0.2s;
@@ -170,13 +170,14 @@
         .lang-tag { font-weight: 600; }
 
         .loading { text-align: center; padding: 60px 20px; color: var(--text-sub); line-height: 2; font-size: 0.9rem; }
+        
+        .updated-time { font-size: 0.7rem; color: #aaa; margin-top: 4px; display: block; }
 
         @media (max-width: 1000px) {
             body { height: auto; overflow: auto; }
             .dashboard { grid-template-columns: 1fr; overflow: visible; }
             .column { height: auto; min-height: 500px; margin-bottom: 20px; }
             .header-actions { flex-direction: column; align-items: flex-end; }
-            .model-input { width: 200px; }
         }
     </style>
 </head>
@@ -184,8 +185,11 @@
 
     <header>
         <div class="header-title">
-            <h1>GitHub Top 100 <span style="font-size:1rem; color:#888; font-weight:400;">(缓存版)</span></h1>
-            <div class="header-desc">AI Cached Translation</div>
+            <h1>GitHub Top 100 <span style="font-size:1rem; color:#888; font-weight:400;">(极速版)</span></h1>
+            <div class="header-desc">
+                Smart Caching & AI Translation
+                <span id="cache-status" class="cache-status">⚡️ Cache Hit (Speed Mode)</span>
+            </div>
         </div>
         <div class="header-actions">
             
@@ -201,8 +205,8 @@
                 </datalist>
             </div>
 
-            <button class="btn btn-key" onclick="setApiKey()">🔑 Set Key</button>
-            <button class="btn btn-clear" onclick="clearCache()">🗑️ Clear Cache</button>
+            <button class="btn btn-key" onclick="setApiKey()">🔑 Key</button>
+            <button class="btn btn-clear" onclick="clearAllCache()">🗑️ Clear</button>
             <a href="index.html" class="btn">Close</a>
         </div>
     </header>
@@ -211,7 +215,7 @@
         <div class="column">
             <div class="col-header">
                 <div class="col-title" style="color: var(--accent-fire);">Most Stars <small>最多星星 🔥</small></div>
-                <span class="col-subtitle">历史累计 Star 数最高的 Top 100 项目</span>
+                <span class="col-subtitle">历史累计 Star 数最高的 Top 100</span>
             </div>
             <div class="list-container" id="col-stars"><div class="loading">Loading...</div></div>
         </div>
@@ -234,9 +238,11 @@
     </div>
 
     <script>
-        // --- 1. 配置管理 ---
+        // --- 1. 配置与工具函数 ---
         let apiKey = localStorage.getItem('openrouter_key');
         let currentModel = localStorage.getItem('openrouter_model') || "google/gemini-2.0-flash-lite-preview-02-05:free";
+        const CACHE_DURATION = 3600 * 1000; // 数据缓存 1 小时 (毫秒)
+
         document.getElementById('model-input').value = currentModel;
 
         function setApiKey() {
@@ -244,7 +250,7 @@
             if (key) {
                 localStorage.setItem('openrouter_key', key);
                 apiKey = key;
-                alert("Key 已保存！刷新页面生效。");
+                alert("Key 已保存！刷新生效。");
                 location.reload();
             }
         }
@@ -254,44 +260,66 @@
             if (val) {
                 localStorage.setItem('openrouter_model', val);
                 currentModel = val;
-                if(confirm(`模型切换为: ${val}\n是否刷新页面？`)) location.reload();
+                if(confirm(`模型切换为: ${val}\n刷新重新加载？`)) location.reload();
             }
         }
 
-        function clearCache() {
-            if(confirm("确定要清除所有本地翻译缓存吗？下一次加载将重新调用 AI 翻译。")) {
-                // 清除所有以 'gh_trans_' 开头的 localStorage
+        function clearAllCache() {
+            if(confirm("确定要清除所有缓存吗？\n(包括 GitHub 项目数据和 AI 翻译记录)")) {
+                // 清除数据缓存
+                localStorage.removeItem('gh_data_stars');
+                localStorage.removeItem('gh_data_forks');
+                localStorage.removeItem('gh_data_trend');
+                
+                // 清除翻译缓存
                 Object.keys(localStorage).forEach(key => {
-                    if (key.startsWith('gh_trans_')) {
-                        localStorage.removeItem(key);
-                    }
+                    if (key.startsWith('gh_trans_')) localStorage.removeItem(key);
                 });
-                alert("缓存已清除。");
+                
+                alert("缓存已清空，正在重新拉取最新数据...");
                 location.reload();
             }
         }
 
-        // --- 2. 缓存管理函数 ---
-        // 生成缓存 Key：使用项目全名 (owner/repo) 确保唯一性
-        function getCacheKey(repoFullName) {
-            return `gh_trans_${repoFullName}`;
-        }
-
+        // --- 2. 缓存管理 (数据与翻译) ---
+        
+        // A. 翻译缓存
         function getCachedTranslation(repoFullName) {
-            return localStorage.getItem(getCacheKey(repoFullName));
+            return localStorage.getItem(`gh_trans_${repoFullName}`);
         }
-
         function setCachedTranslation(repoFullName, text) {
-            localStorage.setItem(getCacheKey(repoFullName), text);
+            localStorage.setItem(`gh_trans_${repoFullName}`, text);
         }
 
-        // --- 3. 批量翻译逻辑 (带缓存检查) ---
+        // B. 数据缓存 (GitHub API Response)
+        function getCachedData(key) {
+            const json = localStorage.getItem(key);
+            if (!json) return null;
+            
+            try {
+                const data = JSON.parse(json);
+                const now = Date.now();
+                // 检查是否过期
+                if (now - data.timestamp < CACHE_DURATION) {
+                    return data.items;
+                }
+                return null; // 过期
+            } catch (e) { return null; }
+        }
+
+        function setCachedData(key, items) {
+            const payload = {
+                timestamp: Date.now(),
+                items: items
+            };
+            localStorage.setItem(key, JSON.stringify(payload));
+        }
+
+        // --- 3. AI 翻译逻辑 ---
         async function translateBatch(itemsToTranslate) {
             if (!apiKey || itemsToTranslate.length === 0) return;
 
-            // 提取纯文本用于发送给 AI
             const texts = itemsToTranslate.map(item => item.text);
-            
             const prompt = `Translate the following GitHub project descriptions into concise Chinese. Return ONLY a JSON array of strings in the exact same order. Do not explain. \n\n${JSON.stringify(texts)}`;
 
             try {
@@ -319,10 +347,9 @@
                 const cleanJson = content.replace(/```json|```/g, '').trim();
                 const translations = JSON.parse(cleanJson);
 
-                // 处理翻译结果
                 translations.forEach((transText, i) => {
                     const item = itemsToTranslate[i];
-                    // 1. 更新 DOM
+                    // 更新界面
                     const el = document.getElementById(item.domId);
                     if (el) {
                         el.innerHTML = `<span style="margin-right:4px;">🇨🇳</span>${transText}`;
@@ -331,7 +358,7 @@
                         el.style.transition = "opacity 0.5s";
                         setTimeout(() => el.style.opacity = "1", 50);
                     }
-                    // 2. 存入本地缓存
+                    // 写入缓存
                     setCachedTranslation(item.repoFullName, transText);
                 });
 
@@ -339,17 +366,19 @@
                 console.error("Translation Error:", error);
                 itemsToTranslate.forEach(item => {
                     const el = document.getElementById(item.domId);
-                    if (el) el.innerHTML = `<span style="color:red; font-size:0.7rem;">(翻译失败)</span>`;
+                    if (el) el.innerHTML = `<span style="color:red; font-size:0.7rem;">(翻译失败: ${error.message})</span>`;
                 });
             }
         }
 
-        // --- 4. 渲染列表 (智能分离缓存与新内容) ---
+        // --- 4. 核心渲染与数据获取 ---
+        
+        // 通用渲染函数
         function renderList(containerId, items, icon, color) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
 
-            const needTranslationQueue = []; // 需要调用 API 的队列
+            const needTranslationQueue = [];
             
             items.forEach((repo, index) => {
                 const rank = index + 1;
@@ -358,23 +387,16 @@
                 const descEn = repo.description || "No description provided.";
                 
                 const domId = `${containerId}-trans-${index}`;
-                const cacheKey = repo.full_name; // 使用 full_name (e.g., vuejs/vue) 防止重名
+                const cacheKey = repo.full_name;
                 
-                // --- 检查缓存 ---
-                const cachedText = getCachedTranslation(cacheKey);
+                const cachedTrans = getCachedTranslation(cacheKey);
                 let descCnHtml = '';
 
-                if (cachedText) {
-                    // 命中缓存：直接显示中文
-                    descCnHtml = `<span style="margin-right:4px;">🇨🇳</span>${cachedText}`;
+                if (cachedTrans) {
+                    descCnHtml = `<span style="margin-right:4px;">🇨🇳</span>${cachedTrans}`;
                 } else {
-                    // 未命中缓存：显示 Loading，并加入待翻译队列
                     descCnHtml = `<span class="translating">AI 翻译中...</span>`;
-                    needTranslationQueue.push({
-                        domId: domId,
-                        text: descEn,
-                        repoFullName: cacheKey
-                    });
+                    needTranslationQueue.push({ domId, text: descEn, repoFullName: cacheKey });
                 }
 
                 const html = `
@@ -385,13 +407,10 @@
                         </div>
                         <div class="content">
                             <div class="repo-name">${repo.name}</div>
-                            
-                            <div id="${domId}" class="desc-cn" style="${cachedText ? 'color:#333' : ''}">
+                            <div id="${domId}" class="desc-cn" style="${cachedTrans ? 'color:#333' : ''}">
                                 ${descCnHtml}
                             </div>
-
                             <div class="desc-en">${descEn}</div>
-                            
                             <div class="meta">
                                 <span class="stat-badge" style="color:${color}">
                                     ${icon} ${starCount}
@@ -404,10 +423,9 @@
                 container.innerHTML += html;
             });
 
-            // 如果有需要翻译的新内容，且有 Key，则批量发送请求
+            // 批量翻译新内容
             if (apiKey && needTranslationQueue.length > 0) {
-                // 分批处理，防止一次请求过大（每批 20 个）
-                const batchSize = 20;
+                const batchSize = 15; // 每批处理 15 个，防止超时
                 for (let i = 0; i < needTranslationQueue.length; i += batchSize) {
                     const batch = needTranslationQueue.slice(i, i + batchSize);
                     translateBatch(batch);
@@ -415,46 +433,75 @@
             } else if (!apiKey && needTranslationQueue.length > 0) {
                 needTranslationQueue.forEach(item => {
                     document.getElementById(item.domId).innerHTML = 
-                        `<span style="color:#999; font-size:0.75rem;">(需设置 Key 开启翻译)</span>`;
+                        `<span style="color:#999; font-size:0.75rem;">(等待 API Key...)</span>`;
                 });
             }
         }
 
-        // --- 5. 获取数据 (设置为100条) ---
-        async function fetchMostStars() {
+        // 通用数据获取函数 (带缓存)
+        async function fetchWithCache(storageKey, apiUrl, containerId, icon, color) {
+            // 1. 尝试从缓存读取数据
+            const cachedItems = getCachedData(storageKey);
+            
+            if (cachedItems) {
+                console.log(`[Cache Hit] ${storageKey}`);
+                // 显示“缓存命中”提示
+                document.getElementById('cache-status').style.opacity = '1';
+                renderList(containerId, cachedItems, icon, color);
+                return;
+            }
+
+            // 2. 缓存失效，请求 API
+            console.log(`[API Fetch] ${storageKey}`);
             try {
-                // per_page=100
-                const res = await fetch('https://api.github.com/search/repositories?q=stars:>1000&sort=stars&per_page=100');
+                const res = await fetch(apiUrl);
                 const data = await res.json();
-                renderList('col-stars', data.items, '★', '#FF3B30');
+                
+                if (data.items) {
+                    // 存入缓存
+                    setCachedData(storageKey, data.items);
+                    renderList(containerId, data.items, icon, color);
+                } else {
+                    document.getElementById(containerId).innerHTML = '<div class="loading">API Rate Limit / Error</div>';
+                }
             } catch (e) {
-                document.getElementById('col-stars').innerHTML = '<div class="loading">GitHub API Limit Exceeded</div>';
+                console.error(e);
+                document.getElementById(containerId).innerHTML = '<div class="loading">Network Error</div>';
             }
         }
 
-        async function fetchMostForks() {
-            try {
-                const res = await fetch('https://api.github.com/search/repositories?q=forks:>1000&sort=forks&per_page=100');
-                const data = await res.json();
-                renderList('col-forks', data.items, '⚡️', '#5856D6');
-            } catch (e) { console.error(e); }
-        }
+        // --- 5. 启动加载 ---
+        function init() {
+            // Stars: Top 100
+            fetchWithCache(
+                'gh_data_stars', 
+                'https://api.github.com/search/repositories?q=stars:>1000&sort=stars&per_page=100', 
+                'col-stars', '★', '#FF3B30'
+            );
 
-        async function fetchTrending() {
-            try {
+            // Forks: Top 100 (错峰 1s)
+            setTimeout(() => {
+                fetchWithCache(
+                    'gh_data_forks', 
+                    'https://api.github.com/search/repositories?q=forks:>1000&sort=forks&per_page=100', 
+                    'col-forks', '⚡️', '#5856D6'
+                );
+            }, 1000);
+
+            // Trending: Top 100 (错峰 2s)
+            setTimeout(() => {
                 const date = new Date();
                 date.setDate(date.getDate() - 30);
                 const dateString = date.toISOString().split('T')[0];
-                const res = await fetch(`https://api.github.com/search/repositories?q=created:>${dateString}&sort=stars&per_page=100`);
-                const data = await res.json();
-                renderList('col-trend', data.items, '🚀', '#34C759');
-            } catch (e) { console.error(e); }
+                fetchWithCache(
+                    'gh_data_trend', 
+                    `https://api.github.com/search/repositories?q=created:>${dateString}&sort=stars&per_page=100`, 
+                    'col-trend', '🚀', '#34C759'
+                );
+            }, 2000);
         }
 
-        // 启动 (错峰加载)
-        fetchMostStars();
-        setTimeout(fetchMostForks, 1500);
-        setTimeout(fetchTrending, 3000);
+        init();
 
     </script>
 </body>
