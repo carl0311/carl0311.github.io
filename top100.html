@@ -51,22 +51,26 @@
         /* 顶部操作区 */
         .header-actions { display: flex; align-items: center; gap: 10px; }
 
-        /* 模型选择下拉框 */
-        .model-select {
+        /* 模型输入框 (自由输入+提示) */
+        .model-input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .model-input {
             padding: 8px 12px;
             border-radius: 8px;
             border: 1px solid var(--border);
             background: #fff;
             color: var(--text-main);
             font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
+            width: 260px; /* 稍微宽一点以显示长ID */
             outline: none;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             transition: 0.2s;
-            max-width: 180px;
         }
-        .model-select:hover { border-color: #ccc; }
+        .model-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
 
         .btn {
             text-decoration: none; color: var(--text-main); font-weight: 600;
@@ -175,6 +179,7 @@
             .dashboard { grid-template-columns: 1fr; overflow: visible; }
             .column { height: auto; min-height: 500px; margin-bottom: 20px; }
             .header-actions { flex-direction: column; align-items: flex-end; }
+            .model-input { width: 200px; }
         }
     </style>
 </head>
@@ -186,13 +191,20 @@
             <div class="header-desc">Real-time Translation</div>
         </div>
         <div class="header-actions">
-            <select id="model-select" class="model-select" onchange="changeModel()">
-                <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0 Flash (免费)</option>
-                <option value="deepseek/deepseek-chat">DeepSeek V3 (高性价比)</option>
-                <option value="openai/gpt-4o-mini">GPT-4o Mini (快速)</option>
-                <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
-                <option value="google/gemini-pro-1.5">Gemini 1.5 Pro</option>
-            </select>
+            
+            <div class="model-input-group">
+                <input type="text" id="model-input" class="model-input" 
+                       list="model-suggestions" 
+                       placeholder="输入 OpenRouter Model ID" 
+                       onchange="saveModel()">
+                <datalist id="model-suggestions">
+                    <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0 Flash (Free)</option>
+                    <option value="deepseek/deepseek-chat">DeepSeek V3</option>
+                    <option value="deepseek/deepseek-r1">DeepSeek R1</option>
+                    <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                    <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                </datalist>
+            </div>
 
             <button class="btn btn-key" onclick="setApiKey()">
                 🔑 Set API Key
@@ -230,30 +242,32 @@
     </div>
 
     <script>
-        // --- 1. 配置管理 (Key & Model) ---
+        // --- 1. 配置管理 ---
         let apiKey = localStorage.getItem('openrouter_key');
+        // 默认模型 ID，可以根据 OpenRouter 的更新随时修改
         let currentModel = localStorage.getItem('openrouter_model') || "google/gemini-2.0-flash-lite-preview-02-05:free";
 
-        // 初始化下拉菜单状态
-        document.getElementById('model-select').value = currentModel;
+        // 初始化输入框的值
+        document.getElementById('model-input').value = currentModel;
 
         function setApiKey() {
-            const key = prompt("请输入 OpenRouter API Key:\n(仅保存在本地浏览器)", apiKey || "");
+            const key = prompt("请输入 OpenRouter API Key:\n(仅保存在本地浏览器，格式通常为 sk-or-...)", apiKey || "");
             if (key) {
                 localStorage.setItem('openrouter_key', key);
                 apiKey = key;
-                alert("API Key 已保存！页面将刷新以开始翻译。");
+                alert("API Key 已保存！刷新页面以生效。");
                 location.reload();
             }
         }
 
-        function changeModel() {
-            const select = document.getElementById('model-select');
-            currentModel = select.value;
-            localStorage.setItem('openrouter_model', currentModel);
-            // 提示用户刷新以应用新模型重新翻译
-            if(confirm("模型已切换为: " + select.options[select.selectedIndex].text + "\n是否刷新页面以重新翻译？")) {
-                location.reload();
+        function saveModel() {
+            const val = document.getElementById('model-input').value.trim();
+            if (val) {
+                localStorage.setItem('openrouter_model', val);
+                currentModel = val;
+                if(confirm(`模型已切换为: ${val}\n是否刷新页面以应用新模型重新翻译？`)) {
+                    location.reload();
+                }
             }
         }
 
@@ -261,7 +275,6 @@
         async function translateBatch(textsArray, targetIds) {
             if (!apiKey) return;
             
-            // 构建提示词，要求只返回纯 JSON 数组
             const prompt = `Translate the following GitHub project descriptions into concise Chinese. Return ONLY a JSON array of strings. Do not explain. \n\n${JSON.stringify(textsArray)}`;
 
             try {
@@ -270,12 +283,11 @@
                     headers: {
                         "Authorization": `Bearer ${apiKey}`,
                         "Content-Type": "application/json",
-                         // 部分免费模型需要这个 header
                         "HTTP-Referer": window.location.href, 
-                        "X-Title": "GitHub Top 100 Dashboard"
+                        "X-Title": "GitHub Top 100"
                     },
                     body: JSON.stringify({
-                        "model": currentModel, // 使用用户选择的模型
+                        "model": currentModel, // 使用输入框里的自定义模型
                         "messages": [
                             {"role": "system", "content": "You are a professional tech translator. Translate technical descriptions into natural, professional Chinese. Keep it concise."},
                             {"role": "user", "content": prompt}
@@ -286,22 +298,18 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    console.error("API Error:", data.error);
-                    throw new Error(data.error.message);
+                    throw new Error(data.error.message || JSON.stringify(data.error));
                 }
                 
-                // 解析返回内容
                 const content = data.choices[0].message.content;
                 const cleanJson = content.replace(/```json|```/g, '').trim();
                 const translations = JSON.parse(cleanJson);
 
-                // 更新 DOM
                 targetIds.forEach((id, index) => {
                     const el = document.getElementById(id);
                     if (el && translations[index]) {
                         el.innerHTML = `<span style="margin-right:4px;">🇨🇳</span>${translations[index]}`;
                         el.style.color = "#333"; 
-                        // 添加淡入动画
                         el.style.transition = "opacity 0.5s";
                         el.style.opacity = "0";
                         setTimeout(() => el.style.opacity = "1", 50);
@@ -312,7 +320,7 @@
                 console.error("Translation failed:", error);
                 targetIds.forEach(id => {
                     const el = document.getElementById(id);
-                    if (el) el.innerHTML = `<span style="color:red; font-size:0.7rem;">(翻译失败: ${error.message})</span>`;
+                    if (el) el.innerHTML = `<span style="color:red; font-size:0.7rem;">(翻译失败: ${error.message} - 请检查模型ID或Key)</span>`;
                 });
             }
         }
