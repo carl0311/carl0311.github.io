@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Arcade | Carl Louis</title>
+    <style>
+        :root {
+            /* 游戏厅主题色：紫霓虹 x 复古灰 */
+            --bg-color: #F5F5F7;
+            --card-bg: #FFFFFF;
+            --text-main: #1D1D1F;
+            --text-sub: #86868B;
+            --accent-game: #8E44AD; /* 游戏紫 */
+            --accent-retro: #2ECC71; /* 像素绿 */
+            --radius: 24px;
+            --shadow: 0 8px 30px rgba(0,0,0,0.06);
+            --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: var(--font-stack);
+            color: var(--text-main);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        /* --- 顶部 Header --- */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 50px;
+        }
+
+        .header-left h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #2c3e50 0%, #8E44AD 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-left p {
+            color: var(--text-sub);
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: var(--text-main);
+            background: white;
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+        .back-btn:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+
+        /* --- 游戏网格 --- */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* 游戏卡片 */
+        .game-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            text-decoration: none;
+            color: var(--text-main);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.8);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 220px;
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(142, 68, 173, 0.15); /* 紫色光晕 */
+        }
+
+        /* 像素风图标背景 */
+        .pixel-bg {
+            position: absolute;
+            top: -20px; right: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+            transform: rotate(15deg);
+            pointer-events: none;
+        }
+
+        .game-icon {
+            width: 64px; height: 64px;
+            background: #F2F2F7;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+        }
+
+        .game-info h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+        .game-info p { font-size: 0.9rem; color: var(--text-sub); }
+
+        /* Play 按钮 */
+        .play-btn {
+            margin-top: auto;
+            align-self: flex-start;
+            padding: 8px 16px;
+            background: var(--text-main);
+            color: white;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+        }
+        
+        .game-card:hover .play-btn { opacity: 1; transform: translateY(0); }
+
+        /* 标签 */
+        .tag {
+            position: absolute; top: 20px; right: 20px;
+            background: #F0F0F0; color: #888;
+            font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; font-weight: 700;
+        }
+        .tag.hot { background: #FFEBEB; color: #FF3B30; }
+
+        @media (max-width: 600px) {
+            .header-left h1 { font-size: 2rem; }
+            .game-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <h1>Arcade Room</h1>
+                <p>Press Start to Play. 经典怀旧游戏厅。</p>
+            </div>
+            <a href="index.html" class="back-btn">Exit</a>
+        </header>
+
+        <div class="game-grid">
+
+            <a href="https://patorjk.com/games/snake/" target="_blank" class="game-card">
+                <span class="tag hot">Classic</span>
+                <div class="pixel-bg">🐍</div>
+                <div class="game-icon" style="color: #2ECC71;">🐍</div>
+                <div class="game-info">
+                    <h3>Snake</h3>
+                    <p>贪吃蛇。吞噬像素，不断变长，挑战反应极限。</p>
+                </div>
+                <div class="play-btn">Play Now →</div>
+            </a>
+
+            <a href="https://battle-city.js.org/" target="_blank" class="game-card">
+                <span class="tag hot">NES</span>
+                <div class="pixel-bg">🛡</div>
+                <div class="game-icon" style="color: #F1C40F;">🛡</div>
+                <div class="game-info">
+                    <h3>Tank Battle</h3>
+                    <p>坦克大战 (90坦克)。守卫老鹰，击碎砖墙，找回童年回忆。</p>
+                </div>
+                <div class="play-btn">Play Now →</div>
+            </a>
+
+            <a href="https://freeinvaders.org/" target="_blank" class="game-card">
+                <span class="tag">Shooter</span>
+                <div class="pixel-bg">👾</div>
+                <div class="game-icon" style="color: #8E44AD;">👾</div>
+                <div class="game-info">
+                    <h3>Space Invaders</h3>
+                    <p>太空侵略者。左右移动，发射激光，击退外星军团。</p>
+                </div>
+                <div class="play-btn">Play Now →</div>
+            </a>
+
+            <a href="https://chvin.github.io/react-tetris/" target="_blank" class="game-card">
+                <span class="tag">Puzzle</span>
+                <div class="pixel-bg">🧱</div>
+                <div class="game-icon" style="color: #3498DB;">🧱</div>
+                <div class="game-info">
+                    <h3>Tetris</h3>
+                    <p>俄罗斯方块。消除行与列，体验最纯粹的秩序美学。</p>
+                </div>
+                <div class="play-btn">Play Now →</div>
+            </a>
+
+            <a href="https://pacman.live/" target="_blank" class="game-card">
+                <span class="tag">Arcade</span>
+                <div class="pixel-bg">👻</div>
+                <div class="game-icon" style="color: #E67E22;">👻</div>
+                <div class="game-info">
+                    <h3>Pac-Man</h3>
+                    <p>吃豆人。在迷宫中穿梭，躲避幽灵，吃掉所有豆子。</p>
+                </div>
+                <div class="play-btn">Play Now →</div>
+            </a>
+
+            <a href="https://play2048.co/" target="_blank" class="game-card">
+                <span class="tag">Logic</span>
+                <div class="pixel-bg">🔢</div>
+                <div class="game-icon" style="color: #E74C3C;">🔢</div>
+                <div class="game-info">
+                    <h3>2048</h3>
+                    <p>数字拼图。简单的规则，无尽的合成乐趣。</p>
+                </div>
+                <div class="play-btn">Play Now →</div>
+            </a>
+
+        </div>
+
+        <div style="text-align: center; margin-top: 50px; color: var(--text-sub); font-size: 0.8rem;">
+            Games are hosted by open-source communities. Have Fun!
+        </div>
+    </div>
+
+</body>
+</html>
