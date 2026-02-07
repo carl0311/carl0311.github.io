@@ -48,7 +48,25 @@
         .header-title h1 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
         .header-desc { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
         
-        .header-actions { display: flex; gap: 10px; }
+        /* 顶部操作区 */
+        .header-actions { display: flex; align-items: center; gap: 10px; }
+
+        /* 模型选择下拉框 */
+        .model-select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text-main);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: 0.2s;
+            max-width: 180px;
+        }
+        .model-select:hover { border-color: #ccc; }
 
         .btn {
             text-decoration: none; color: var(--text-main); font-weight: 600;
@@ -132,7 +150,7 @@
             font-style: italic;
         }
 
-        /* 中文简介区域 */
+        /* 中文简介 */
         .desc-cn {
             font-size: 0.85rem; color: #333; line-height: 1.5; font-weight: 500;
             background: var(--cn-bg); padding: 6px 8px; border-radius: 6px;
@@ -141,7 +159,6 @@
             position: relative;
         }
         
-        /* 翻译中的加载动画 */
         .translating { color: #888; font-style: italic; font-size: 0.75rem; display: flex; align-items: center; gap: 5px;}
         .translating::after { content: '...'; animation: dots 1.5s infinite; }
 
@@ -157,6 +174,7 @@
             body { height: auto; overflow: auto; }
             .dashboard { grid-template-columns: 1fr; overflow: visible; }
             .column { height: auto; min-height: 500px; margin-bottom: 20px; }
+            .header-actions { flex-direction: column; align-items: flex-end; }
         }
     </style>
 </head>
@@ -165,9 +183,17 @@
     <header>
         <div class="header-title">
             <h1>GitHub Top 100 <span style="font-size:1rem; color:#888; font-weight:400;">(AI 双语版)</span></h1>
-            <div class="header-desc">Real-time Translation via OpenRouter</div>
+            <div class="header-desc">Real-time Translation</div>
         </div>
         <div class="header-actions">
+            <select id="model-select" class="model-select" onchange="changeModel()">
+                <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0 Flash (免费)</option>
+                <option value="deepseek/deepseek-chat">DeepSeek V3 (高性价比)</option>
+                <option value="openai/gpt-4o-mini">GPT-4o Mini (快速)</option>
+                <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                <option value="google/gemini-pro-1.5">Gemini 1.5 Pro</option>
+            </select>
+
             <button class="btn btn-key" onclick="setApiKey()">
                 🔑 Set API Key
             </button>
@@ -204,24 +230,38 @@
     </div>
 
     <script>
-        // --- 1. API Key 管理 ---
+        // --- 1. 配置管理 (Key & Model) ---
         let apiKey = localStorage.getItem('openrouter_key');
+        let currentModel = localStorage.getItem('openrouter_model') || "google/gemini-2.0-flash-lite-preview-02-05:free";
+
+        // 初始化下拉菜单状态
+        document.getElementById('model-select').value = currentModel;
 
         function setApiKey() {
-            const key = prompt("请输入您的 OpenRouter API Key:\n(Key 会保存在您的本地浏览器中，不会上传)", apiKey || "");
+            const key = prompt("请输入 OpenRouter API Key:\n(仅保存在本地浏览器)", apiKey || "");
             if (key) {
                 localStorage.setItem('openrouter_key', key);
                 apiKey = key;
-                alert("API Key 已保存！刷新页面生效。");
+                alert("API Key 已保存！页面将刷新以开始翻译。");
+                location.reload();
+            }
+        }
+
+        function changeModel() {
+            const select = document.getElementById('model-select');
+            currentModel = select.value;
+            localStorage.setItem('openrouter_model', currentModel);
+            // 提示用户刷新以应用新模型重新翻译
+            if(confirm("模型已切换为: " + select.options[select.selectedIndex].text + "\n是否刷新页面以重新翻译？")) {
                 location.reload();
             }
         }
 
         // --- 2. 批量翻译函数 ---
-        // 使用 google/gemini-2.0-flash-lite-preview-02-05:free 模型，因为它是免费且速度极快的
         async function translateBatch(textsArray, targetIds) {
-            if (!apiKey) return; // 如果没有 Key，保持 loading 状态或显示原文
+            if (!apiKey) return;
             
+            // 构建提示词，要求只返回纯 JSON 数组
             const prompt = `Translate the following GitHub project descriptions into concise Chinese. Return ONLY a JSON array of strings. Do not explain. \n\n${JSON.stringify(textsArray)}`;
 
             try {
@@ -229,10 +269,13 @@
                     method: "POST",
                     headers: {
                         "Authorization": `Bearer ${apiKey}`,
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                         // 部分免费模型需要这个 header
+                        "HTTP-Referer": window.location.href, 
+                        "X-Title": "GitHub Top 100 Dashboard"
                     },
                     body: JSON.stringify({
-                        "model": "google/gemini-2.0-flash-lite-preview-02-05:free",
+                        "model": currentModel, // 使用用户选择的模型
                         "messages": [
                             {"role": "system", "content": "You are a professional tech translator. Translate technical descriptions into natural, professional Chinese. Keep it concise."},
                             {"role": "user", "content": prompt}
@@ -241,11 +284,14 @@
                 });
 
                 const data = await response.json();
-                if (data.error) throw new Error(data.error.message);
                 
-                // 解析返回的 JSON 数组
+                if (data.error) {
+                    console.error("API Error:", data.error);
+                    throw new Error(data.error.message);
+                }
+                
+                // 解析返回内容
                 const content = data.choices[0].message.content;
-                // 清理可能存在的 Markdown 代码块标记 ```json ... ```
                 const cleanJson = content.replace(/```json|```/g, '').trim();
                 const translations = JSON.parse(cleanJson);
 
@@ -254,21 +300,24 @@
                     const el = document.getElementById(id);
                     if (el && translations[index]) {
                         el.innerHTML = `<span style="margin-right:4px;">🇨🇳</span>${translations[index]}`;
-                        el.style.color = "#333"; // 翻译完成后变深色
+                        el.style.color = "#333"; 
+                        // 添加淡入动画
+                        el.style.transition = "opacity 0.5s";
+                        el.style.opacity = "0";
+                        setTimeout(() => el.style.opacity = "1", 50);
                     }
                 });
 
             } catch (error) {
                 console.error("Translation failed:", error);
-                // 失败时移除 loading，显示“翻译失败”
                 targetIds.forEach(id => {
                     const el = document.getElementById(id);
-                    if (el) el.innerHTML = `<span style="color:red; font-size:0.7rem;">(翻译服务未连接: ${error.message})</span>`;
+                    if (el) el.innerHTML = `<span style="color:red; font-size:0.7rem;">(翻译失败: ${error.message})</span>`;
                 });
             }
         }
 
-        // --- 3. 渲染列表并触发翻译 ---
+        // --- 3. 渲染列表 ---
         function renderList(containerId, items, icon, color) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
@@ -282,10 +331,8 @@
                 const lang = repo.language ? repo.language : 'Code';
                 const descEn = repo.description || "No description provided.";
                 
-                // 生成唯一 ID 用于后续更新翻译
                 const transId = `${containerId}-trans-${index}`;
                 
-                // 收集需要翻译的文本
                 textsToTranslate.push(descEn);
                 idsToUpdate.push(transId);
 
@@ -299,7 +346,7 @@
                             <div class="repo-name">${repo.name}</div>
                             
                             <div id="${transId}" class="desc-cn">
-                                <span class="translating">AI 正在翻译中</span>
+                                <span class="translating">AI 翻译中...</span>
                             </div>
 
                             <div class="desc-en">${descEn}</div>
@@ -316,13 +363,11 @@
                 container.innerHTML += html;
             });
 
-            // 触发批量翻译 (如果有 Key)
             if (apiKey && textsToTranslate.length > 0) {
                 translateBatch(textsToTranslate, idsToUpdate);
             } else if (!apiKey) {
-                // 如果没 Key，提示用户设置
                 idsToUpdate.forEach(id => {
-                    document.getElementById(id).innerHTML = `<span style="color:#999; font-size:0.75rem;">(点击上方 "Set API Key" 开启翻译)</span>`;
+                    document.getElementById(id).innerHTML = `<span style="color:#999; font-size:0.75rem;">(需设置 API Key 开启翻译)</span>`;
                 });
             }
         }
@@ -330,7 +375,7 @@
         // --- 4. 获取数据 ---
         async function fetchMostStars() {
             try {
-                const res = await fetch('https://api.github.com/search/repositories?q=stars:>1000&sort=stars&per_page=50'); // 限制50个以加快速度
+                const res = await fetch('https://api.github.com/search/repositories?q=stars:>1000&sort=stars&per_page=50');
                 const data = await res.json();
                 renderList('col-stars', data.items, '★', '#FF3B30');
             } catch (e) {
