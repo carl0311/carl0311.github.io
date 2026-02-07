@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Top 100 | Carl Louis</title>
+    <title>GitHub Top 100 | 全球热门榜</title>
     <style>
         :root {
             --bg-color: #F5F5F7;
@@ -16,24 +16,27 @@
             --accent-trend: #34C759;
             --border: rgba(0,0,0,0.08);
             --shadow: 0 4px 12px rgba(0,0,0,0.03);
+            /* 中文翻译专用色 */
+            --cn-bg: #F0F0F5;
+            --cn-text: #48484A;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
             color: var(--text-main);
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* 禁止整页滚动，只允许列滚动 */
+            overflow: hidden;
         }
 
-        /* --- 顶部导航 --- */
+        /* --- 顶部导航 (Header) --- */
         header {
-            padding: 20px 30px;
-            background: rgba(255,255,255,0.8);
+            padding: 15px 25px;
+            background: rgba(255,255,255,0.9);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -43,34 +46,41 @@
             z-index: 10;
         }
 
-        .header-title h1 { font-size: 1.5rem; font-weight: 800; }
-        .header-title p { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
+        .header-title h1 { 
+            font-size: 1.4rem; font-weight: 800; 
+            display: flex; flex-direction: column; line-height: 1.2;
+        }
+        .header-title h1 small { font-size: 0.9rem; font-weight: 500; color: var(--text-sub); }
+        .header-desc { font-size: 0.8rem; color: var(--text-sub); margin-top: 5px; opacity: 0.8; }
 
         .back-btn {
-            text-decoration: none; color: var(--text-main); font-weight: 600;
-            padding: 8px 16px; background: white; border-radius: 100px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 0.9rem;
+            text-decoration: none; color: var(--text-main); 
+            padding: 8px 16px; background: white; border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: 0.2s;
         }
-        .back-btn:hover { transform: scale(1.05); }
+        .back-btn span.en { font-size: 0.85rem; font-weight: 700; }
+        .back-btn span.cn { font-size: 0.7rem; color: var(--text-sub); }
+        .back-btn:hover { background: #f2f2f2; transform: translateY(-1px); }
 
-        /* --- 三列布局容器 --- */
+        /* --- 主面板 (Dashboard) --- */
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 三等分 */
-            gap: 20px;
-            padding: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 15px;
             flex-grow: 1;
-            min-height: 0; /* 关键：允许子元素滚动 */
+            min-height: 0;
             max-width: 1600px;
             margin: 0 auto;
             width: 100%;
         }
 
-        /* 每一列的容器 */
         .column {
             background: var(--col-bg);
-            border-radius: 16px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             border: 1px solid var(--border);
@@ -78,30 +88,34 @@
             overflow: hidden;
         }
 
-        /* 列标题 */
+        /* 列标题区 */
         .col-header {
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
             position: sticky; top: 0; z-index: 2;
         }
-        .col-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .col-subtitle { font-size: 0.8rem; color: var(--text-sub); margin-top: 5px; }
+        .col-title { 
+            font-size: 1.1rem; font-weight: 800; 
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .col-cn-title { font-size: 0.9rem; font-weight: normal; opacity: 0.7; }
+        .col-subtitle { 
+            font-size: 0.75rem; color: var(--text-sub); margin-top: 5px; 
+            display: block; line-height: 1.3;
+        }
 
-        /* 滚动列表区域 */
         .list-container {
             flex-grow: 1;
             overflow-y: auto;
             padding: 10px;
         }
-        /* 隐藏滚动条但保留功能 */
-        .list-container::-webkit-scrollbar { width: 6px; }
+        .list-container::-webkit-scrollbar { width: 5px; }
         .list-container::-webkit-scrollbar-thumb { background: #E0E0E0; border-radius: 3px; }
 
-        /* --- 项目卡片 --- */
+        /* --- 项目卡片 (Card) --- */
         .item {
             display: flex;
-            align-items: flex-start;
             gap: 12px;
             padding: 12px;
             border-bottom: 1px solid var(--border);
@@ -109,38 +123,59 @@
             color: var(--text-main);
             transition: background 0.2s;
             border-radius: 8px;
+            position: relative;
         }
         .item:hover { background: #F5F7FA; }
 
-        /* 排名数字 */
-        .rank {
-            font-size: 1.2rem; font-weight: 800; color: #D1D1D6;
-            min-width: 30px; text-align: center; margin-top: 2px;
+        /* 排名 */
+        .rank-box {
+            display: flex; flex-direction: column; align-items: center; 
+            min-width: 30px; padding-top: 2px;
         }
-        /* 前三名颜色 */
-        .item:nth-child(1) .rank { color: #FFD700; }
+        .rank { font-size: 1.2rem; font-weight: 900; color: #D1D1D6; line-height: 1; }
+        .rank-label { font-size: 0.6rem; color: #D1D1D6; text-transform: uppercase; }
+
+        /* 前三名高亮 */
+        .item:nth-child(1) .rank { color: #FFD700; text-shadow: 0 2px 10px rgba(255,215,0,0.4); }
         .item:nth-child(2) .rank { color: #C0C0C0; }
         .item:nth-child(3) .rank { color: #CD7F32; }
 
-        .content { flex: 1; min-width: 0; }
-        .repo-name { font-size: 0.95rem; font-weight: 700; color: var(--accent-blue); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
         
-        .repo-desc { 
-            font-size: 0.8rem; color: var(--text-sub); line-height: 1.4; 
-            margin-bottom: 8px; 
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; /* 最多显示2行 */
+        .repo-name { 
+            font-size: 1rem; font-weight: 700; color: var(--accent-blue); 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
         }
 
-        .meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-sub); }
-        .stat-badge { font-weight: 600; display: flex; align-items: center; gap: 4px; }
-        
-        .loading { text-align: center; padding: 40px; color: var(--text-sub); font-size: 0.9rem; }
+        /* 英文简介 */
+        .desc-en { 
+            font-size: 0.8rem; color: #333; line-height: 1.4;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
 
-        /* 移动端适配：变为竖向排列 */
+        /* 中文翻译简介 (重点) */
+        .desc-cn {
+            font-size: 0.75rem; color: var(--cn-text); line-height: 1.4;
+            background: var(--cn-bg); padding: 6px 8px; border-radius: 6px;
+            border-left: 3px solid #ccc;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .cn-tag { font-weight: 700; color: var(--text-main); margin-right: 4px; }
+
+        /* 底部数据 */
+        .meta { 
+            display: flex; align-items: center; justify-content: space-between; 
+            font-size: 0.75rem; color: var(--text-sub); margin-top: 2px; 
+        }
+        .stat-badge { font-weight: 600; display: flex; align-items: center; gap: 4px; }
+
+        .loading { text-align: center; padding: 50px 20px; color: var(--text-sub); line-height: 2; }
+
+        /* 移动端适配 */
         @media (max-width: 900px) {
             body { height: auto; overflow: auto; }
             .dashboard { grid-template-columns: 1fr; overflow: visible; }
-            .column { height: 600px; margin-bottom: 20px; }
+            .column { height: auto; min-height: 500px; margin-bottom: 20px; }
         }
     </style>
 </head>
@@ -148,68 +183,149 @@
 
     <header>
         <div class="header-title">
-            <h1>GitHub Top 100 🚀</h1>
-            <p>全网开源项目实时监控看板 (Top 100/Column)</p>
+            <h1>GitHub Top 100 <small>全网热门榜</small></h1>
+            <div class="header-desc">Real-time Open Source Dashboard / 实时开源全景监控</div>
         </div>
-        <a href="index.html" class="back-btn">Close</a>
+        <a href="index.html" class="back-btn">
+            <span class="en">Close</span>
+            <span class="cn">关闭页面</span>
+        </a>
     </header>
 
     <div class="dashboard">
         
         <div class="column">
             <div class="col-header">
-                <div class="col-title" style="color: var(--accent-fire);">🔥 最多星星 (Most Stars)</div>
-                <div class="col-subtitle">历史累计 Star 数最高的殿堂级项目</div>
+                <div class="col-title" style="color: var(--accent-fire);">
+                    Most Stars <span class="col-cn-title">最多星星 🔥</span>
+                </div>
+                <span class="col-subtitle">Hall of Fame (Highest Stars) <br> 历史累计 Star 数最高的殿堂级项目</span>
             </div>
             <div class="list-container" id="col-stars">
-                <div class="loading">正在加载 Top 100...</div>
+                <div class="loading">
+                    Loading Data...<br>正在加载数据...
+                </div>
             </div>
         </div>
 
         <div class="column">
             <div class="col-header">
-                <div class="col-title" style="color: var(--accent-fork);">⚡️ 最受欢迎 (Most Forks)</div>
-                <div class="col-subtitle">被引用、复制和学习次数最多的项目</div>
+                <div class="col-title" style="color: var(--accent-fork);">
+                    Most Forks <span class="col-cn-title">最受欢迎 ⚡️</span>
+                </div>
+                <span class="col-subtitle">Most Copied & Used <br> 被引用、复制和学习次数最多的项目</span>
             </div>
             <div class="list-container" id="col-forks">
-                <div class="loading">正在加载 Top 100...</div>
+                <div class="loading">
+                    Loading Data...<br>正在加载数据...
+                </div>
             </div>
         </div>
 
         <div class="column">
             <div class="col-header">
-                <div class="col-title" style="color: var(--accent-trend);">🚀 飙升最快 (Skyrocketing)</div>
-                <div class="col-subtitle">最近 30 天内创建且爆火的新项目</div>
+                <div class="col-title" style="color: var(--accent-trend);">
+                    Trending <span class="col-cn-title">飙升最快 🚀</span>
+                </div>
+                <span class="col-subtitle">Hot in last 30 days <br> 最近 30 天内创建且爆火的新项目</span>
             </div>
             <div class="list-container" id="col-trend">
-                <div class="loading">正在加载 Top 100...</div>
+                <div class="loading">
+                    Loading Data...<br>正在加载数据...
+                </div>
             </div>
         </div>
 
     </div>
 
     <script>
-        // --- 简单的“中文化”替换字典 ---
-        // GitHub API 不提供中文，我们用 JS 简单替换常见的技术词汇，让界面看起来更像中文
-        function translateDesc(text) {
+        // --- 核心：本地英汉翻译字典 ---
+        // 这是一个纯前端的翻译逻辑，通过匹配关键词来“生成”中文介绍
+        function translateText(text) {
             if (!text) return "暂无简介";
+
             let cn = text;
-            cn = cn.replace(/A declarative, efficient, and flexible JavaScript library/gi, "一个高效、灵活的 JS 库");
-            cn = cn.replace(/framework/gi, "框架");
-            cn = cn.replace(/library/gi, "库");
-            cn = cn.replace(/collection/gi, "合集");
-            cn = cn.replace(/guide/gi, "指南");
-            cn = cn.replace(/tutorial/gi, "教程");
-            cn = cn.replace(/tool/gi, "工具");
-            cn = cn.replace(/for building/gi, "用于构建");
-            cn = cn.replace(/Open Source/gi, "开源");
-            cn = cn.replace(/interview/gi, "面试");
-            cn = cn.replace(/roadmap/gi, "路线图");
-            cn = cn.replace(/system/gi, "系统");
+
+            // 1. 常见技术名词库 (Dictionary)
+            const dictionary = [
+                // 基础词汇
+                { k: /library/gi, v: "库" },
+                { k: /framework/gi, v: "框架" },
+                { k: /toolkit/gi, v: "工具包" },
+                { k: /collection/gi, v: "合集" },
+                { k: /guide/gi, v: "指南" },
+                { k: /tutorial/gi, v: "教程" },
+                { k: /course/gi, v: "课程" },
+                { k: /roadmap/gi, v: "学习路线" },
+                { k: /interview/gi, v: "面试题" },
+                { k: /cheatsheet/gi, v: "速查表" },
+                { k: /system/gi, v: "系统" },
+                { k: /platform/gi, v: "平台" },
+                { k: /compiler/gi, v: "编译器" },
+                { k: /interpreter/gi, v: "解释器" },
+                { k: /database/gi, v: "数据库" },
+                { k: /algorithm/gi, v: "算法" },
+                { k: /architecture/gi, v: "架构" },
+                { k: /template/gi, v: "模板" },
+                { k: /boilerplate/gi, v: "脚手架" },
+                { k: /plugin/gi, v: "插件" },
+                { k: /extension/gi, v: "扩展" },
+                { k: /component/gi, v: "组件" },
+                { k: /client/gi, v: "客户端" },
+                { k: /server/gi, v: "服务端" },
+                { k: /dashboard/gi, v: "仪表盘" },
+                { k: /monitor/gi, v: "监控" },
+                
+                // 动作与形容词
+                { k: /build/gi, v: "构建" },
+                { k: /create/gi, v: "创建" },
+                { k: /deploy/gi, v: "部署" },
+                { k: /manage/gi, v: "管理" },
+                { k: /test/gi, v: "测试" },
+                { k: /develop/gi, v: "开发" },
+                { k: /efficient/gi, v: "高效的" },
+                { k: /fast/gi, v: "快速的" },
+                { k: /flexible/gi, v: "灵活的" },
+                { k: /scalable/gi, v: "可扩展的" },
+                { k: /distributed/gi, v: "分布式的" },
+                { k: /real-time/gi, v: "实时的" },
+                { k: /modern/gi, v: "现代的" },
+                { k: /simple/gi, v: "简单的" },
+                { k: /open source/gi, v: "开源" },
+                { k: /free/gi, v: "免费" },
+                { k: /cross-platform/gi, v: "跨平台" },
+                
+                // 编程语言与技术
+                { k: /JavaScript/g, v: "JS" },
+                { k: /TypeScript/g, v: "TS" },
+                { k: /Python/g, v: "Python" },
+                { k: /Golang/gi, v: "Go语言" },
+                { k: /Rust/g, v: "Rust" },
+                { k: /Vue\.js/gi, v: "Vue" },
+                { k: /React/gi, v: "React" },
+                { k: /Node\.js/gi, v: "Node" },
+                { k: /Web/gi, v: "Web" },
+                { k: /API/g, v: "接口" },
+                { k: /UI/g, v: "界面" },
+                { k: /CLI/g, v: "命令行" },
+                { k: /Machine Learning/gi, v: "机器学习" },
+                { k: /Deep Learning/gi, v: "深度学习" },
+                { k: /Artificial Intelligence/gi, v: "人工智能" },
+                { k: /Data Science/gi, v: "数据科学" }
+            ];
+
+            // 2. 执行替换
+            dictionary.forEach(item => {
+                cn = cn.replace(item.k, ` ${item.v} `); // 前后加空格防止粘连
+            });
+
+            // 3. 清理多余空格
+            cn = cn.replace(/\s+/g, ' ').trim();
+            
             return cn;
         }
 
-        // --- 通用渲染函数 ---
+        // --- 渲染逻辑 ---
         function renderList(containerId, items, icon, color) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
@@ -217,18 +333,27 @@
             items.forEach((repo, index) => {
                 const rank = index + 1;
                 const starCount = (repo.stargazers_count / 1000).toFixed(1) + 'k';
-                const lang = repo.language || 'Code';
-                const desc = translateDesc(repo.description);
+                const lang = repo.language ? repo.language : 'Unknown (未知)';
+                
+                const descEn = repo.description || "No description provided.";
+                // 生成中文简介
+                const descCn = translateText(descEn);
 
                 const html = `
                     <a href="${repo.html_url}" target="_blank" class="item">
-                        <div class="rank">${rank}</div>
+                        <div class="rank-box">
+                            <div class="rank">${rank}</div>
+                            <div class="rank-label">Rank</div>
+                        </div>
                         <div class="content">
                             <div class="repo-name">${repo.name}</div>
-                            <div class="repo-desc">${desc}</div>
+                            <div class="desc-en">${descEn}</div>
+                            <div class="desc-cn">
+                                <span class="cn-tag">🇨🇳</span> ${descCn}
+                            </div>
                             <div class="meta">
                                 <span class="stat-badge" style="color:${color}">
-                                    ${icon} ${starCount}
+                                    ${icon} ${starCount} Stars
                                 </span>
                                 <span>${lang}</span>
                             </div>
@@ -242,48 +367,41 @@
         // --- 1. 获取最多星星 (Stars) ---
         async function fetchMostStars() {
             try {
-                // per_page=100 拿满100个
                 const res = await fetch('https://api.github.com/search/repositories?q=stars:>1000&sort=stars&per_page=100');
                 const data = await res.json();
                 renderList('col-stars', data.items, '★', '#FF3B30');
             } catch (e) {
                 console.error(e);
+                document.getElementById('col-stars').innerHTML = '<div class="loading">Load Failed / 数据加载失败 (GitHub API 限制)</div>';
             }
         }
 
-        // --- 2. 获取最多 Forks (Popular) ---
+        // --- 2. 获取最受欢迎 (Forks) ---
         async function fetchMostForks() {
             try {
                 const res = await fetch('https://api.github.com/search/repositories?q=forks:>1000&sort=forks&per_page=100');
                 const data = await res.json();
                 renderList('col-forks', data.items, '⚡️', '#5856D6');
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // --- 3. 获取飙升最快 (Trending New) ---
-        // 逻辑：搜索 "最近30天创建" 的项目，并按 Star 排序
+        // --- 3. 获取飙升最快 (Trending 30 days) ---
         async function fetchTrending() {
             try {
-                // 计算30天前的日期
                 const date = new Date();
                 date.setDate(date.getDate() - 30);
-                const dateString = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                const dateString = date.toISOString().split('T')[0];
 
                 const res = await fetch(`https://api.github.com/search/repositories?q=created:>${dateString}&sort=stars&per_page=100`);
                 const data = await res.json();
                 renderList('col-trend', data.items, '🚀', '#34C759');
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // --- 执行加载 ---
-        // 为了防止同时触发 GitHub API 限制 (60次/小时)，我们稍微延时错开请求
+        // --- 错峰加载，防止触发 API 速率限制 ---
         fetchMostStars();
-        setTimeout(fetchMostForks, 1000);
-        setTimeout(fetchTrending, 2000);
+        setTimeout(fetchMostForks, 1500);
+        setTimeout(fetchTrending, 3000);
 
     </script>
 
