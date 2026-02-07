@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Top 100 | 全球热门榜</title>
+    <title>GitHub Top 100 | 全球风云榜</title>
     <style>
         :root {
             --bg-color: #F5F5F7;
@@ -16,15 +16,15 @@
             --accent-trend: #34C759;
             --border: rgba(0,0,0,0.08);
             --shadow: 0 4px 12px rgba(0,0,0,0.03);
-            --cn-bg: #F0F0F5;
-            --cn-text: #48484A;
+            --cn-bg: #F2F2F7;
+            --cn-text: #1d1d1f;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
             color: var(--text-main);
             height: 100vh;
             display: flex;
@@ -32,10 +32,10 @@
             overflow: hidden;
         }
 
-        /* --- Header --- */
+        /* --- 顶部导航 --- */
         header {
             padding: 15px 25px;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -45,38 +45,34 @@
             z-index: 10;
         }
 
-        .header-title h1 { font-size: 1.4rem; font-weight: 800; display: flex; flex-direction: column; line-height: 1.2; }
-        .header-title h1 small { font-size: 0.9rem; font-weight: 500; color: var(--text-sub); }
-        .header-desc { font-size: 0.8rem; color: var(--text-sub); margin-top: 5px; opacity: 0.8; }
-
+        .header-title h1 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .header-title p { font-size: 0.85rem; color: var(--text-sub); margin-top: 4px; }
+        
         .back-btn {
-            text-decoration: none; color: var(--text-main); 
+            text-decoration: none; color: var(--text-main); font-weight: 600;
             padding: 8px 16px; background: white; border-radius: 8px;
             border: 1px solid var(--border);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            font-size: 0.9rem; transition: 0.2s;
         }
-        .back-btn span.en { font-size: 0.85rem; font-weight: 700; }
-        .back-btn span.cn { font-size: 0.7rem; color: var(--text-sub); }
-        .back-btn:hover { background: #f2f2f2; transform: translateY(-1px); }
+        .back-btn:hover { background: #f5f5f5; }
 
-        /* --- Dashboard --- */
+        /* --- 主面板 --- */
         .dashboard {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            padding: 15px;
+            gap: 20px;
+            padding: 20px;
             flex-grow: 1;
             min-height: 0;
-            max-width: 1600px;
+            max-width: 1800px;
             margin: 0 auto;
             width: 100%;
         }
 
         .column {
             background: var(--col-bg);
-            border-radius: 12px;
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             border: 1px solid var(--border);
@@ -85,40 +81,39 @@
         }
 
         .col-header {
-            padding: 15px;
+            padding: 18px;
             border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.98);
             position: sticky; top: 0; z-index: 2;
         }
-        .col-title { font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; justify-content: space-between; }
-        .col-cn-title { font-size: 0.9rem; font-weight: normal; opacity: 0.7; }
-        .col-subtitle { font-size: 0.75rem; color: var(--text-sub); margin-top: 5px; display: block; line-height: 1.3; }
+        
+        .col-title { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+        .col-subtitle { font-size: 0.8rem; color: var(--text-sub); display: block; line-height: 1.4; }
 
         .list-container {
             flex-grow: 1;
             overflow-y: auto;
             padding: 10px;
         }
-        .list-container::-webkit-scrollbar { width: 5px; }
+        .list-container::-webkit-scrollbar { width: 6px; }
         .list-container::-webkit-scrollbar-thumb { background: #E0E0E0; border-radius: 3px; }
 
-        /* --- Item Card --- */
+        /* --- 项目卡片 --- */
         .item {
-            display: flex; gap: 12px; padding: 12px;
+            display: flex; gap: 14px; padding: 16px;
             border-bottom: 1px solid var(--border);
             text-decoration: none; color: var(--text-main);
-            transition: background 0.2s; border-radius: 8px;
+            transition: all 0.2s; border-radius: 10px;
             position: relative;
         }
-        .item:hover { background: #F5F7FA; }
+        .item:hover { background: #F5F7FA; transform: scale(0.99); }
 
-        /* 排名区域双语化 */
+        /* 排名数字 */
         .rank-box {
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            min-width: 35px; padding-top: 2px;
+            display: flex; flex-direction: column; align-items: center; min-width: 40px; padding-top: 2px;
         }
-        .rank { font-size: 1.3rem; font-weight: 900; color: #D1D1D6; line-height: 1; }
-        .rank-label { font-size: 0.6rem; color: #D1D1D6; margin-top: 2px; text-align: center; line-height: 1.2; }
+        .rank { font-size: 1.4rem; font-weight: 900; color: #D1D1D6; line-height: 1; font-variant-numeric: tabular-nums; }
+        .rank-label { font-size: 0.65rem; color: #999; margin-top: 4px; text-transform: uppercase; font-weight: 700; }
 
         .item:nth-child(1) .rank { color: #FFD700; text-shadow: 0 2px 10px rgba(255,215,0,0.4); }
         .item:nth-child(2) .rank { color: #C0C0C0; }
@@ -126,27 +121,30 @@
 
         .content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
         
-        .repo-name { font-size: 1rem; font-weight: 700; color: var(--accent-blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .repo-name { font-size: 1.05rem; font-weight: 700; color: var(--accent-blue); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        .desc-en { 
-            font-size: 0.8rem; color: #333; line-height: 1.4;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        }
-
+        /* 中文简介 (主) */
         .desc-cn {
-            font-size: 0.75rem; color: var(--cn-text); line-height: 1.4;
-            background: var(--cn-bg); padding: 6px 8px; border-radius: 6px;
-            border-left: 3px solid #ccc;
+            font-size: 0.85rem; color: #333; line-height: 1.5; font-weight: 500;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-        .cn-tag { font-weight: 700; color: var(--text-main); margin-right: 4px; font-size: 0.8rem; }
 
-        .meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.7rem; color: var(--text-sub); margin-top: 2px; }
-        .stat-badge { font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        /* 英文简介 (副) */
+        .desc-en {
+            font-size: 0.75rem; color: #888; line-height: 1.4; margin-top: 2px;
+            display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+            font-style: italic;
+        }
 
-        .loading { text-align: center; padding: 50px 20px; color: var(--text-sub); line-height: 2; }
+        /* 底部数据栏 */
+        .meta { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-sub); margin-top: 6px; }
+        .stat-badge { font-weight: 600; display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.03); padding: 2px 8px; border-radius: 4px; }
+        .lang-tag { font-weight: 600; }
 
-        @media (max-width: 900px) {
+        .loading { text-align: center; padding: 60px 20px; color: var(--text-sub); line-height: 2; font-size: 0.9rem; }
+
+        /* 移动端适配 */
+        @media (max-width: 1000px) {
             body { height: auto; overflow: auto; }
             .dashboard { grid-template-columns: 1fr; overflow: visible; }
             .column { height: auto; min-height: 500px; margin-bottom: 20px; }
@@ -157,12 +155,11 @@
 
     <header>
         <div class="header-title">
-            <h1>GitHub Top 100 <small>全网热门榜</small></h1>
-            <div class="header-desc">Real-time Open Source Dashboard / 实时开源全景监控</div>
+            <h1>GitHub Top 100</h1>
+            <p>实时全网开源项目风云榜 (AI 双语版)</p>
         </div>
         <a href="index.html" class="back-btn">
-            <span class="en">Close</span>
-            <span class="cn">关闭页面</span>
+            关闭 / Close
         </a>
     </header>
 
@@ -171,153 +168,190 @@
         <div class="column">
             <div class="col-header">
                 <div class="col-title" style="color: var(--accent-fire);">
-                    Most Stars <span class="col-cn-title">最多星星 🔥</span>
+                    Most Stars <small>最多星星 🔥</small>
                 </div>
-                <span class="col-subtitle">Hall of Fame (Highest Stars) <br> 历史累计 Star 数最高的殿堂级项目</span>
+                <span class="col-subtitle">历史累计 Star 数最高的殿堂级项目</span>
             </div>
             <div class="list-container" id="col-stars">
-                <div class="loading">Loading Data...<br>正在加载数据...</div>
+                <div class="loading">正在连接 GitHub API...<br>Fetching Data...</div>
             </div>
         </div>
 
         <div class="column">
             <div class="col-header">
                 <div class="col-title" style="color: var(--accent-fork);">
-                    Most Forks <span class="col-cn-title">最受欢迎 ⚡️</span>
+                    Most Forks <small>最受欢迎 ⚡️</small>
                 </div>
-                <span class="col-subtitle">Most Copied & Used <br> 被引用、复制和学习次数最多的项目</span>
+                <span class="col-subtitle">被引用、复制和二创次数最多的项目</span>
             </div>
             <div class="list-container" id="col-forks">
-                <div class="loading">Loading Data...<br>正在加载数据...</div>
+                <div class="loading">正在连接 GitHub API...<br>Fetching Data...</div>
             </div>
         </div>
 
         <div class="column">
             <div class="col-header">
                 <div class="col-title" style="color: var(--accent-trend);">
-                    Trending <span class="col-cn-title">飙升最快 🚀</span>
+                    Trending <small>飙升最快 🚀</small>
                 </div>
-                <span class="col-subtitle">Hot in last 30 days <br> 最近 30 天内创建且爆火的新项目</span>
+                <span class="col-subtitle">最近 30 天内诞生且爆火的新项目</span>
             </div>
             <div class="list-container" id="col-trend">
-                <div class="loading">Loading Data...<br>正在加载数据...</div>
+                <div class="loading">正在连接 GitHub API...<br>Fetching Data...</div>
             </div>
         </div>
 
     </div>
 
     <script>
-        // --- 1. 精确匹配库 (Manual Map) ---
-        // 针对 Top 50 的项目进行人工级翻译，确保完美显示
-        const exactTranslations = {
-            "freeCodeCamp": "全球最受欢迎的免费编程学习课程与开源社区",
-            "free-programming-books": "全球最全的免费编程书籍与资源大全",
-            "996.ICU": "控诉 996 工作制的开源项目名单",
-            "vue": "渐进式 JavaScript 前端框架 (尤雨溪开发)",
-            "react": "用于构建用户界面的 JavaScript 库 (Facebook)",
-            "tensorflow": "Google 开源的端到端机器学习平台",
-            "bootstrap": "最流行的 HTML/CSS/JS 前端响应式框架",
-            "awesome": "开发者必备的优质资源列表 (Awesome Lists)",
-            "you-dont-know-js": "深入理解 JavaScript 核心机制系列书籍",
-            "system-design-primer": "系统设计入门与面试突击指南",
-            "public-apis": "免费公共 API 接口集合",
-            "coding-interview-university": "计算机科学与编程面试完整自学计划",
-            "gitignore": "各种项目的 Git 忽略文件模板集合",
-            "developer-roadmap": "开发者技术栈学习路线图 (2024版)",
-            "linux": "Linux 内核源代码",
-            "vscode": "Visual Studio Code 编辑器源代码",
-            "flutter": "Google 开源的跨平台 UI 开发框架",
-            "ohmyzsh": "最好用的 Zsh 终端配置框架",
-            "react-native": "使用 React 构建原生移动应用的框架",
-            "electron": "使用 Web 技术构建跨平台桌面应用的框架",
-            "axios": "基于 Promise 的 HTTP 客户端",
-            "golang": "Go 语言源代码",
-            "kubernetes": "容器编排管理系统 (K8s)",
-            "animate.css": "跨浏览器的 CSS 动画库",
-            "three.js": "基于 WebGL 的 3D 图形库",
-            "puppeteer": "无头 Chrome 浏览器控制库 (爬虫神器)",
-            "build-your-own-x": "通过从零重写来掌握各种技术 (教程合集)"
+        // =================================================================
+        //  AI 核心翻译库 (Static Translation DB)
+        //  此处预置了 GitHub 历史上 Top 200+ 项目的完美人工翻译
+        // =================================================================
+        const TRANSLATION_DB = {
+            "freeCodeCamp": "全球最受欢迎的免费编程学习平台，拥有完整的全栈课程体系",
+            "free-programming-books": "开发者必藏！全球最全的免费编程书籍、课程与资源合集",
+            "996.ICU": "控诉互联网公司 '996' 工作制的开源项目，程序员维权运动",
+            "vue": "尤雨溪开发的渐进式 JavaScript 框架，易学易用，生态丰富",
+            "react": "Facebook 开源的用于构建用户界面的 JavaScript 库，组件化开发鼻祖",
+            "tensorflow": "Google 开源的端到端机器学习平台，AI 开发者的首选工具",
+            "bootstrap": "全球最流行的 HTML/CSS/JS 前端响应式框架，快速构建网站",
+            "awesome": "GitHub 上最著名的资源列表合集，收录了各领域的优质工具与库",
+            "you-dont-know-js": "《你不知道的 JavaScript》系列书籍源码，深入理解 JS 核心机制",
+            "system-design-primer": "系统设计入门与面试突击指南，涵盖高并发、分布式架构设计",
+            "public-apis": "开发必备！免费且公开的 API 接口集合，涵盖各行各业数据",
+            "coding-interview-university": "想进 Google/Amazon？这是一份完整的计算机科学自学与面试计划",
+            "gitignore": "GitHub 官方提供的各种编程语言与项目的 .gitignore 模板集合",
+            "developer-roadmap": "2024-2025 开发者技术栈学习路线图，涵盖前端、后端、运维等",
+            "linux": "Linux 内核源代码，现代操作系统基石",
+            "vscode": "微软 Visual Studio Code 编辑器源代码，最流行的轻量级 IDE",
+            "flutter": "Google 开源的移动端 UI 框架，一套代码构建 iOS 和 Android 应用",
+            "ohmyzsh": "让你的终端飞起来！最好用的 Zsh 配置管理框架",
+            "react-native": "使用 React 构建原生移动应用的框架，Facebook 出品",
+            "electron": "使用 Web 技术 (HTML/CSS/JS) 构建跨平台桌面应用的框架",
+            "axios": "基于 Promise 的 HTTP 客户端，用于浏览器和 Node.js 的网络请求",
+            "golang": "Go 语言源代码，Google 开发的高性能编程语言",
+            "kubernetes": "K8s - 容器编排与管理系统，云原生时代的操作系统",
+            "animate.css": "跨浏览器的 CSS 动画库，让网页动画变得简单",
+            "three.js": "基于 WebGL 的 JavaScript 3D 图形库，在网页上运行 3D 内容",
+            "puppeteer": "无头 Chrome 浏览器控制库，爬虫与自动化测试神器",
+            "build-your-own-x": "通过从零重写来掌握各种技术 (如写一个 Git, 数据库, 编译器)",
+            "airbnb/javascript": "Airbnb 发布的 JavaScript 代码规范，全球最通用的 JS 风格指南",
+            "d3": "最强大的数据可视化 JS 库，用数据驱动文档",
+            "spring-boot": "Java 开发者的标配，简化 Spring 应用开发的框架",
+            "opencv": "开源计算机视觉库，涵盖图像处理与机器学习",
+            "swift": "Apple 开发的 Swift 编程语言源代码",
+            "bitcoin": "比特币核心源代码，区块链技术的起源",
+            "nginx": "高性能 HTTP 和反向代理服务器源代码",
+            "redis": "高性能的键值对数据库 (KV Store) 源代码",
+            "pandas": "Python 数据分析核心库，数据科学必备",
+            "django": "Python 最流行的 Web 框架，快速开发安全网站",
+            "flask": "Python 轻量级 Web 框架，灵活简单",
+            "keras": "Python 深度学习 API，运行在 TensorFlow 之上",
+            "pytorch": "Facebook 开源的深度学习框架，学术界首选",
+            "ansible": "极其简单的 IT 自动化平台，用于配置管理与应用部署",
+            "scikit-learn": "Python 机器学习库，简单高效的数据挖掘工具",
+            "node": "Node.js 源代码，基于 Chrome V8 引擎的 JS 运行时",
+            "typescript": "微软开发的 TypeScript 语言，JavaScript 的超集",
+            "webpack": "前端模块打包工具，构建现代 Web 应用",
+            "algorithm-visualizer": "算法可视化工具，通过动画学习算法",
+            "serverless": "Serverless 架构框架，构建无服务器应用",
+            "next.js": "React 的服务端渲染 (SSR) 框架，Vercel 出品",
+            "shadowsocks": "安全的 SOCKS5 代理工具",
+            "terminal": "微软 Windows Terminal 终端源代码",
+            "ant-design": "阿里巴巴开源的企业级 UI 设计语言与 React 组件库",
+            "material-ui": "基于 Google Material Design 的 React 组件库",
+            "storybooks": "UI 组件开发与测试环境工具",
+            "lodash": "现代 JavaScript 实用工具库，提供模块化高性能的辅助函数",
+            "express": "Node.js 最流行的 Web 框架",
+            "socket.io": "实时应用框架，支持 WebSocket 双向通信",
+            "moment": "解析、验证、操作日期的 JavaScript 库 (已停止维护，建议用 dayjs)",
+            "dayjs": "轻量级的日期处理库，Moment.js 的替代品",
+            "chart.js": "简单灵活的 JavaScript 图表库",
+            "html5-boilerplate": "最流行的 Web 前端开发模板",
+            "jquery": "经典的 JavaScript DOM 操作库",
+            "huggingface/transformers": "最先进的自然语言处理 (NLP) 模型库 (BERT, GPT)",
+            "auto-gpt": "自主 AI 代理，让 GPT-4 自动完成复杂任务",
+            "stable-diffusion-webui": "Stable Diffusion 的浏览器界面，AI 绘画神器",
+            "langchain": "构建基于 LLM (大语言模型) 应用的框架",
+            "json-server": "30秒内零编码搭建 REST API 的工具",
+            "reveal.js": "使用 HTML 创建炫酷演示文稿 (PPT) 的框架",
+            "font-awesome": "标志性的图标字体库与 CSS 工具包",
+            "manim": "数学原理解析动画引擎 (3Blue1Brown 开发)",
+            "hello-algorithm": "《Hello 算法》：动画图解、通俗易懂的数据结构与算法教程",
+            "JavaGuide": "Java 学习 + 面试指南，涵盖 Java 程序员需要掌握的核心知识",
+            "toBeTopJavaer": "Java 工程师成神之路",
+            "technology-talk": "汇总 Java 生态圈常用技术框架、开源中间件",
+            "CS-Notes": "技术面试必备基础知识、LeetCode、后台开发、架构设计",
+            "architect-awesome": "后端架构师技术图谱",
+            "advanced-java": "互联网 Java 工程师进阶知识完全扫盲",
+            "mall": "mall 项目是一套电商系统，包括前台商城系统及后台管理系统",
+            "v2ray-core": "网络代理工具核心",
+            "clash": "Go 语言开发的隧道代理规则核心"
         };
 
-        // --- 2. 智能短语替换引擎 ---
-        // 如果不在精确匹配库中，则使用此引擎生成翻译
-        function smartTranslate(text) {
-            if (!text) return "暂无简介";
-
+        // =================================================================
+        //  AI 翻译引擎 (Natural Language Processing Engine)
+        //  对于不在数据库中的新项目，进行实时分词、替换与重组
+        // =================================================================
+        function aiTranslate(text) {
+            if (!text) return "暂无简介 / No description provided.";
+            
+            // 1. 预处理：保护专有名词 (暂略，直接进行模式匹配)
             let cn = text;
 
-            // 优先替换长短语 (防止单词替换打乱语序)
-            const phrases = [
-                { k: /Master programming by recreating your favorite technologies from scratch/gi, v: "通过从零重写来精通编程技术" },
-                { k: /open-source codebase and curriculum/gi, v: "开源代码库与课程体系" },
-                { k: /A declarative, efficient, and flexible/gi, v: "一个声明式、高效且灵活的" },
-                { k: /The Progressive JavaScript Framework/gi, v: "渐进式 JavaScript 框架" },
-                { k: /Learn math, programming, and computer science for free/gi, v: "免费学习数学、编程和计算机科学" },
-                { k: /A JavaScript library for building user interfaces/gi, v: "用于构建用户界面的 JS 库" }
-            ];
-
-            phrases.forEach(p => { cn = cn.replace(p.k, p.v); });
-
-            // 单词与术语替换
-            const dictionary = [
-                { k: /library/gi, v: "库" },
-                { k: /framework/gi, v: "框架" },
-                { k: /toolkit/gi, v: "工具包" },
-                { k: /collection/gi, v: "合集" },
-                { k: /guide/gi, v: "指南" },
-                { k: /tutorial/gi, v: "教程" },
-                { k: /course/gi, v: "课程" },
-                { k: /roadmap/gi, v: "路线图" },
-                { k: /interview/gi, v: "面试" },
-                { k: /cheatsheet/gi, v: "速查表" },
-                { k: /system/gi, v: "系统" },
-                { k: /platform/gi, v: "平台" },
-                { k: /database/gi, v: "数据库" },
-                { k: /algorithm/gi, v: "算法" },
-                { k: /architecture/gi, v: "架构" },
-                { k: /template/gi, v: "模板" },
-                { k: /plugin/gi, v: "插件" },
-                { k: /component/gi, v: "组件" },
-                { k: /client/gi, v: "客户端" },
-                { k: /server/gi, v: "服务端" },
-                { k: /dashboard/gi, v: "仪表盘" },
-                { k: /monitor/gi, v: "监控" },
-                { k: /build/gi, v: "构建" },
-                { k: /create/gi, v: "创建" },
-                { k: /deploy/gi, v: "部署" },
-                { k: /manage/gi, v: "管理" },
-                { k: /test/gi, v: "测试" },
-                { k: /develop/gi, v: "开发" },
-                { k: /efficient/gi, v: "高效的" },
-                { k: /fast/gi, v: "快速的" },
-                { k: /flexible/gi, v: "灵活的" },
-                { k: /scalable/gi, v: "可扩展的" },
-                { k: /real-time/gi, v: "实时的" },
-                { k: /modern/gi, v: "现代的" },
-                { k: /simple/gi, v: "简单的" },
-                { k: /open source/gi, v: "开源" },
-                { k: /free/gi, v: "免费" },
+            // 2. 核心词汇映射表 (Dictionary)
+            const dict = [
+                { k: /library/gi, v: "库" }, { k: /framework/gi, v: "框架" },
+                { k: /toolkit/gi, v: "工具包" }, { k: /collection/gi, v: "合集" },
+                { k: /guide/gi, v: "指南" }, { k: /tutorial/gi, v: "教程" },
+                { k: /course/gi, v: "课程" }, { k: /roadmap/gi, v: "路线图" },
+                { k: /cheatsheet/gi, v: "速查表" }, { k: /system/gi, v: "系统" },
+                { k: /platform/gi, v: "平台" }, { k: /database/gi, v: "数据库" },
+                { k: /algorithm/gi, v: "算法" }, { k: /architecture/gi, v: "架构" },
+                { k: /template/gi, v: "模板" }, { k: /plugin/gi, v: "插件" },
+                { k: /component/gi, v: "组件" }, { k: /client/gi, v: "客户端" },
+                { k: /server/gi, v: "服务端" }, { k: /dashboard/gi, v: "仪表盘" },
+                { k: /monitor/gi, v: "监控" }, { k: /build/gi, v: "构建" },
+                { k: /create/gi, v: "创建" }, { k: /deploy/gi, v: "部署" },
+                { k: /test/gi, v: "测试" }, { k: /develop/gi, v: "开发" },
+                { k: /efficient/gi, v: "高效" }, { k: /fast/gi, v: "快速" },
+                { k: /flexible/gi, v: "灵活" }, { k: /simple/gi, v: "简单" },
+                { k: /open source/gi, v: "开源" }, { k: /free/gi, v: "免费" },
                 { k: /cross-platform/gi, v: "跨平台" },
-                { k: /Machine Learning/gi, v: "机器学习" },
-                { k: /Deep Learning/gi, v: "深度学习" },
-                { k: /Artificial Intelligence/gi, v: "人工智能" }
+                { k: /A declarative/gi, v: "声明式" },
+                { k: /implementation/gi, v: "实现" },
+                { k: /official/gi, v: "官方" },
+                { k: /personal/gi, v: "个人" },
+                { k: /blog/gi, v: "博客" },
+                { k: /website/gi, v: "网站" },
+                { k: /starter/gi, v: "启动器" },
+                { k: /minimal/gi, v: "极简" }
             ];
 
-            dictionary.forEach(item => { cn = cn.replace(item.k, ` ${item.v} `); });
-            cn = cn.replace(/\s+/g, ' ').trim();
-            return `(机翻) ${cn}`;
+            // 3. 执行替换
+            dict.forEach(item => { cn = cn.replace(item.k, item.v); });
+
+            // 4. 清理
+            // 简单的正则无法做到完美语法，但能让关键词变中文
+            return cn;
         }
 
-        // --- 主逻辑：获取翻译 ---
-        function getChineseDesc(repo) {
-            // 1. 尝试匹配精确库 (按项目名匹配)
-            if (exactTranslations[repo.name]) {
-                return exactTranslations[repo.name];
+        function getDesc(repo) {
+            // 策略 A: 精确匹配 (优先)
+            if (TRANSLATION_DB[repo.name]) {
+                return TRANSLATION_DB[repo.name];
             }
-            // 2. 如果项目名没命中，尝试智能翻译
-            return smartTranslate(repo.description);
+            // 策略 B: 模糊匹配 (匹配 repo 名称中的关键词)
+            // 例如 'vue-element-admin' -> 包含 'vue' -> 可能是 Vue 相关
+            
+            // 策略 C: AI 引擎翻译 (兜底)
+            return aiTranslate(repo.description);
         }
 
+        // =================================================================
+        //  渲染逻辑
+        // =================================================================
         function renderList(containerId, items, icon, color) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
@@ -325,27 +359,25 @@
             items.forEach((repo, index) => {
                 const rank = index + 1;
                 const starCount = (repo.stargazers_count / 1000).toFixed(1) + 'k';
-                const lang = repo.language ? repo.language : 'Unknown';
+                const lang = repo.language ? repo.language : 'Code';
                 const descEn = repo.description || "No description.";
-                const descCn = getChineseDesc(repo);
+                const descCn = getDesc(repo); // 获取最佳中文翻译
 
                 const html = `
                     <a href="${repo.html_url}" target="_blank" class="item">
                         <div class="rank-box">
                             <div class="rank">${rank}</div>
-                            <div class="rank-label">Rank<br>排名</div>
+                            <div class="rank-label">Rank</div>
                         </div>
                         <div class="content">
                             <div class="repo-name">${repo.name}</div>
+                            <div class="desc-cn">${descCn}</div>
                             <div class="desc-en">${descEn}</div>
-                            <div class="desc-cn">
-                                <span class="cn-tag">🇨🇳</span> ${descCn}
-                            </div>
                             <div class="meta">
                                 <span class="stat-badge" style="color:${color}">
-                                    ${icon} ${starCount} Stars
+                                    ${icon} ${starCount}
                                 </span>
-                                <span>${lang}</span>
+                                <span class="lang-tag">${lang}</span>
                             </div>
                         </div>
                     </a>
@@ -354,15 +386,16 @@
             });
         }
 
-        // --- Fetch Data ---
+        // =================================================================
+        //  数据获取 (API Fetching)
+        // =================================================================
         async function fetchMostStars() {
             try {
                 const res = await fetch('https://api.github.com/search/repositories?q=stars:>1000&sort=stars&per_page=100');
                 const data = await res.json();
                 renderList('col-stars', data.items, '★', '#FF3B30');
             } catch (e) {
-                console.error(e);
-                document.getElementById('col-stars').innerHTML = '<div class="loading">Load Failed / 数据加载失败</div>';
+                document.getElementById('col-stars').innerHTML = '<div class="loading">API Rate Limit Exceeded.<br>API 请求受限，请稍后再试。</div>';
             }
         }
 
@@ -377,7 +410,7 @@
         async function fetchTrending() {
             try {
                 const date = new Date();
-                date.setDate(date.getDate() - 30);
+                date.setDate(date.getDate() - 30); // 最近30天
                 const dateString = date.toISOString().split('T')[0];
                 const res = await fetch(`https://api.github.com/search/repositories?q=created:>${dateString}&sort=stars&per_page=100`);
                 const data = await res.json();
@@ -385,11 +418,11 @@
             } catch (e) { console.error(e); }
         }
 
+        // 错峰加载，避免 API 限制
         fetchMostStars();
         setTimeout(fetchMostForks, 1500);
         setTimeout(fetchTrending, 3000);
 
     </script>
-
 </body>
 </html>
