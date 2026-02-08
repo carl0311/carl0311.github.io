@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Reader Pro | 图文总结版</title>
+    <title>Smart Reader Pro | 自由配置版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <style>
@@ -15,6 +15,7 @@
             --accent-green: #34C759;
             --highlight: #FFF3cd;
             --border: #E0E0E0;
+            --radius: 12px;
             --font-serif: "Georgia", "Times New Roman", serif;
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
@@ -30,7 +31,7 @@
             flex-direction: column;
         }
 
-        /* --- 顶部配置栏 --- */
+        /* --- 顶部栏 (极简) --- */
         .config-bar {
             background: #fff; border-bottom: 1px solid var(--border);
             padding: 12px 20px; position: sticky; top: 0; z-index: 100;
@@ -43,22 +44,53 @@
         .logo { font-weight: 800; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 5px; }
         
         .input-area { display: flex; gap: 8px; flex-grow: 1; align-items: center; }
+        
         input[type="text"], select {
-            padding: 8px 12px; border: 1px solid var(--border);
-            border-radius: 8px; outline: none; font-size: 0.85rem; background: white;
+            padding: 10px 12px; border: 1px solid var(--border);
+            border-radius: 8px; outline: none; font-size: 0.9rem; background: white;
+            transition: 0.2s;
         }
-        input[type="text"] { flex-grow: 1; min-width: 150px; }
-        input:focus, select:focus { border-color: var(--accent-blue); }
+        input[type="text"] { flex-grow: 1; min-width: 200px; }
+        input:focus, select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
 
-        .btn-group { display: flex; gap: 8px; }
         .btn {
-            padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
-            font-weight: 600; font-size: 0.85rem; transition: 0.2s; white-space: nowrap;
+            padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer;
+            font-weight: 600; font-size: 0.9rem; transition: 0.2s; white-space: nowrap;
+            display: flex; align-items: center; gap: 5px;
         }
         .btn-primary { background: var(--accent-blue); color: white; }
         .btn-primary:hover { background: #005BB5; }
         .btn-outline { background: white; border: 1px solid var(--border); color: #555; }
         .btn-outline:hover { background: #f9f9f9; }
+
+        /* --- 独立的 AI 配置面板 (Modal) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 500; display: none;
+            align-items: center; justify-content: center; backdrop-filter: blur(2px);
+        }
+        .config-modal {
+            background: white; width: 90%; max-width: 550px; padding: 30px;
+            border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .modal-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #444; }
+        .form-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; }
+        .form-desc { font-size: 0.75rem; color: #888; margin-top: 4px; }
+
+        /* 预设芯片 */
+        .chips { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .chip {
+            padding: 6px 12px; background: #f0f0f0; border-radius: 20px; font-size: 0.8rem;
+            cursor: pointer; border: 1px solid transparent; color: #555;
+        }
+        .chip:hover { background: #e0e0e0; color: #000; }
+        .chip.active { background: #E0F2FE; color: var(--accent-blue); border-color: var(--accent-blue); }
 
         /* --- 阅读纸张区域 --- */
         .reader-container {
@@ -68,99 +100,92 @@
             min-height: 85vh;
         }
 
-        .article-title { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; line-height: 1.25; color: #111; }
+        .article-title { font-family: var(--font-serif); font-size: 2.4rem; font-weight: 700; margin-bottom: 20px; line-height: 1.2; color: #111; }
         .article-meta { color: #888; font-size: 0.9rem; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
         
-        /* --- AI 总结卡片 --- */
+        /* AI 总结卡片 */
         .summary-card {
             background: #F0F9FF; border: 1px solid #BAE6FD;
-            border-radius: 8px; padding: 20px; margin-bottom: 40px;
+            border-radius: 8px; padding: 25px; margin-bottom: 50px;
         }
         .summary-title { font-weight: 700; color: #0369A1; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-        .summary-content { color: #334155; font-size: 0.95rem; line-height: 1.6; }
+        .summary-content { color: #334155; font-size: 1rem; line-height: 1.6; }
         .summary-content ul { padding-left: 20px; margin: 0; }
-        .summary-content li { margin-bottom: 6px; }
+        .summary-content li { margin-bottom: 8px; }
 
-        /* --- 正文样式 --- */
+        /* 正文 */
         .article-body { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.8; color: #222; }
         
-        /* 图片自适应 */
+        /* 图片样式 */
         .article-body img {
-            max-width: 100%; height: auto; display: block; margin: 20px auto;
-            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 100%; height: auto; display: block; margin: 30px auto;
+            border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        /* 难词交互 (屏幕显示模式) */
+        /* 难词高亮 */
         .hard-word {
             background-color: var(--highlight); border-bottom: 2px solid #FCD34D;
             cursor: pointer; position: relative; padding: 0 2px; border-radius: 3px;
         }
-        /* 鼠标悬停显示 (仅屏幕模式有效) */
-        body:not(.printing-mode) .hard-word:hover::after {
+        
+        /* 屏幕阅读模式下的 Tooltip */
+        body:not(.printing) .hard-word:hover::after {
             content: attr(data-mean); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
             background: #2D3748; color: #fff; padding: 6px 12px; border-radius: 6px;
             font-size: 0.85rem; font-family: var(--font-sans); white-space: nowrap; 
             margin-bottom: 8px; z-index: 10; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        /* 翻译块 */
+        /* 翻译按钮与框 */
         .trans-btn {
             display: inline-block; margin-left: 8px; font-size: 0.75rem; color: var(--accent-blue);
             cursor: pointer; font-family: var(--font-sans); background: #EFF6FF; 
             padding: 2px 8px; border-radius: 100px; border: 1px solid rgba(0,113,227,0.1); vertical-align: middle;
         }
         .trans-box {
-            display: none; margin-top: 10px; padding: 15px 20px;
+            display: none; margin-top: 15px; padding: 15px 20px;
             background: #F8FAFC; border-left: 4px solid var(--accent-blue);
             font-family: var(--font-sans); font-size: 1rem; color: #475569; border-radius: 0 8px 8px 0;
         }
         .trans-box.show { display: block; }
 
-        /* --- 🖨️ PDF 打印模式专用样式 (关键修改) --- */
-        body.printing-mode .reader-container {
-            width: 100%; max-width: 100%; margin: 0; padding: 0; box-shadow: none;
-        }
-        body.printing-mode .trans-box {
-            display: block !important; /* 强制显示翻译 */
-            border-left: none; border-top: 1px dashed #ccc;
-            background: transparent; padding: 10px 0; color: #666; font-size: 0.9em;
-            margin-bottom: 20px;
-        }
-        body.printing-mode .trans-btn { display: none; /* 隐藏翻译按钮 */ }
+        /* --- 🖨️ PDF 打印模式专用 CSS --- */
+        body.printing .config-bar { display: none !important; }
+        body.printing .reader-container { width: 100%; max-width: 100%; padding: 0; box-shadow: none; margin: 0; }
         
-        /* 难词在 PDF 中直接显示含义 */
-        body.printing-mode .hard-word {
+        /* 强制展开翻译 */
+        body.printing .trans-box {
+            display: block !important;
+            border-left: none; border-top: 1px dashed #ccc;
+            background: transparent; padding: 10px 0; margin-bottom: 20px; color: #555; font-size: 0.9em;
+        }
+        body.printing .trans-btn { display: none; }
+        
+        /* 难词直接显示含义 */
+        body.printing .hard-word {
             background: none; border: none; font-weight: bold; color: #C2410C;
         }
-        body.printing-mode .hard-word::after {
-            content: " [" attr(data-mean) "]"; /* 直接把含义显示在后面 */
-            font-size: 0.8em; color: #666; font-weight: normal; margin-left: 2px;
+        body.printing .hard-word::after {
+            content: " [" attr(data-mean) "]";
+            font-size: 0.8em; color: #666; font-weight: normal;
         }
-        body.printing-mode .summary-card { border: 2px solid #000; background: #fff; }
+        
+        body.printing .article-body img { 
+            /* 尝试强制打印图片 */
+            max-width: 100% !important; 
+            page-break-inside: avoid;
+        }
 
-        /* Loading & Modal */
+        /* Loading */
         .overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(255,255,255,0.95); z-index: 200;
             display: none; flex-direction: column; align-items: center; justify-content: center;
         }
         .spinner { width: 40px; height: 40px; border: 4px solid #E2E8F0; border-top: 4px solid var(--accent-blue); border-radius: 50%; animation: spin 1s linear infinite; }
-        
-        /* Settings Modal */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 500; display: none;
-            align-items: center; justify-content: center;
-        }
-        .settings-modal {
-            background: white; width: 90%; max-width: 500px; padding: 25px;
-            border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-        }
-        .form-group { margin-bottom: 15px; }
-        .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
 
         @media (max-width: 768px) {
-            .reader-container { padding: 30px 20px; }
+            .reader-container { padding: 30px 20px; margin: 10px; }
             .input-area { flex-direction: column; align-items: stretch; }
         }
     </style>
@@ -172,56 +197,76 @@
             <div class="logo">📚 SmartReader</div>
             
             <div class="input-area">
-                <select id="modelSelect" onchange="saveConfig()">
-                    <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0 Flash (Free)</option>
-                    <option value="deepseek/deepseek-chat">DeepSeek V3</option>
-                    <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
-                </select>
-                <select id="userLevel" style="width:120px;">
+                <select id="userLevel" style="width:140px;">
                     <option value="CET4">水平: 四级</option>
                     <option value="CET6">水平: 六级</option>
                     <option value="IELTS">水平: 雅思</option>
+                    <option value="GRE">水平: GRE</option>
                 </select>
-                <input type="text" id="urlInput" placeholder="输入文章链接 or 留空手动输入">
+                <input type="text" id="urlInput" placeholder="输入文章链接 (BBC, NYT...)">
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="attemptReading()">🚀 开始阅读</button>
+                <button class="btn btn-primary" onclick="startProcess()">🚀 开始阅读</button>
                 <button class="btn btn-outline" onclick="exportPDF()">📄 导出 PDF</button>
-                <button class="btn btn-outline" onclick="openSettings()">⚙️ 配置</button>
+                <button class="btn btn-outline" onclick="showConfig()">⚙️ AI Config</button>
             </div>
         </div>
     </div>
 
-    <div id="settingsModal" class="modal-overlay">
-        <div class="settings-modal">
-            <h3 style="margin-bottom:15px;">⚙️ API 配置</h3>
-            <div class="form-group">
-                <label style="font-size:0.8rem; font-weight:bold;">Base URL</label>
-                <input type="text" id="cfgBaseUrl" placeholder="https://openrouter.ai/api/v1">
+    <div id="configModal" class="modal-overlay">
+        <div class="config-modal">
+            <div class="modal-header">
+                <span>🤖 AI Service Configuration</span>
+                <span style="cursor:pointer;" onclick="closeConfig()">✕</span>
             </div>
-            <div class="form-group">
-                <label style="font-size:0.8rem; font-weight:bold;">API Key</label>
-                <input type="password" id="cfgKey" placeholder="sk-...">
+
+            <div class="chips">
+                <span style="font-size:0.8rem; align-self:center; color:#888;">快速预设:</span>
+                <div class="chip" onclick="fillPreset('openrouter')">OpenRouter (Free)</div>
+                <div class="chip" onclick="fillPreset('deepseek')">DeepSeek V3</div>
+                <div class="chip" onclick="fillPreset('openai')">OpenAI</div>
+                <div class="chip" onclick="fillPreset('ollama')">Localhost (Ollama)</div>
             </div>
-            <button class="btn btn-primary" style="width:100%" onclick="saveSettings()">保存</button>
+
+            <div class="form-group">
+                <label class="form-label">API Base URL (接口地址)</label>
+                <input type="text" id="cfgUrl" class="form-input" placeholder="https://openrouter.ai/api/v1">
+                <div class="form-desc">例如: https://api.deepseek.com/v1 (不填则默认为 OpenRouter)</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">API Key (密钥)</label>
+                <input type="password" id="cfgKey" class="form-input" placeholder="sk-...">
+                <div class="form-desc">您的 Key 仅保存在本地浏览器中</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Model ID (模型名称)</label>
+                <input type="text" id="cfgModel" class="form-input" placeholder="google/gemini-2.0-flash-lite-preview-02-05:free">
+                <div class="form-desc">您可以输入任何该平台支持的模型 ID</div>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:20px;" onclick="saveConfig()">💾 保存配置</button>
         </div>
     </div>
 
     <div class="reader-container" id="readerArea">
         <div id="welcomeScreen" style="text-align:center; padding:80px 20px; color:#94A3B8;">
             <h2 style="color:#2C3E50; margin-bottom:10px;">Smart Reader Pro</h2>
-            <p>输入链接，AI 将为您生成 <b>图文并茂</b> 的分级阅读材料。</p>
-            <p style="font-size:0.9rem; color:#aaa; margin-top:5px;">支持 自动总结 • 生词旁注 • 段落翻译 • PDF 导出</p>
+            <p>1. 点击 <b>"⚙️ AI Config"</b> 配置您的服务商 (支持 DeepSeek/OpenAI/本地)。<br>2. 输入链接，生成图文并茂的双语讲义。</p>
+            <div style="margin-top:20px; font-size:0.85rem; background:#F1F5F9; display:inline-block; padding:10px 20px; border-radius:6px;">
+                💡 <b>提示:</b> 导出 PDF 时会自动展开翻译并标注生词，完美适配打印。
+            </div>
         </div>
         
         <div id="articleContent" style="display:none;">
             <h1 class="article-title" id="artTitle"></h1>
             <div class="article-meta" id="artMeta"></div>
-            
-            <div class="summary-card" id="aiSummaryBox">
-                <div class="summary-title">🤖 AI Executive Summary</div>
-                <div class="summary-content" id="aiSummaryText"></div>
+
+            <div class="summary-card" id="summaryCard">
+                <div class="summary-title">📝 AI Executive Summary</div>
+                <div class="summary-content" id="summaryText"></div>
             </div>
 
             <div class="article-body" id="artBody"></div>
@@ -230,14 +275,15 @@
 
     <div class="overlay" id="loading">
         <div class="spinner"></div>
-        <div style="margin-top:20px; font-weight:600; color:#555;">AI 正在阅读、总结并翻译...</div>
+        <div style="margin-top:20px; font-weight:600; color:#555;">AI 正在阅读全文、生成总结并翻译...</div>
     </div>
 
-    <div class="modal-overlay" id="pasteModal">
-        <div class="settings-modal" style="max-width:600px;">
-            <h3>📝 手动粘贴内容</h3>
-            <textarea id="pasteText" style="width:100%; height:200px; margin:10px 0; padding:10px; border:1px solid #ddd; border-radius:8px;" placeholder="在此粘贴文章..."></textarea>
-            <div style="text-align:right;">
+    <div id="pasteModal" class="modal-overlay">
+        <div class="config-modal">
+            <h3>📝 手动输入</h3>
+            <p style="color:#666; font-size:0.9rem; margin:10px 0;">自动抓取失败。请手动粘贴文章内容：</p>
+            <textarea id="pasteText" style="width:100%; height:200px; padding:10px; border:1px solid #ddd; border-radius:8px;"></textarea>
+            <div style="text-align:right; margin-top:15px; display:flex; justify-content:flex-end; gap:10px;">
                 <button class="btn btn-outline" onclick="document.getElementById('pasteModal').style.display='none'">取消</button>
                 <button class="btn btn-primary" onclick="submitPaste()">开始分析</button>
             </div>
@@ -245,87 +291,105 @@
     </div>
 
     <script>
-        // --- 配置管理 ---
-        const DEFAULT_BASE = "https://openrouter.ai/api/v1";
-        const DEFAULT_MODEL = "google/gemini-2.0-flash-lite-preview-02-05:free";
-        
-        function getCfg() {
+        // --- 配置逻辑 ---
+        const DEFAULT_CONFIG = {
+            url: "https://openrouter.ai/api/v1",
+            key: "",
+            model: "google/gemini-2.0-flash-lite-preview-02-05:free"
+        };
+
+        function getConfig() {
             return {
-                url: localStorage.getItem('sr_base') || DEFAULT_BASE,
+                url: localStorage.getItem('sr_url') || DEFAULT_CONFIG.url,
                 key: localStorage.getItem('sr_key') || "",
-                model: localStorage.getItem('sr_model') || DEFAULT_MODEL
+                model: localStorage.getItem('sr_model') || DEFAULT_CONFIG.model
             };
         }
 
-        document.getElementById('modelSelect').value = getCfg().model;
-
-        function openSettings() {
-            const cfg = getCfg();
-            document.getElementById('cfgBaseUrl').value = cfg.url;
+        // --- UI 操作 ---
+        function showConfig() {
+            const cfg = getConfig();
+            document.getElementById('cfgUrl').value = cfg.url;
             document.getElementById('cfgKey').value = cfg.key;
-            document.getElementById('settingsModal').style.display = 'flex';
+            document.getElementById('cfgModel').value = cfg.model;
+            document.getElementById('configModal').style.display = 'flex';
         }
 
-        function saveSettings() {
-            localStorage.setItem('sr_base', document.getElementById('cfgBaseUrl').value.trim());
-            localStorage.setItem('sr_key', document.getElementById('cfgKey').value.trim());
-            document.getElementById('settingsModal').style.display = 'none';
-            alert("配置已保存");
-        }
+        function closeConfig() { document.getElementById('configModal').style.display = 'none'; }
 
         function saveConfig() {
-            localStorage.setItem('sr_model', document.getElementById('modelSelect').value);
+            const url = document.getElementById('cfgUrl').value.trim();
+            const key = document.getElementById('cfgKey').value.trim();
+            const model = document.getElementById('cfgModel').value.trim();
+            
+            // 允许 url 和 model 为空时回退默认，但 key 最好提示
+            localStorage.setItem('sr_url', url);
+            localStorage.setItem('sr_key', key);
+            localStorage.setItem('sr_model', model);
+            
+            closeConfig();
+            alert("配置已更新！");
+        }
+
+        function fillPreset(type) {
+            const presets = {
+                'openrouter': { u: 'https://openrouter.ai/api/v1', m: 'google/gemini-2.0-flash-lite-preview-02-05:free' },
+                'deepseek': { u: 'https://api.deepseek.com/v1', m: 'deepseek-chat' },
+                'openai': { u: 'https://api.openai.com/v1', m: 'gpt-4o-mini' },
+                'ollama': { u: 'http://localhost:11434/v1', m: 'llama3' }
+            };
+            const p = presets[type];
+            document.getElementById('cfgUrl').value = p.u;
+            document.getElementById('cfgModel').value = p.m;
         }
 
         // --- 核心流程 ---
-        async function attemptReading() {
-            const cfg = getCfg();
-            if(!cfg.key) { openSettings(); return; }
+        async function startProcess() {
+            const cfg = getConfig();
+            if(!cfg.key && !cfg.url.includes('localhost')) { showConfig(); return; } // 本地 Ollama 不需要 key
 
             const url = document.getElementById('urlInput').value.trim();
-            const level = document.getElementById('userLevel').value;
-
-            if (!url) { document.getElementById('pasteModal').style.display = 'flex'; return; }
+            if(!url) { document.getElementById('pasteModal').style.display = 'flex'; return; }
 
             document.getElementById('loading').style.display = 'flex';
-            
-            try {
-                // Jina Reader (获取 Markdown 以保留图片)
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://r.jina.ai/${url}`)}`;
-                const res = await fetch(proxyUrl);
-                const data = await res.json();
-                
-                if (!data.contents || data.contents.includes("Access denied")) throw new Error("无法抓取");
 
-                await analyze(data.contents, level);
+            try {
+                // 使用 Jina Reader 获取 Markdown (保留图片链接)
+                const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://r.jina.ai/${url}`)}`;
+                const res = await fetch(proxy);
+                const data = await res.json();
+
+                if(!data.contents || data.contents.includes("Access denied")) throw new Error("抓取失败");
+
+                await analyze(data.contents);
+
             } catch (e) {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('pasteModal').style.display = 'flex';
-                document.getElementById('pasteText').placeholder = "自动抓取失败，请手动粘贴...";
+                document.getElementById('pasteText').placeholder = "自动抓取被拦截，请手动粘贴...";
             }
         }
 
         function submitPaste() {
             const text = document.getElementById('pasteText').value.trim();
-            const level = document.getElementById('userLevel').value;
             if(!text) return;
             document.getElementById('pasteModal').style.display = 'none';
             document.getElementById('loading').style.display = 'flex';
-            analyze(text, level);
+            analyze(text);
         }
 
         // --- AI 分析 ---
-        async function analyze(text, level) {
-            const cfg = getCfg();
-            const cleanText = text.substring(0, 15000); // 长文本截断
+        async function analyze(text) {
+            const cfg = getConfig();
+            const level = document.getElementById('userLevel').value;
+            const cleanText = text.substring(0, 15000); // 15k字符限制
 
-            // 提示词：要求包含 summary 字段，并保留 markdown 图片链接
             const prompt = `
             Role: English Reading Tutor. Level: ${level}.
             Task:
-            1. Summarize the article in 3-5 Chinese bullet points.
-            2. Split text into logical paragraphs (Keep Markdown images like ![alt](url) intact).
-            3. Identify "hard words" (> ${level}).
+            1. Summarize the content in 3-5 Chinese bullet points.
+            2. Split text into paragraphs (Keep Markdown images intact!).
+            3. Identify hard words (> ${level}).
             4. Translate paragraphs to Chinese.
             
             Output JSON ONLY:
@@ -334,7 +398,7 @@
                 "summary": ["Point 1", "Point 2"],
                 "paragraphs": [
                     {
-                        "en": "Original text (keep markdown images)...",
+                        "en": "Original text (keep images)...",
                         "cn": "Translation...",
                         "words": { "word": "meaning" }
                     }
@@ -347,9 +411,17 @@
 
             try {
                 const endpoint = cfg.url.replace(/\/+$/, '') + '/chat/completions';
+                const headers = { "Content-Type": "application/json" };
+                if(cfg.key) headers["Authorization"] = `Bearer ${cfg.key}`;
+                // OpenRouter specific
+                if(cfg.url.includes("openrouter")) {
+                    headers["HTTP-Referer"] = window.location.href;
+                    headers["X-Title"] = "Smart Reader";
+                }
+
                 const res = await fetch(endpoint, {
                     method: "POST",
-                    headers: { "Authorization": `Bearer ${cfg.key}`, "Content-Type": "application/json", "HTTP-Referer": window.location.href },
+                    headers: headers,
                     body: JSON.stringify({
                         model: cfg.model,
                         messages: [
@@ -360,11 +432,10 @@
                     })
                 });
 
+                if(!res.ok) throw new Error(`API Error: ${res.status}`);
                 const data = await res.json();
-                if(data.error) throw new Error(data.error.message);
-                
-                const result = JSON.parse(data.choices[0].message.content.replace(/```json|```/g, '').trim());
-                render(result);
+                const content = data.choices[0].message.content.replace(/```json|```/g, '').trim();
+                render(JSON.parse(content));
 
             } catch (e) {
                 alert("AI Error: " + e.message);
@@ -373,80 +444,70 @@
             }
         }
 
-        // --- 渲染页面 ---
+        // --- 渲染 ---
         function render(data) {
             document.getElementById('welcomeScreen').style.display = 'none';
             document.getElementById('articleContent').style.display = 'block';
-            
-            // 1. 标题
+
             document.getElementById('artTitle').innerText = data.title || "Article";
             document.getElementById('artMeta').innerText = `Generated by AI • ${new Date().toLocaleDateString()}`;
 
-            // 2. 总结 (列表渲染)
-            const sumBox = document.getElementById('aiSummaryText');
-            sumBox.innerHTML = `<ul>${data.summary.map(s => `<li>${s}</li>`).join('')}</ul>`;
+            // 总结
+            const sumText = document.getElementById('summaryText');
+            sumText.innerHTML = `<ul>${data.summary.map(s => `<li>${s}</li>`).join('')}</ul>`;
 
-            // 3. 正文
-            const bodyDiv = document.getElementById('artBody');
-            bodyDiv.innerHTML = '';
+            // 正文
+            const body = document.getElementById('artBody');
+            body.innerHTML = '';
 
-            data.paragraphs.forEach((para, idx) => {
+            data.paragraphs.forEach((p, idx) => {
                 const div = document.createElement('div');
                 div.style.marginBottom = "30px";
 
-                // 处理图片：将 Markdown 图片转为 HTML (使用 marked.js)
-                // 注意：marked 会把文字也转为 p，我们需要只取 innerHTML 或者针对性处理
-                // 为了简单，我们先把整段 markdown 转 HTML
-                let htmlEn = marked.parse(para.en);
+                // Markdown 转 HTML (渲染图片)
+                let htmlEn = marked.parse(p.en);
 
-                // 处理生词高亮 (在 HTML 中替换文本)
-                // 这是一个难点，为了不破坏 HTML 标签 (如 <img src...>)，我们只替换文本节点
-                // 但简单的做法是用正则替换单词，只要单词不是 HTML 属性的一部分
-                const words = Object.keys(para.words || {}).sort((a,b) => b.length - a.length);
+                // 高亮生词 (正则替换文本节点)
+                // 简单处理：仅替换非标签内的文本
+                const words = Object.keys(p.words || {}).sort((a,b) => b.length - a.length);
                 words.forEach(wd => {
-                    const mean = para.words[wd];
-                    // 正则：匹配单词，且后面不紧跟 = (防止替换属性名)
-                    // 这是一个简化的处理，对于复杂 HTML 可能有误伤，但在纯文本+Markdown图片场景下通常有效
-                    const regex = new RegExp(`\\b(${wd})\\b(?![^<]*>)`, 'gi'); 
+                    const mean = p.words[wd];
+                    // 仅匹配不在 <> 内部的单词 (防止破坏 HTML 属性)
+                    const regex = new RegExp(`\\b(${wd})\\b(?![^<]*>)`, 'gi');
                     htmlEn = htmlEn.replace(regex, `<span class="hard-word" data-mean="${mean}">$1</span>`);
                 });
 
-                const transId = `trans-${idx}`;
-                
+                const tid = `t-${idx}`;
                 div.innerHTML = `
                     <div class="para-en">
                         ${htmlEn}
-                        <span class="trans-btn" onclick="toggle('${transId}')">🌐 译</span>
+                        <span class="trans-btn" onclick="toggle('${tid}')">🌐 译</span>
                     </div>
-                    <div id="${transId}" class="trans-box">${para.cn}</div>
+                    <div id="${tid}" class="trans-box">${p.cn}</div>
                 `;
-                bodyDiv.appendChild(div);
+                body.appendChild(div);
             });
         }
 
         function toggle(id) { document.getElementById(id).classList.toggle('show'); }
 
-        // --- PDF 导出 (打印模式) ---
+        // --- PDF 导出 ---
         function exportPDF() {
-            const el = document.getElementById('readerArea');
-            
-            // 1. 开启“打印模式”
-            document.body.classList.add('printing-mode');
-            
+            const element = document.getElementById('readerArea');
+            document.body.classList.add('printing'); // 添加打印类，触发 CSS 变化
+
             const opt = {
                 margin: 10,
-                filename: `SmartReader_${new Date().toISOString().slice(0,10)}.pdf`,
+                filename: `SmartReader_Note.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true }, // 尝试开启 CORS 以支持图片
+                html2canvas: { scale: 2, useCORS: true }, // 开启 CORS 支持图片
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(el).save().then(() => {
-                // 2. 恢复正常模式
-                document.body.classList.remove('printing-mode');
+            html2pdf().set(opt).from(element).save().then(() => {
+                document.body.classList.remove('printing'); // 恢复
             });
         }
     </script>
-
 </body>
 </html>
