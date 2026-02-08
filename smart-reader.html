@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart News Reader | AI 助读 (Model Select)</title>
+    <title>Smart News Reader | 万能适配版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/@mozilla/readability@0.4.2/Readability.js"></script>
     <style>
@@ -30,7 +30,7 @@
             flex-direction: column;
         }
 
-        /* --- 顶部配置栏 --- */
+        /* --- 顶部栏 --- */
         .config-bar {
             background: #fff;
             border-bottom: 1px solid var(--border);
@@ -46,7 +46,6 @@
 
         .logo { font-weight: 800; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 5px; margin-right: 10px; }
         
-        /* 输入区 */
         .input-area { display: flex; gap: 8px; flex-grow: 1; align-items: center; }
         
         input[type="text"], select {
@@ -57,25 +56,44 @@
         input[type="text"] { flex-grow: 1; min-width: 150px; }
         input:focus, select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
 
-        /* 模型选择器高亮 */
-        #modelSelect {
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-            font-weight: 600;
-            max-width: 180px;
-        }
-
         .btn-group { display: flex; gap: 8px; }
         .btn {
             padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
             font-weight: 600; font-size: 0.85rem; transition: 0.2s; white-space: nowrap;
+            display: flex; align-items: center; gap: 5px;
         }
         .btn-primary { background: var(--accent-blue); color: white; }
         .btn-primary:hover { background: #005BB5; }
         .btn-outline { background: white; border: 1px solid var(--border); color: #555; }
         .btn-outline:hover { background: #f9f9f9; }
+        .btn-icon { padding: 8px; }
 
-        /* --- 阅读纸张区域 --- */
+        /* --- 配置模态框 (Settings Modal) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 500; display: none;
+            align-items: center; justify-content: center;
+        }
+        .settings-modal {
+            background: white; width: 90%; max-width: 500px; padding: 25px;
+            border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+        .modal-header { font-weight: 700; font-size: 1.2rem; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: #555; }
+        .form-group input { width: 100%; }
+        .form-hint { font-size: 0.75rem; color: #888; margin-top: 4px; }
+
+        /* 预设按钮 */
+        .preset-btns { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .preset-btn {
+            font-size: 0.75rem; padding: 4px 10px; border: 1px solid #ddd; 
+            border-radius: 20px; background: #f5f5f5; cursor: pointer; color: #666;
+        }
+        .preset-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: white; }
+
+        /* --- 阅读区域 --- */
         .reader-container {
             max-width: 850px; margin: 30px auto;
             background: var(--paper-bg);
@@ -86,49 +104,36 @@
         }
 
         .article-title { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; line-height: 1.25; color: #111; }
-        .article-meta { color: #888; font-size: 0.9rem; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 20px; display: flex; gap: 15px; }
-        .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
+        .article-meta { color: #888; font-size: 0.9rem; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 10px; }
 
         .article-body { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.8; color: #222; }
         
-        /* 难词高亮 */
+        /* 难词与翻译 */
         .hard-word {
-            background-color: var(--highlight);
-            border-bottom: 2px solid #FCD34D;
-            cursor: pointer; position: relative;
-            padding: 0 2px; border-radius: 3px; transition: 0.2s;
+            background-color: var(--highlight); border-bottom: 2px solid #FCD34D;
+            cursor: pointer; position: relative; padding: 0 2px; border-radius: 3px;
         }
-        .hard-word:hover { background-color: #FCD34D; }
-        
-        .hard-word::after {
-            content: attr(data-mean);
-            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-            background: #2D3748; color: #fff;
-            padding: 6px 12px; border-radius: 6px;
-            font-size: 0.85rem; font-family: var(--font-sans); font-weight: 500;
-            white-space: nowrap; opacity: 0; pointer-events: none;
-            transition: 0.2s; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 10;
+        .hard-word:hover::after {
+            content: attr(data-mean); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: #2D3748; color: #fff; padding: 6px 12px; border-radius: 6px;
+            font-size: 0.85rem; font-family: var(--font-sans); white-space: nowrap; 
+            margin-bottom: 8px; z-index: 10;
         }
-        .hard-word:hover::after { opacity: 1; bottom: 110%; }
 
-        /* 翻译块 */
         .trans-btn {
-            display: inline-block; margin-left: 8px;
-            font-size: 0.75rem; color: var(--accent-blue);
-            cursor: pointer; font-family: var(--font-sans);
-            background: #EFF6FF; padding: 2px 8px; border-radius: 100px;
-            vertical-align: middle; border: 1px solid rgba(0,113,227,0.1); user-select: none;
+            display: inline-block; margin-left: 8px; font-size: 0.75rem; color: var(--accent-blue);
+            cursor: pointer; font-family: var(--font-sans); background: #EFF6FF; 
+            padding: 2px 8px; border-radius: 100px; border: 1px solid rgba(0,113,227,0.1);
         }
         .trans-box {
             display: none; margin-top: 10px; padding: 15px 20px;
             background: #F8FAFC; border-left: 4px solid var(--accent-blue);
-            font-family: var(--font-sans); font-size: 1rem; color: #475569;
-            border-radius: 0 8px 8px 0; line-height: 1.6;
+            font-family: var(--font-sans); font-size: 1rem; color: #475569; border-radius: 0 8px 8px 0;
         }
         .trans-box.show { display: block; }
 
-        /* Loading & Modal */
+        /* Loading & Paste Modal */
         .overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(255,255,255,0.95); z-index: 200;
@@ -139,32 +144,17 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Paste Modal */
-        .paste-modal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        .paste-modal-box {
             background: white; width: 90%; max-width: 600px; padding: 30px;
             border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
-            z-index: 300; display: none; border: 1px solid #E2E8F0;
+            border: 1px solid #E2E8F0;
         }
-        .paste-area {
-            width: 100%; height: 200px; margin: 15px 0; padding: 10px;
-            border: 1px solid #E2E8F0; border-radius: 8px; resize: vertical;
-            font-family: monospace;
-        }
-        .overlay-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 299; display: none;
-        }
+        .paste-area { width: 100%; height: 200px; margin: 15px 0; padding: 10px; border: 1px solid #E2E8F0; border-radius: 8px; resize: vertical; }
 
-        @media print {
-            .config-bar, .trans-btn { display: none !important; }
-            .reader-container { box-shadow: none; margin: 0; width: 100%; padding: 0; }
-        }
         @media (max-width: 768px) {
             .reader-container { padding: 30px 20px; margin: 10px; }
-            .config-container { flex-direction: column; align-items: stretch; }
             .article-title { font-size: 1.8rem; }
-            .input-area { flex-direction: column; }
-            input[type="text"], select { width: 100%; }
+            .input-area { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -175,37 +165,65 @@
             <div class="logo">📚 SmartReader</div>
             
             <div class="input-area">
-                <select id="modelSelect" title="Select AI Model" onchange="saveModelPreference()">
-                    <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0 Flash (Free)</option>
-                    <option value="deepseek/deepseek-chat">DeepSeek V3 (Cheap)</option>
-                    <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
-                    <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
-                    <option value="google/gemini-pro-1.5">Gemini 1.5 Pro</option>
-                </select>
-
                 <select id="userLevel" style="width:120px;">
                     <option value="CET4">水平: 四级</option>
                     <option value="CET6">水平: 六级</option>
                     <option value="IELTS">水平: 雅思</option>
                     <option value="GRE">水平: GRE</option>
                 </select>
-                <input type="text" id="urlInput" placeholder="输入新闻链接 (BBC, NYT...) 或留空">
+                <input type="text" id="urlInput" placeholder="输入链接 (BBC, NYT...) 或留空手动输入">
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="attemptReading()">🚀 开始</button>
-                <button class="btn btn-outline" onclick="exportPDF()">📥 PDF</button>
-                <button class="btn btn-outline" onclick="setApiKey()">🔑 Key</button>
+                <button class="btn btn-primary" onclick="attemptReading()">🚀 开始阅读</button>
+                <button class="btn btn-outline" onclick="exportPDF()">📄 PDF</button>
+                <button class="btn btn-outline" onclick="openSettings()">⚙️ 配置 AI</button>
             </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal-overlay">
+        <div class="settings-modal">
+            <div class="modal-header">
+                <span>🤖 AI 服务设置</span>
+                <span style="cursor:pointer;" onclick="closeSettings()">✕</span>
+            </div>
+
+            <div class="preset-btns">
+                <span style="font-size:0.8rem; color:#888; align-self:center;">快速预设:</span>
+                <div class="preset-btn" onclick="applyPreset('openrouter')">OpenRouter</div>
+                <div class="preset-btn" onclick="applyPreset('deepseek')">DeepSeek</div>
+                <div class="preset-btn" onclick="applyPreset('openai')">OpenAI</div>
+                <div class="preset-btn" onclick="applyPreset('silicon')">硅基流动</div>
+            </div>
+
+            <div class="form-group">
+                <label>API Provider URL (Base URL)</label>
+                <input type="text" id="cfgBaseUrl" placeholder="例如: https://openrouter.ai/api/v1">
+                <div class="form-hint">接口地址，通常以 /v1 结尾</div>
+            </div>
+
+            <div class="form-group">
+                <label>API Key</label>
+                <input type="password" id="cfgKey" placeholder="sk-...">
+            </div>
+
+            <div class="form-group">
+                <label>Model ID (模型名称)</label>
+                <input type="text" id="cfgModel" placeholder="例如: deepseek-chat">
+                <div class="form-hint">手动输入你要调用的模型 ID</div>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:20px;" onclick="saveSettings()">💾 保存配置</button>
         </div>
     </div>
 
     <div class="reader-container" id="readerArea">
         <div id="welcomeScreen" style="text-align:center; padding:80px 20px; color:#94A3B8;">
-            <h2 style="color:#2C3E50; margin-bottom:10px;">Select Model & Start</h2>
-            <p>请先在顶部选择您想使用的 AI 模型，然后输入链接。</p>
+            <h2 style="color:#2C3E50; margin-bottom:10px;">Configure & Read</h2>
+            <p>1. 点击右上角 <b>"⚙️ 配置 AI"</b> 设置你的服务商。<br>2. 输入文章链接，即可开始沉浸式学习。</p>
             <div style="margin-top:20px; font-size:0.85rem; background:#F1F5F9; color:#475569; display:inline-block; padding:10px 20px; border-radius:6px;">
-                💡 <b>DeepSeek V3</b> 或 <b>Gemini Flash</b> 适合长文章，速度快且便宜。
+                💡 推荐使用 <b>DeepSeek-V3</b> 或 <b>Gemini Flash</b>，处理长文章又快又便宜。
             </div>
         </div>
         
@@ -218,66 +236,105 @@
 
     <div class="overlay" id="loading">
         <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">正在连接 AI 分析引擎...</div>
+        <div class="loading-text" id="loadingText">Connecting to AI...</div>
     </div>
 
-    <div class="overlay-bg" id="modalBg"></div>
-    <div class="paste-modal" id="pasteModal">
-        <h3 style="margin-bottom:10px;">⚠️ 自动抓取受阻</h3>
-        <p style="color:#666; font-size:0.9rem; line-height:1.5;">
-            无法自动提取该网页。请手动复制内容粘贴到下方。<br>
-            <a id="archiveLink" href="#" target="_blank" style="color:var(--accent-blue); font-weight:bold;">👉 点击这里去 Archive.ph 找全文</a>
-        </p>
-        <textarea class="paste-area" id="pasteText" placeholder="在此粘贴文章标题和正文..."></textarea>
-        <div style="text-align:right; display:flex; gap:10px; justify-content:flex-end;">
-            <button class="btn btn-outline" onclick="closeModal()">取消</button>
-            <button class="btn btn-primary" onclick="submitPaste()">开始 AI 分析</button>
+    <div class="modal-overlay" id="pasteModal">
+        <div class="paste-modal-box">
+            <h3 style="margin-bottom:10px;">📝 手动输入内容</h3>
+            <p style="color:#666; font-size:0.9rem; margin-bottom:10px;">无法自动抓取或您想自定义内容。请粘贴文章：</p>
+            <textarea class="paste-area" id="pasteText" placeholder="在此粘贴英语文章..."></textarea>
+            <div style="text-align:right; display:flex; gap:10px; justify-content:flex-end; margin-top:15px;">
+                <button class="btn btn-outline" onclick="closePasteModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitPaste()">开始分析</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- 1. 配置管理 ---
-        let apiKey = localStorage.getItem('openrouter_key');
-        let currentModel = localStorage.getItem('smartreader_model') || "google/gemini-2.0-flash-lite-preview-02-05:free"; 
+        // --- 1. 配置管理 (Local Storage) ---
+        // 默认配置 (OpenRouter)
+        const DEFAULT_CONFIG = {
+            baseUrl: "https://openrouter.ai/api/v1",
+            key: "",
+            model: "google/gemini-2.0-flash-lite-preview-02-05:free"
+        };
 
-        // 初始化下拉菜单
-        document.getElementById('modelSelect').value = currentModel;
-
-        function setApiKey() {
-            const key = prompt("请输入 OpenRouter API Key:", apiKey || "");
-            if (key) { localStorage.setItem('openrouter_key', key); apiKey = key; alert("API Key 已保存"); }
+        function getSettings() {
+            return {
+                baseUrl: localStorage.getItem('sr_base_url') || DEFAULT_CONFIG.baseUrl,
+                key: localStorage.getItem('sr_api_key') || "",
+                model: localStorage.getItem('sr_model') || DEFAULT_CONFIG.model
+            };
         }
 
-        function saveModelPreference() {
-            const val = document.getElementById('modelSelect').value;
-            localStorage.setItem('smartreader_model', val);
-            currentModel = val;
+        // --- Settings Modal UI ---
+        function openSettings() {
+            const cfg = getSettings();
+            document.getElementById('cfgBaseUrl').value = cfg.baseUrl;
+            document.getElementById('cfgKey').value = cfg.key;
+            document.getElementById('cfgModel').value = cfg.model;
+            document.getElementById('settingsModal').style.display = 'flex';
         }
 
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function applyPreset(type) {
+            const presets = {
+                'openrouter': { url: 'https://openrouter.ai/api/v1', model: 'google/gemini-2.0-flash-lite-preview-02-05:free' },
+                'deepseek': { url: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
+                'openai': { url: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+                'silicon': { url: 'https://api.siliconflow.cn/v1', model: 'deepseek-ai/DeepSeek-V3' } // 硅基流动
+            };
+            const p = presets[type];
+            if(p) {
+                document.getElementById('cfgBaseUrl').value = p.url;
+                document.getElementById('cfgModel').value = p.model;
+                alert(`已填入 ${type} 的默认地址和模型，请记得填入对应的 Key！`);
+            }
+        }
+
+        function saveSettings() {
+            const baseUrl = document.getElementById('cfgBaseUrl').value.trim();
+            const key = document.getElementById('cfgKey').value.trim();
+            const model = document.getElementById('cfgModel').value.trim();
+
+            if(!baseUrl || !key || !model) return alert("请填写所有字段");
+
+            localStorage.setItem('sr_base_url', baseUrl);
+            localStorage.setItem('sr_api_key', key);
+            localStorage.setItem('sr_model', model);
+            
+            closeSettings();
+            alert("配置已保存！");
+        }
+
+        // --- 2. 核心流程 ---
         function showLoading(show, text) {
             const el = document.getElementById('loading');
             if(text) document.getElementById('loadingText').innerText = text;
             el.style.display = show ? 'flex' : 'none';
         }
 
-        // --- 2. 核心入口 ---
         async function attemptReading() {
-            if (!apiKey) { setApiKey(); if(!apiKey) return; }
-            
+            const cfg = getSettings();
+            if(!cfg.key) { openSettings(); return; }
+
             const url = document.getElementById('urlInput').value.trim();
             const level = document.getElementById('userLevel').value;
 
-            // 情况1: 用户没填链接 -> 直接弹窗让粘贴
+            // 无链接 -> 手动粘贴
             if (!url) {
-                openPasteModal(""); 
+                document.getElementById('pasteModal').style.display = 'flex';
                 return;
             }
 
-            // 情况2: 用户填了链接 -> 尝试 Jina Reader + 代理
-            showLoading(true, "尝试智能提取正文...");
-            
+            // 有链接 -> Jina Reader
+            showLoading(true, "正在智能提取正文...");
             try {
-                // 使用 Jina Reader 引擎 (穿透力强) + AllOrigins 代理
+                // 使用 AllOrigins 代理访问 Jina Reader
                 const jinaUrl = `https://r.jina.ai/${url}`;
                 const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(jinaUrl)}`;
                 
@@ -287,107 +344,99 @@
                 if (!response.ok || !data.contents) throw new Error("代理请求失败");
 
                 const markdownText = data.contents;
-
-                if (markdownText.includes("Just a moment") || markdownText.includes("Access denied") || markdownText.length < 200) {
-                    throw new Error("网站反爬拦截");
+                
+                // 简单反爬检测
+                if (markdownText.length < 200 || markdownText.includes("Access denied")) {
+                    throw new Error("网站反爬，请手动复制粘贴");
                 }
 
                 await analyzeWithAI("Detected Article", markdownText, level, "Jina Reader");
 
             } catch (e) {
-                console.warn("Fetch failed:", e);
+                console.warn(e);
                 showLoading(false);
-                // 失败 -> 弹窗引导手动粘贴
-                openPasteModal(url);
+                // 失败自动弹窗
+                document.getElementById('pasteModal').style.display = 'flex';
+                document.getElementById('pasteText').placeholder = `抓取失败 (${e.message})。\n请在此处手动粘贴文章内容...`;
             }
         }
 
-        // --- 3. 手动粘贴处理逻辑 ---
-        function openPasteModal(url) {
-            document.getElementById('modalBg').style.display = 'block';
-            document.getElementById('pasteModal').style.display = 'block';
-            
-            const archiveLink = document.getElementById('archiveLink');
-            if (url) {
-                // 生成 archive.ph 链接方便用户去复制
-                archiveLink.href = `https://archive.ph/newest/${url}`;
-                archiveLink.style.display = 'inline-block';
-            } else {
-                archiveLink.style.display = 'none';
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('modalBg').style.display = 'none';
+        function closePasteModal() {
             document.getElementById('pasteModal').style.display = 'none';
         }
 
         function submitPaste() {
             const text = document.getElementById('pasteText').value.trim();
             const level = document.getElementById('userLevel').value;
-            if (!text) return alert("内容不能为空");
+            if(!text) return alert("内容为空");
             
-            closeModal();
+            closePasteModal();
             analyzeWithAI("Manual Input", text, level, "Manual Paste");
         }
 
-        // --- 4. AI 分析逻辑 (使用选定的 currentModel) ---
+        // --- 3. AI 分析 (通用适配版) ---
         async function analyzeWithAI(title, text, level, source) {
-            showLoading(true, `AI (${currentModel.split('/')[1]}) 正在分析...`);
+            const cfg = getSettings();
+            showLoading(true, `AI (${cfg.model}) 正在分析...`);
 
-            // 截取文本防止 Token 溢出 (Gemini 支持长文本，这里设为 15k 字符)
-            const cleanText = text.substring(0, 15000);
+            // 截取
+            const cleanText = text.substring(0, 12000); // 12k 字符通常安全
 
             const prompt = `
-            Role: English Reading Tutor. User Level: ${level}.
-            
+            Role: English Tutor. Level: ${level}.
             Task:
-            1. Analyze the text provided.
-            2. Split it into logical paragraphs (keep original flow).
-            3. Identify "hard words" (CEFR level > ${level}).
-            4. Provide concise Chinese definitions for hard words.
-            5. Translate the paragraph into fluent, literary Chinese.
+            1. Split text into logical paragraphs.
+            2. Identify hard words (> ${level}). Provide Chinese definition.
+            3. Translate paragraph to Chinese.
             
-            Output JSON format ONLY:
+            Output JSON ONLY:
             {
                 "title": "Article Title",
                 "paragraphs": [
                     {
-                        "en": "Original paragraph text...",
+                        "en": "Original text...",
                         "cn": "Translation...",
                         "words": { "word": "meaning" }
                     }
                 ]
             }
 
-            Text content:
+            Content:
             ${cleanText}
             `;
 
             try {
-                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                // 构建通用的 OpenAI 格式请求
+                // 处理 BaseURL 尾部斜杠
+                const endpoint = cfg.baseUrl.replace(/\/+$/, '') + '/chat/completions';
+
+                const response = await fetch(endpoint, {
                     method: "POST",
                     headers: {
-                        "Authorization": `Bearer ${apiKey}`,
+                        "Authorization": `Bearer ${cfg.key}`,
                         "Content-Type": "application/json",
+                        // OpenRouter 特殊头，其他 API 通常忽略
                         "HTTP-Referer": window.location.href,
                         "X-Title": "Smart News Reader"
                     },
                     body: JSON.stringify({
-                        "model": currentModel, // 使用用户选择的模型
+                        "model": cfg.model,
                         "messages": [
-                            {"role": "system", "content": "You are a JSON generator. Respond with valid JSON only."},
+                            {"role": "system", "content": "You are a JSON generator. Always return valid JSON."},
                             {"role": "user", "content": prompt}
                         ],
                         "response_format": { "type": "json_object" }
                     })
                 });
 
-                const data = await response.json();
-                if(data.error) throw new Error(data.error.message);
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(`API Error ${response.status}: ${errText}`);
+                }
 
+                const data = await response.json();
                 const content = data.choices[0].message.content;
-                // 有些模型可能返回 Markdown 代码块，需要清洗
+                // 清洗 Markdown 代码块
                 const cleanJson = content.replace(/```json|```/g, '').trim();
                 const result = JSON.parse(cleanJson);
 
@@ -396,11 +445,12 @@
 
             } catch (e) {
                 console.error(e);
-                alert("AI 分析中断: " + e.message + "\n建议切换模型重试。");
+                alert("AI 请求失败:\n" + e.message + "\n\n请检查 Key、模型名或 BaseURL 是否正确。");
                 showLoading(false);
             }
         }
 
+        // --- 4. 渲染与功能 ---
         function renderPage(title, paragraphs, source) {
             const contentDiv = document.getElementById('articleContent');
             const bodyDiv = document.getElementById('artBody');
@@ -409,7 +459,7 @@
             contentDiv.style.display = 'block';
             
             document.getElementById('artTitle').innerText = title;
-            document.getElementById('artMeta').innerHTML = `<span class="badge">Model: ${currentModel.split('/')[1]}</span> <span class="badge">Source: ${source}</span>`;
+            document.getElementById('artMeta').innerHTML = `<span class="badge">Source: ${source}</span>`;
 
             bodyDiv.innerHTML = ''; 
 
@@ -439,9 +489,7 @@
             });
         }
 
-        function toggleTrans(id) {
-            document.getElementById(id).classList.toggle('show');
-        }
+        function toggleTrans(id) { document.getElementById(id).classList.toggle('show'); }
 
         function exportPDF() {
             const element = document.getElementById('readerArea');
