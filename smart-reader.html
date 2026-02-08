@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart News Reader | AI 助读 (Pro)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://unpkg.com/@mozilla/readability@0.4.2/Readability.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <style>
         :root {
             --bg-color: #F5F7FA;
@@ -57,13 +56,6 @@
         input[type="text"] { flex-grow: 1; min-width: 200px; }
         input:focus, select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
 
-        /* 强力模式开关 */
-        .toggle-switch {
-            display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #555;
-            cursor: pointer; user-select: none;
-        }
-        .toggle-switch input { width: 16px; height: 16px; accent-color: var(--accent-green); }
-
         .btn-group { display: flex; gap: 8px; }
         .btn {
             padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer;
@@ -84,14 +76,12 @@
             min-height: 85vh;
         }
 
-        .article-title { font-family: var(--font-serif); font-size: 2.4rem; font-weight: 700; margin-bottom: 15px; line-height: 1.25; color: #111; }
+        .article-title { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; line-height: 1.25; color: #111; }
         .article-meta { color: #888; font-size: 0.9rem; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 20px; display: flex; gap: 15px; }
         .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
-        .badge.archive { background: #E3F2FD; color: #0D47A1; }
 
         .article-body { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.8; color: #222; }
-        .article-body p { margin-bottom: 24px; }
-
+        
         /* 难词高亮 */
         .hard-word {
             background-color: var(--highlight);
@@ -101,7 +91,6 @@
         }
         .hard-word:hover { background-color: #FCD34D; }
         
-        /* Tooltip */
         .hard-word::after {
             content: attr(data-mean);
             position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
@@ -120,22 +109,18 @@
             font-size: 0.75rem; color: var(--accent-blue);
             cursor: pointer; font-family: var(--font-sans);
             background: #EFF6FF; padding: 2px 8px; border-radius: 100px;
-            vertical-align: middle; border: 1px solid rgba(0,113,227,0.1);
+            vertical-align: middle; border: 1px solid rgba(0,113,227,0.1); user-select: none;
         }
-        .trans-btn:hover { background: #DBEAFE; }
-
         .trans-box {
             display: none; margin-top: 10px; padding: 15px 20px;
             background: #F8FAFC; border-left: 4px solid var(--accent-blue);
             font-family: var(--font-sans); font-size: 1rem; color: #475569;
             border-radius: 0 8px 8px 0; line-height: 1.6;
-            animation: fadeIn 0.4s ease;
         }
         .trans-box.show { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Loading & Error */
-        .loading-overlay {
+        /* Loading & Modal */
+        .overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(255,255,255,0.95); z-index: 200;
             display: none; flex-direction: column; align-items: center; justify-content: center;
@@ -144,13 +129,29 @@
         .loading-text { margin-top: 20px; font-weight: 600; color: #475569; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* Paste Modal */
+        .paste-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; width: 90%; max-width: 600px; padding: 30px;
+            border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            z-index: 300; display: none; border: 1px solid #E2E8F0;
+        }
+        .paste-area {
+            width: 100%; height: 200px; margin: 15px 0; padding: 10px;
+            border: 1px solid #E2E8F0; border-radius: 8px; resize: vertical;
+            font-family: monospace;
+        }
+        .overlay-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 299; display: none;
+        }
+
         @media print {
             .config-bar, .trans-btn { display: none !important; }
-            .reader-container { box-shadow: none; margin: 0; width: 100%; max-width: 100%; padding: 0; }
+            .reader-container { box-shadow: none; margin: 0; width: 100%; padding: 0; }
         }
         @media (max-width: 768px) {
             .reader-container { padding: 30px 20px; margin: 10px; }
-            .config-container { flex-direction: column; align-items: stretch; }
             .article-title { font-size: 1.8rem; }
         }
     </style>
@@ -159,7 +160,7 @@
 
     <div class="config-bar">
         <div class="config-container">
-            <div class="logo">📚 SmartReader <span style="font-size:0.7em; color:#888; font-weight:400;">AI Edition</span></div>
+            <div class="logo">📚 SmartReader</div>
             
             <div class="input-area">
                 <select id="userLevel" style="width:140px;">
@@ -168,30 +169,23 @@
                     <option value="IELTS">水平: 雅思</option>
                     <option value="GRE">水平: GRE</option>
                 </select>
-                <input type="text" id="urlInput" placeholder="输入文章链接 (例如 NYT, BBC...)">
+                <input type="text" id="urlInput" placeholder="输入链接 (BBC, NYT...) 或留空">
             </div>
 
-            <div style="display:flex; align-items:center; gap:15px;">
-                <label class="toggle-switch" title="使用 archive.ph 获取全文快照，解决付费墙问题">
-                    <input type="checkbox" id="archiveMode"> 
-                    <span>🔓 强力去付费墙</span>
-                </label>
-                
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="startReading()">🚀 开始</button>
-                    <button class="btn btn-outline" onclick="exportPDF()">📥 PDF</button>
-                    <button class="btn btn-outline" onclick="setApiKey()">🔑 Key</button>
-                </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="attemptReading()">🚀 开始</button>
+                <button class="btn btn-outline" onclick="exportPDF()">📥 PDF</button>
+                <button class="btn btn-outline" onclick="setApiKey()">🔑 Key</button>
             </div>
         </div>
     </div>
 
     <div class="reader-container" id="readerArea">
         <div id="welcomeScreen" style="text-align:center; padding:80px 20px; color:#94A3B8;">
-            <h2 style="color:#2C3E50; margin-bottom:10px;">Ready to Read</h2>
-            <p>输入新闻链接，AI 将为您生成沉浸式分级阅读体验。</p>
-            <div style="margin-top:30px; font-size:0.9rem; background:#F1F5F9; display:inline-block; padding:10px 20px; border-radius:8px;">
-                💡 <b>Tip:</b> 遇到看不了的付费文章 (NYT/WSJ)，请勾选顶部 <b>"强力去付费墙"</b>
+            <h2 style="color:#2C3E50; margin-bottom:10px;">Paste Link or Text</h2>
+            <p>输入新闻链接，AI 将自动提取内容、高亮生词并翻译。</p>
+            <div style="margin-top:20px; font-size:0.85rem; background:#FFF7ED; color:#C2410C; display:inline-block; padding:8px 16px; border-radius:6px;">
+                ⚠️ 提示：部分付费网站防爬严格，如果抓取失败，系统会引导您手动粘贴。
             </div>
         </div>
         
@@ -202,14 +196,28 @@
         </div>
     </div>
 
-    <div class="loading-overlay" id="loading">
+    <div class="overlay" id="loading">
         <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">正在连接 AI 分析引擎...</div>
+        <div class="loading-text" id="loadingText">正在智能提取正文...</div>
+    </div>
+
+    <div class="overlay-bg" id="modalBg"></div>
+    <div class="paste-modal" id="pasteModal">
+        <h3 style="margin-bottom:10px;">⚠️ 自动抓取受阻 (Anti-Bot)</h3>
+        <p style="color:#666; font-size:0.9rem; line-height:1.5;">
+            目标网站开启了强力反爬虫验证。请手动复制文章内容粘贴到下方。<br>
+            <a id="archiveLink" href="#" target="_blank" style="color:var(--accent-blue); font-weight:bold;">👉 点击这里去 Archive.ph 获取全文</a>
+        </p>
+        <textarea class="paste-area" id="pasteText" placeholder="在此粘贴文章标题和正文..."></textarea>
+        <div style="text-align:right; display:flex; gap:10px; justify-content:flex-end;">
+            <button class="btn btn-outline" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="submitPaste()">开始 AI 分析</button>
+        </div>
     </div>
 
     <script>
         let apiKey = localStorage.getItem('openrouter_key');
-        let currentModel = "google/gemini-2.0-flash-lite-preview-02-05:free"; // 推荐使用免费且长窗口的模型
+        let currentModel = "google/gemini-2.0-flash-lite-preview-02-05:free"; 
 
         function setApiKey() {
             const key = prompt("请输入 OpenRouter API Key:", apiKey || "");
@@ -222,106 +230,109 @@
             el.style.display = show ? 'flex' : 'none';
         }
 
-        async function startReading() {
+        // --- 核心入口 ---
+        async function attemptReading() {
             if (!apiKey) { setApiKey(); if(!apiKey) return; }
             
-            const urlInput = document.getElementById('urlInput').value.trim();
-            const useArchive = document.getElementById('archiveMode').checked;
+            const url = document.getElementById('urlInput').value.trim();
             const level = document.getElementById('userLevel').value;
+
+            // 情况1: 用户没填链接 -> 直接弹窗让粘贴
+            if (!url) {
+                openPasteModal(""); 
+                return;
+            }
+
+            // 情况2: 用户填了链接 -> 尝试 Jina Reader + 代理
+            showLoading(true, "尝试智能提取正文...");
             
-            let rawHtml = "";
-            let finalUrl = urlInput;
-            let sourceTag = "";
-
-            showLoading(true, "正在抓取文章内容...");
-
             try {
-                if (urlInput) {
-                    // 1. 构建目标 URL
-                    let targetUrl = urlInput;
-                    if (useArchive) {
-                        // 使用 archive.ph/newest/ 获取最新快照
-                        targetUrl = `https://archive.ph/newest/${urlInput}`;
-                        sourceTag = `<span class="badge archive">Archive.ph Snapshot</span>`;
-                    } else {
-                        sourceTag = `<span class="badge">Direct Fetch</span>`;
-                    }
-
-                    // 2. 使用 CORS Proxy 获取 HTML
-                    // 使用 corsproxy.io，因为它对重定向支持较好
-                    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-                    
-                    const response = await fetch(proxyUrl);
-                    if (!response.ok) throw new Error("网络请求失败，请检查链接或取消'强力模式'重试");
-                    rawHtml = await response.text();
-
-                } else {
-                    // 手动输入模式
-                    rawHtml = prompt("请粘贴文章内容 (HTML 或 纯文本):");
-                    if (!rawHtml) { showLoading(false); return; }
-                    sourceTag = `<span class="badge">Manual Paste</span>`;
-                }
-
-                // 3. 解析正文 (Readability)
-                showLoading(true, "正在清洗网页噪音...");
+                // 使用 Jina Reader 引擎 (专门为 AI 优化) + AllOrigins 代理
+                const jinaUrl = `https://r.jina.ai/${url}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(jinaUrl)}`;
                 
-                // 创建虚拟 DOM 进行解析
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(rawHtml, "text/html");
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
                 
-                // 如果是 Archive.ph，有时候 Readability 会抓错，做一些预处理
-                if (useArchive) {
-                    // Archive.ph 通常把内容放在特定的 div 中，不过 Readability 通常能搞定
-                    // 这里可以加一些特定清理逻辑，暂且依赖库的智能
+                if (!response.ok || !data.contents) throw new Error("代理请求失败");
+
+                const markdownText = data.contents;
+
+                // 检查 Jina 是否返回了错误信息 (如 403 Forbidden)
+                if (markdownText.includes("Just a moment") || markdownText.includes("Access denied") || markdownText.length < 200) {
+                    throw new Error("网站反爬拦截");
                 }
 
-                const reader = new Readability(doc);
-                const article = reader.parse();
-
-                if (!article || article.length < 100) {
-                    throw new Error("无法提取正文。可能该网站结构特殊，或 archive.ph 正在进行人机验证。建议直接复制文本粘贴。");
-                }
-
-                // 4. 发送给 AI 分析
-                await analyzeWithAI(article.title, article.textContent, level, sourceTag);
+                // 成功抓取 -> 进 AI 分析
+                await analyzeWithAI("Detected Article", markdownText, level, "Jina Reader");
 
             } catch (e) {
-                console.error(e);
-                alert("出错啦: " + e.message);
+                console.warn("Fetch failed:", e);
                 showLoading(false);
+                // 失败 -> 弹窗引导手动粘贴
+                openPasteModal(url);
             }
         }
 
-        async function analyzeWithAI(title, text, level, sourceTag) {
-            showLoading(true, "AI 正在逐段分析与翻译 (这可能需要 10-20 秒)...");
+        // --- 手动粘贴处理逻辑 ---
+        function openPasteModal(url) {
+            document.getElementById('modalBg').style.display = 'block';
+            document.getElementById('pasteModal').style.display = 'block';
+            
+            const archiveLink = document.getElementById('archiveLink');
+            if (url) {
+                // 生成 archive.ph 链接方便用户去复制
+                archiveLink.href = `https://archive.ph/newest/${url}`;
+                archiveLink.style.display = 'inline-block';
+            } else {
+                archiveLink.style.display = 'none';
+            }
+        }
 
-            // 截取文本防止 Token 溢出 (Gemini 支持长文本，这里设为 15k 字符)
-            const cleanText = text.replace(/\s+/g, ' ').substring(0, 15000);
+        function closeModal() {
+            document.getElementById('modalBg').style.display = 'none';
+            document.getElementById('pasteModal').style.display = 'none';
+        }
+
+        function submitPaste() {
+            const text = document.getElementById('pasteText').value.trim();
+            const level = document.getElementById('userLevel').value;
+            if (!text) return alert("内容不能为空");
+            
+            closeModal();
+            analyzeWithAI("Manual Input", text, level, "Manual Paste");
+        }
+
+        // --- AI 分析逻辑 (保持不变，因为最稳定) ---
+        async function analyzeWithAI(title, text, level, source) {
+            showLoading(true, "AI 正在深度解析与生词标注...");
+
+            // 截取前 15k 字符
+            const cleanText = text.substring(0, 15000);
 
             const prompt = `
-            Role: English Reading Assistant.
-            User Level: ${level}.
+            Role: English Reading Tutor. User Level: ${level}.
             
-            Task: Process the article below.
-            1. Split into logical paragraphs (keep original flow).
-            2. For EACH paragraph:
-               - Identify "hard words" (CEFR level > ${level}). 
-               - Provide concise Chinese definitions for these words.
-               - Provide a fluent, literary Chinese translation of the paragraph.
+            Task:
+            1. Analyze the text provided.
+            2. Split it into logical paragraphs.
+            3. Identify "hard words" (CEFR > ${level}).
+            4. Provide Chinese definitions for hard words.
+            5. Translate the paragraph into fluent Chinese.
             
-            Output JSON format ONLY:
+            Output JSON ONLY:
             {
+                "title": "Guess a title if missing",
                 "paragraphs": [
                     {
                         "en": "Original paragraph text...",
-                        "cn": "整段中文翻译...",
-                        "words": { "word1": "含义", "word2": "含义" }
+                        "cn": "Translation...",
+                        "words": { "word": "meaning" }
                     }
                 ]
             }
 
-            Article Title: ${title}
-            Content:
+            Text content:
             ${cleanText}
             `;
 
@@ -336,7 +347,7 @@
                     body: JSON.stringify({
                         "model": currentModel,
                         "messages": [
-                            {"role": "system", "content": "You are a JSON generator. Always return valid JSON."},
+                            {"role": "system", "content": "You are a JSON generator. Respond with valid JSON only."},
                             {"role": "user", "content": prompt}
                         ],
                         "response_format": { "type": "json_object" }
@@ -346,47 +357,38 @@
                 const data = await response.json();
                 if(data.error) throw new Error(data.error.message);
 
-                const content = data.choices[0].message.content;
-                const result = JSON.parse(content);
-
-                renderPage(title, result.paragraphs, sourceTag);
+                const result = JSON.parse(data.choices[0].message.content);
+                renderPage(result.title || title, result.paragraphs, source);
                 showLoading(false);
 
             } catch (e) {
                 console.error(e);
-                alert("AI 分析中断: " + e.message);
+                alert("AI 分析出错: " + e.message);
                 showLoading(false);
             }
         }
 
-        function renderPage(title, paragraphs, sourceTag) {
+        function renderPage(title, paragraphs, source) {
             const contentDiv = document.getElementById('articleContent');
             const bodyDiv = document.getElementById('artBody');
             
             document.getElementById('welcomeScreen').style.display = 'none';
             contentDiv.style.display = 'block';
             
-            document.getElementById('artTitle').innerText = title || "Untitled Article";
-            document.getElementById('artMeta').innerHTML = `
-                ${sourceTag}
-                <span class="badge">${new Date().toLocaleDateString()}</span>
-                <span class="badge">Word Count: ${paragraphs.reduce((acc, p) => acc + p.en.split(' ').length, 0)}</span>
-            `;
+            document.getElementById('artTitle').innerText = title;
+            document.getElementById('artMeta').innerHTML = `<span class="badge">Source: ${source}</span> <span class="badge">Words: ${paragraphs.length} paras</span>`;
 
             bodyDiv.innerHTML = ''; 
 
             paragraphs.forEach((para, index) => {
                 const pDiv = document.createElement('div');
-                pDiv.style.marginBottom = "30px";
+                pDiv.style.marginBottom = "24px";
 
-                // 处理难词高亮
                 let htmlEn = para.en;
-                // 按单词长度降序排，防止 replace 错误
                 const words = Object.keys(para.words || {}).sort((a,b) => b.length - a.length);
                 
                 words.forEach(wd => {
                     const mean = para.words[wd];
-                    // 使用正则 \b 匹配全词，忽略大小写
                     const regex = new RegExp(`\\b(${wd})\\b`, 'gi');
                     htmlEn = htmlEn.replace(regex, `<span class="hard-word" data-mean="${mean}">$1</span>`);
                 });
@@ -394,9 +396,9 @@
                 const transId = `trans-${index}`;
 
                 pDiv.innerHTML = `
-                    <p>
+                    <p style="margin-bottom:8px;">
                         ${htmlEn}
-                        <span class="trans-btn" onclick="toggleTrans('${transId}')">译</span>
+                        <span class="trans-btn" onclick="toggleTrans('${transId}')">🌐 译</span>
                     </p>
                     <div id="${transId}" class="trans-box">${para.cn}</div>
                 `;
@@ -410,13 +412,7 @@
 
         function exportPDF() {
             const element = document.getElementById('readerArea');
-            const opt = {
-                margin: 10,
-                filename: 'Smart_Reader_Note.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            const opt = { margin: 10, filename: 'Smart_Reader.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
     </script>
