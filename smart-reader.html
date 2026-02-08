@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart News Reader | AI 助读 (Pro)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/@mozilla/readability@0.4.2/Readability.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #F5F7FA;
+            --paper-bg: #FFFFFF;
+            --text-main: #2C3E50;
+            --accent-blue: #0071E3;
+            --accent-green: #34C759;
+            --highlight: #FFF3cd;
+            --border: #E0E0E0;
+            --font-serif: "Georgia", "Times New Roman", serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: var(--font-sans);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- 顶部配置栏 --- */
+        .config-bar {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 15px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .config-container {
+            max-width: 1100px; margin: 0 auto;
+            display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: space-between;
+        }
+
+        .logo { font-weight: 800; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 5px; }
+        
+        .input-area { display: flex; gap: 10px; flex-grow: 1; align-items: center; }
+        
+        input[type="text"], select {
+            padding: 10px 12px; border: 1px solid var(--border);
+            border-radius: 8px; outline: none; font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        input[type="text"] { flex-grow: 1; min-width: 200px; }
+        input:focus, select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
+
+        /* 强力模式开关 */
+        .toggle-switch {
+            display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #555;
+            cursor: pointer; user-select: none;
+        }
+        .toggle-switch input { width: 16px; height: 16px; accent-color: var(--accent-green); }
+
+        .btn-group { display: flex; gap: 8px; }
+        .btn {
+            padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer;
+            font-weight: 600; font-size: 0.9rem; transition: 0.2s; white-space: nowrap;
+        }
+        .btn-primary { background: var(--accent-blue); color: white; }
+        .btn-primary:hover { background: #005BB5; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: #555; }
+        .btn-outline:hover { background: #f9f9f9; }
+
+        /* --- 阅读纸张区域 --- */
+        .reader-container {
+            max-width: 850px; margin: 30px auto;
+            background: var(--paper-bg);
+            padding: 60px 80px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            border-radius: 8px;
+            min-height: 85vh;
+        }
+
+        .article-title { font-family: var(--font-serif); font-size: 2.4rem; font-weight: 700; margin-bottom: 15px; line-height: 1.25; color: #111; }
+        .article-meta { color: #888; font-size: 0.9rem; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 20px; display: flex; gap: 15px; }
+        .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
+        .badge.archive { background: #E3F2FD; color: #0D47A1; }
+
+        .article-body { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.8; color: #222; }
+        .article-body p { margin-bottom: 24px; }
+
+        /* 难词高亮 */
+        .hard-word {
+            background-color: var(--highlight);
+            border-bottom: 2px solid #FCD34D;
+            cursor: pointer; position: relative;
+            padding: 0 2px; border-radius: 3px; transition: 0.2s;
+        }
+        .hard-word:hover { background-color: #FCD34D; }
+        
+        /* Tooltip */
+        .hard-word::after {
+            content: attr(data-mean);
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: #2D3748; color: #fff;
+            padding: 6px 12px; border-radius: 6px;
+            font-size: 0.85rem; font-family: var(--font-sans); font-weight: 500;
+            white-space: nowrap; opacity: 0; pointer-events: none;
+            transition: 0.2s; margin-bottom: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .hard-word:hover::after { opacity: 1; bottom: 110%; }
+
+        /* 翻译块 */
+        .trans-btn {
+            display: inline-block; margin-left: 8px;
+            font-size: 0.75rem; color: var(--accent-blue);
+            cursor: pointer; font-family: var(--font-sans);
+            background: #EFF6FF; padding: 2px 8px; border-radius: 100px;
+            vertical-align: middle; border: 1px solid rgba(0,113,227,0.1);
+        }
+        .trans-btn:hover { background: #DBEAFE; }
+
+        .trans-box {
+            display: none; margin-top: 10px; padding: 15px 20px;
+            background: #F8FAFC; border-left: 4px solid var(--accent-blue);
+            font-family: var(--font-sans); font-size: 1rem; color: #475569;
+            border-radius: 0 8px 8px 0; line-height: 1.6;
+            animation: fadeIn 0.4s ease;
+        }
+        .trans-box.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Loading & Error */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95); z-index: 200;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner { width: 40px; height: 40px; border: 4px solid #E2E8F0; border-top: 4px solid var(--accent-blue); border-radius: 50%; animation: spin 1s linear infinite; }
+        .loading-text { margin-top: 20px; font-weight: 600; color: #475569; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media print {
+            .config-bar, .trans-btn { display: none !important; }
+            .reader-container { box-shadow: none; margin: 0; width: 100%; max-width: 100%; padding: 0; }
+        }
+        @media (max-width: 768px) {
+            .reader-container { padding: 30px 20px; margin: 10px; }
+            .config-container { flex-direction: column; align-items: stretch; }
+            .article-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="config-bar">
+        <div class="config-container">
+            <div class="logo">📚 SmartReader <span style="font-size:0.7em; color:#888; font-weight:400;">AI Edition</span></div>
+            
+            <div class="input-area">
+                <select id="userLevel" style="width:140px;">
+                    <option value="CET4">水平: 四级</option>
+                    <option value="CET6">水平: 六级</option>
+                    <option value="IELTS">水平: 雅思</option>
+                    <option value="GRE">水平: GRE</option>
+                </select>
+                <input type="text" id="urlInput" placeholder="输入文章链接 (例如 NYT, BBC...)">
+            </div>
+
+            <div style="display:flex; align-items:center; gap:15px;">
+                <label class="toggle-switch" title="使用 archive.ph 获取全文快照，解决付费墙问题">
+                    <input type="checkbox" id="archiveMode"> 
+                    <span>🔓 强力去付费墙</span>
+                </label>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="startReading()">🚀 开始</button>
+                    <button class="btn btn-outline" onclick="exportPDF()">📥 PDF</button>
+                    <button class="btn btn-outline" onclick="setApiKey()">🔑 Key</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reader-container" id="readerArea">
+        <div id="welcomeScreen" style="text-align:center; padding:80px 20px; color:#94A3B8;">
+            <h2 style="color:#2C3E50; margin-bottom:10px;">Ready to Read</h2>
+            <p>输入新闻链接，AI 将为您生成沉浸式分级阅读体验。</p>
+            <div style="margin-top:30px; font-size:0.9rem; background:#F1F5F9; display:inline-block; padding:10px 20px; border-radius:8px;">
+                💡 <b>Tip:</b> 遇到看不了的付费文章 (NYT/WSJ)，请勾选顶部 <b>"强力去付费墙"</b>
+            </div>
+        </div>
+        
+        <div id="articleContent" style="display:none;">
+            <h1 class="article-title" id="artTitle"></h1>
+            <div class="article-meta" id="artMeta"></div>
+            <div class="article-body" id="artBody"></div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">正在连接 AI 分析引擎...</div>
+    </div>
+
+    <script>
+        let apiKey = localStorage.getItem('openrouter_key');
+        let currentModel = "google/gemini-2.0-flash-lite-preview-02-05:free"; // 推荐使用免费且长窗口的模型
+
+        function setApiKey() {
+            const key = prompt("请输入 OpenRouter API Key:", apiKey || "");
+            if (key) { localStorage.setItem('openrouter_key', key); apiKey = key; alert("API Key 已保存"); }
+        }
+
+        function showLoading(show, text) {
+            const el = document.getElementById('loading');
+            if(text) document.getElementById('loadingText').innerText = text;
+            el.style.display = show ? 'flex' : 'none';
+        }
+
+        async function startReading() {
+            if (!apiKey) { setApiKey(); if(!apiKey) return; }
+            
+            const urlInput = document.getElementById('urlInput').value.trim();
+            const useArchive = document.getElementById('archiveMode').checked;
+            const level = document.getElementById('userLevel').value;
+            
+            let rawHtml = "";
+            let finalUrl = urlInput;
+            let sourceTag = "";
+
+            showLoading(true, "正在抓取文章内容...");
+
+            try {
+                if (urlInput) {
+                    // 1. 构建目标 URL
+                    let targetUrl = urlInput;
+                    if (useArchive) {
+                        // 使用 archive.ph/newest/ 获取最新快照
+                        targetUrl = `https://archive.ph/newest/${urlInput}`;
+                        sourceTag = `<span class="badge archive">Archive.ph Snapshot</span>`;
+                    } else {
+                        sourceTag = `<span class="badge">Direct Fetch</span>`;
+                    }
+
+                    // 2. 使用 CORS Proxy 获取 HTML
+                    // 使用 corsproxy.io，因为它对重定向支持较好
+                    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+                    
+                    const response = await fetch(proxyUrl);
+                    if (!response.ok) throw new Error("网络请求失败，请检查链接或取消'强力模式'重试");
+                    rawHtml = await response.text();
+
+                } else {
+                    // 手动输入模式
+                    rawHtml = prompt("请粘贴文章内容 (HTML 或 纯文本):");
+                    if (!rawHtml) { showLoading(false); return; }
+                    sourceTag = `<span class="badge">Manual Paste</span>`;
+                }
+
+                // 3. 解析正文 (Readability)
+                showLoading(true, "正在清洗网页噪音...");
+                
+                // 创建虚拟 DOM 进行解析
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(rawHtml, "text/html");
+                
+                // 如果是 Archive.ph，有时候 Readability 会抓错，做一些预处理
+                if (useArchive) {
+                    // Archive.ph 通常把内容放在特定的 div 中，不过 Readability 通常能搞定
+                    // 这里可以加一些特定清理逻辑，暂且依赖库的智能
+                }
+
+                const reader = new Readability(doc);
+                const article = reader.parse();
+
+                if (!article || article.length < 100) {
+                    throw new Error("无法提取正文。可能该网站结构特殊，或 archive.ph 正在进行人机验证。建议直接复制文本粘贴。");
+                }
+
+                // 4. 发送给 AI 分析
+                await analyzeWithAI(article.title, article.textContent, level, sourceTag);
+
+            } catch (e) {
+                console.error(e);
+                alert("出错啦: " + e.message);
+                showLoading(false);
+            }
+        }
+
+        async function analyzeWithAI(title, text, level, sourceTag) {
+            showLoading(true, "AI 正在逐段分析与翻译 (这可能需要 10-20 秒)...");
+
+            // 截取文本防止 Token 溢出 (Gemini 支持长文本，这里设为 15k 字符)
+            const cleanText = text.replace(/\s+/g, ' ').substring(0, 15000);
+
+            const prompt = `
+            Role: English Reading Assistant.
+            User Level: ${level}.
+            
+            Task: Process the article below.
+            1. Split into logical paragraphs (keep original flow).
+            2. For EACH paragraph:
+               - Identify "hard words" (CEFR level > ${level}). 
+               - Provide concise Chinese definitions for these words.
+               - Provide a fluent, literary Chinese translation of the paragraph.
+            
+            Output JSON format ONLY:
+            {
+                "paragraphs": [
+                    {
+                        "en": "Original paragraph text...",
+                        "cn": "整段中文翻译...",
+                        "words": { "word1": "含义", "word2": "含义" }
+                    }
+                ]
+            }
+
+            Article Title: ${title}
+            Content:
+            ${cleanText}
+            `;
+
+            try {
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": window.location.href
+                    },
+                    body: JSON.stringify({
+                        "model": currentModel,
+                        "messages": [
+                            {"role": "system", "content": "You are a JSON generator. Always return valid JSON."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        "response_format": { "type": "json_object" }
+                    })
+                });
+
+                const data = await response.json();
+                if(data.error) throw new Error(data.error.message);
+
+                const content = data.choices[0].message.content;
+                const result = JSON.parse(content);
+
+                renderPage(title, result.paragraphs, sourceTag);
+                showLoading(false);
+
+            } catch (e) {
+                console.error(e);
+                alert("AI 分析中断: " + e.message);
+                showLoading(false);
+            }
+        }
+
+        function renderPage(title, paragraphs, sourceTag) {
+            const contentDiv = document.getElementById('articleContent');
+            const bodyDiv = document.getElementById('artBody');
+            
+            document.getElementById('welcomeScreen').style.display = 'none';
+            contentDiv.style.display = 'block';
+            
+            document.getElementById('artTitle').innerText = title || "Untitled Article";
+            document.getElementById('artMeta').innerHTML = `
+                ${sourceTag}
+                <span class="badge">${new Date().toLocaleDateString()}</span>
+                <span class="badge">Word Count: ${paragraphs.reduce((acc, p) => acc + p.en.split(' ').length, 0)}</span>
+            `;
+
+            bodyDiv.innerHTML = ''; 
+
+            paragraphs.forEach((para, index) => {
+                const pDiv = document.createElement('div');
+                pDiv.style.marginBottom = "30px";
+
+                // 处理难词高亮
+                let htmlEn = para.en;
+                // 按单词长度降序排，防止 replace 错误
+                const words = Object.keys(para.words || {}).sort((a,b) => b.length - a.length);
+                
+                words.forEach(wd => {
+                    const mean = para.words[wd];
+                    // 使用正则 \b 匹配全词，忽略大小写
+                    const regex = new RegExp(`\\b(${wd})\\b`, 'gi');
+                    htmlEn = htmlEn.replace(regex, `<span class="hard-word" data-mean="${mean}">$1</span>`);
+                });
+
+                const transId = `trans-${index}`;
+
+                pDiv.innerHTML = `
+                    <p>
+                        ${htmlEn}
+                        <span class="trans-btn" onclick="toggleTrans('${transId}')">译</span>
+                    </p>
+                    <div id="${transId}" class="trans-box">${para.cn}</div>
+                `;
+                bodyDiv.appendChild(pDiv);
+            });
+        }
+
+        function toggleTrans(id) {
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        function exportPDF() {
+            const element = document.getElementById('readerArea');
+            const opt = {
+                margin: 10,
+                filename: 'Smart_Reader_Note.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+
+</body>
+</html>
