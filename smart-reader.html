@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart News Reader | AI 助读 (Pro)</title>
+    <title>Smart News Reader | AI 助读 (Model Select)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="https://unpkg.com/@mozilla/readability@0.4.2/Readability.js"></script>
     <style>
         :root {
             --bg-color: #F5F7FA;
@@ -34,32 +34,41 @@
         .config-bar {
             background: #fff;
             border-bottom: 1px solid var(--border);
-            padding: 15px 20px;
+            padding: 12px 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             position: sticky; top: 0; z-index: 100;
         }
 
         .config-container {
-            max-width: 1100px; margin: 0 auto;
-            display: flex; gap: 15px; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            max-width: 1200px; margin: 0 auto;
+            display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between;
         }
 
-        .logo { font-weight: 800; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 5px; }
+        .logo { font-weight: 800; font-size: 1.1rem; color: var(--text-main); display: flex; align-items: center; gap: 5px; margin-right: 10px; }
         
-        .input-area { display: flex; gap: 10px; flex-grow: 1; align-items: center; }
+        /* 输入区 */
+        .input-area { display: flex; gap: 8px; flex-grow: 1; align-items: center; }
         
         input[type="text"], select {
-            padding: 10px 12px; border: 1px solid var(--border);
-            border-radius: 8px; outline: none; font-size: 0.9rem;
-            transition: 0.2s;
+            padding: 8px 12px; border: 1px solid var(--border);
+            border-radius: 8px; outline: none; font-size: 0.85rem;
+            transition: 0.2s; background: white;
         }
-        input[type="text"] { flex-grow: 1; min-width: 200px; }
+        input[type="text"] { flex-grow: 1; min-width: 150px; }
         input:focus, select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.1); }
+
+        /* 模型选择器高亮 */
+        #modelSelect {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            font-weight: 600;
+            max-width: 180px;
+        }
 
         .btn-group { display: flex; gap: 8px; }
         .btn {
-            padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer;
-            font-weight: 600; font-size: 0.9rem; transition: 0.2s; white-space: nowrap;
+            padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+            font-weight: 600; font-size: 0.85rem; transition: 0.2s; white-space: nowrap;
         }
         .btn-primary { background: var(--accent-blue); color: white; }
         .btn-primary:hover { background: #005BB5; }
@@ -152,7 +161,10 @@
         }
         @media (max-width: 768px) {
             .reader-container { padding: 30px 20px; margin: 10px; }
+            .config-container { flex-direction: column; align-items: stretch; }
             .article-title { font-size: 1.8rem; }
+            .input-area { flex-direction: column; }
+            input[type="text"], select { width: 100%; }
         }
     </style>
 </head>
@@ -163,13 +175,21 @@
             <div class="logo">📚 SmartReader</div>
             
             <div class="input-area">
-                <select id="userLevel" style="width:140px;">
+                <select id="modelSelect" title="Select AI Model" onchange="saveModelPreference()">
+                    <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0 Flash (Free)</option>
+                    <option value="deepseek/deepseek-chat">DeepSeek V3 (Cheap)</option>
+                    <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                    <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                    <option value="google/gemini-pro-1.5">Gemini 1.5 Pro</option>
+                </select>
+
+                <select id="userLevel" style="width:120px;">
                     <option value="CET4">水平: 四级</option>
                     <option value="CET6">水平: 六级</option>
                     <option value="IELTS">水平: 雅思</option>
                     <option value="GRE">水平: GRE</option>
                 </select>
-                <input type="text" id="urlInput" placeholder="输入链接 (BBC, NYT...) 或留空">
+                <input type="text" id="urlInput" placeholder="输入新闻链接 (BBC, NYT...) 或留空">
             </div>
 
             <div class="btn-group">
@@ -182,10 +202,10 @@
 
     <div class="reader-container" id="readerArea">
         <div id="welcomeScreen" style="text-align:center; padding:80px 20px; color:#94A3B8;">
-            <h2 style="color:#2C3E50; margin-bottom:10px;">Paste Link or Text</h2>
-            <p>输入新闻链接，AI 将自动提取内容、高亮生词并翻译。</p>
-            <div style="margin-top:20px; font-size:0.85rem; background:#FFF7ED; color:#C2410C; display:inline-block; padding:8px 16px; border-radius:6px;">
-                ⚠️ 提示：部分付费网站防爬严格，如果抓取失败，系统会引导您手动粘贴。
+            <h2 style="color:#2C3E50; margin-bottom:10px;">Select Model & Start</h2>
+            <p>请先在顶部选择您想使用的 AI 模型，然后输入链接。</p>
+            <div style="margin-top:20px; font-size:0.85rem; background:#F1F5F9; color:#475569; display:inline-block; padding:10px 20px; border-radius:6px;">
+                💡 <b>DeepSeek V3</b> 或 <b>Gemini Flash</b> 适合长文章，速度快且便宜。
             </div>
         </div>
         
@@ -198,15 +218,15 @@
 
     <div class="overlay" id="loading">
         <div class="spinner"></div>
-        <div class="loading-text" id="loadingText">正在智能提取正文...</div>
+        <div class="loading-text" id="loadingText">正在连接 AI 分析引擎...</div>
     </div>
 
     <div class="overlay-bg" id="modalBg"></div>
     <div class="paste-modal" id="pasteModal">
-        <h3 style="margin-bottom:10px;">⚠️ 自动抓取受阻 (Anti-Bot)</h3>
+        <h3 style="margin-bottom:10px;">⚠️ 自动抓取受阻</h3>
         <p style="color:#666; font-size:0.9rem; line-height:1.5;">
-            目标网站开启了强力反爬虫验证。请手动复制文章内容粘贴到下方。<br>
-            <a id="archiveLink" href="#" target="_blank" style="color:var(--accent-blue); font-weight:bold;">👉 点击这里去 Archive.ph 获取全文</a>
+            无法自动提取该网页。请手动复制内容粘贴到下方。<br>
+            <a id="archiveLink" href="#" target="_blank" style="color:var(--accent-blue); font-weight:bold;">👉 点击这里去 Archive.ph 找全文</a>
         </p>
         <textarea class="paste-area" id="pasteText" placeholder="在此粘贴文章标题和正文..."></textarea>
         <div style="text-align:right; display:flex; gap:10px; justify-content:flex-end;">
@@ -216,12 +236,22 @@
     </div>
 
     <script>
+        // --- 1. 配置管理 ---
         let apiKey = localStorage.getItem('openrouter_key');
-        let currentModel = "google/gemini-2.0-flash-lite-preview-02-05:free"; 
+        let currentModel = localStorage.getItem('smartreader_model') || "google/gemini-2.0-flash-lite-preview-02-05:free"; 
+
+        // 初始化下拉菜单
+        document.getElementById('modelSelect').value = currentModel;
 
         function setApiKey() {
             const key = prompt("请输入 OpenRouter API Key:", apiKey || "");
             if (key) { localStorage.setItem('openrouter_key', key); apiKey = key; alert("API Key 已保存"); }
+        }
+
+        function saveModelPreference() {
+            const val = document.getElementById('modelSelect').value;
+            localStorage.setItem('smartreader_model', val);
+            currentModel = val;
         }
 
         function showLoading(show, text) {
@@ -230,7 +260,7 @@
             el.style.display = show ? 'flex' : 'none';
         }
 
-        // --- 核心入口 ---
+        // --- 2. 核心入口 ---
         async function attemptReading() {
             if (!apiKey) { setApiKey(); if(!apiKey) return; }
             
@@ -247,7 +277,7 @@
             showLoading(true, "尝试智能提取正文...");
             
             try {
-                // 使用 Jina Reader 引擎 (专门为 AI 优化) + AllOrigins 代理
+                // 使用 Jina Reader 引擎 (穿透力强) + AllOrigins 代理
                 const jinaUrl = `https://r.jina.ai/${url}`;
                 const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(jinaUrl)}`;
                 
@@ -258,12 +288,10 @@
 
                 const markdownText = data.contents;
 
-                // 检查 Jina 是否返回了错误信息 (如 403 Forbidden)
                 if (markdownText.includes("Just a moment") || markdownText.includes("Access denied") || markdownText.length < 200) {
                     throw new Error("网站反爬拦截");
                 }
 
-                // 成功抓取 -> 进 AI 分析
                 await analyzeWithAI("Detected Article", markdownText, level, "Jina Reader");
 
             } catch (e) {
@@ -274,7 +302,7 @@
             }
         }
 
-        // --- 手动粘贴处理逻辑 ---
+        // --- 3. 手动粘贴处理逻辑 ---
         function openPasteModal(url) {
             document.getElementById('modalBg').style.display = 'block';
             document.getElementById('pasteModal').style.display = 'block';
@@ -303,11 +331,11 @@
             analyzeWithAI("Manual Input", text, level, "Manual Paste");
         }
 
-        // --- AI 分析逻辑 (保持不变，因为最稳定) ---
+        // --- 4. AI 分析逻辑 (使用选定的 currentModel) ---
         async function analyzeWithAI(title, text, level, source) {
-            showLoading(true, "AI 正在深度解析与生词标注...");
+            showLoading(true, `AI (${currentModel.split('/')[1]}) 正在分析...`);
 
-            // 截取前 15k 字符
+            // 截取文本防止 Token 溢出 (Gemini 支持长文本，这里设为 15k 字符)
             const cleanText = text.substring(0, 15000);
 
             const prompt = `
@@ -315,14 +343,14 @@
             
             Task:
             1. Analyze the text provided.
-            2. Split it into logical paragraphs.
-            3. Identify "hard words" (CEFR > ${level}).
-            4. Provide Chinese definitions for hard words.
-            5. Translate the paragraph into fluent Chinese.
+            2. Split it into logical paragraphs (keep original flow).
+            3. Identify "hard words" (CEFR level > ${level}).
+            4. Provide concise Chinese definitions for hard words.
+            5. Translate the paragraph into fluent, literary Chinese.
             
-            Output JSON ONLY:
+            Output JSON format ONLY:
             {
-                "title": "Guess a title if missing",
+                "title": "Article Title",
                 "paragraphs": [
                     {
                         "en": "Original paragraph text...",
@@ -342,10 +370,11 @@
                     headers: {
                         "Authorization": `Bearer ${apiKey}`,
                         "Content-Type": "application/json",
-                        "HTTP-Referer": window.location.href
+                        "HTTP-Referer": window.location.href,
+                        "X-Title": "Smart News Reader"
                     },
                     body: JSON.stringify({
-                        "model": currentModel,
+                        "model": currentModel, // 使用用户选择的模型
                         "messages": [
                             {"role": "system", "content": "You are a JSON generator. Respond with valid JSON only."},
                             {"role": "user", "content": prompt}
@@ -357,13 +386,17 @@
                 const data = await response.json();
                 if(data.error) throw new Error(data.error.message);
 
-                const result = JSON.parse(data.choices[0].message.content);
+                const content = data.choices[0].message.content;
+                // 有些模型可能返回 Markdown 代码块，需要清洗
+                const cleanJson = content.replace(/```json|```/g, '').trim();
+                const result = JSON.parse(cleanJson);
+
                 renderPage(result.title || title, result.paragraphs, source);
                 showLoading(false);
 
             } catch (e) {
                 console.error(e);
-                alert("AI 分析出错: " + e.message);
+                alert("AI 分析中断: " + e.message + "\n建议切换模型重试。");
                 showLoading(false);
             }
         }
@@ -376,13 +409,13 @@
             contentDiv.style.display = 'block';
             
             document.getElementById('artTitle').innerText = title;
-            document.getElementById('artMeta').innerHTML = `<span class="badge">Source: ${source}</span> <span class="badge">Words: ${paragraphs.length} paras</span>`;
+            document.getElementById('artMeta').innerHTML = `<span class="badge">Model: ${currentModel.split('/')[1]}</span> <span class="badge">Source: ${source}</span>`;
 
             bodyDiv.innerHTML = ''; 
 
             paragraphs.forEach((para, index) => {
                 const pDiv = document.createElement('div');
-                pDiv.style.marginBottom = "24px";
+                pDiv.style.marginBottom = "30px";
 
                 let htmlEn = para.en;
                 const words = Object.keys(para.words || {}).sort((a,b) => b.length - a.length);
@@ -398,7 +431,7 @@
                 pDiv.innerHTML = `
                     <p style="margin-bottom:8px;">
                         ${htmlEn}
-                        <span class="trans-btn" onclick="toggleTrans('${transId}')">🌐 译</span>
+                        <span class="trans-btn" onclick="toggleTrans('${transId}')">译</span>
                     </p>
                     <div id="${transId}" class="trans-box">${para.cn}</div>
                 `;
@@ -412,7 +445,7 @@
 
         function exportPDF() {
             const element = document.getElementById('readerArea');
-            const opt = { margin: 10, filename: 'Smart_Reader.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            const opt = { margin: 10, filename: 'Smart_Reader_Note.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
     </script>
