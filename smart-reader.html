@@ -3,197 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Reader Pro | 进度可视化版</title>
+    <title>Smart Reader Pro | History & Auto-Save</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <style>
         :root {
-            --bg-color: #F5F7FA; --paper-bg: #FFFFFF; --text-main: #2C3E50;
-            --accent-blue: #0071E3; --highlight: #FFF3cd; --border: #E0E0E0;
+            --bg-color: #F8FAFC; --sidebar-bg: #FFFFFF; --text-main: #334155;
+            --accent-blue: #2563EB; --border: #E2E8F0; --highlight: #FEF3C7;
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-color); font-family: var(--font-sans); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        body { background-color: var(--bg-color); font-family: var(--font-sans); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
 
-        /* 顶部 */
-        .config-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 12px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .config-container { max-width: 1200px; margin: 0 auto; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
-        .logo { font-weight: 800; font-size: 1.1rem; color: var(--text-main); }
-        .input-area { display: flex; gap: 8px; flex-grow: 1; align-items: center; }
-        input, select { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 0.9rem; background: white; }
-        input { flex-grow: 1; min-width: 200px; }
-        .btn { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+        /* --- 侧边栏 (History) --- */
+        .sidebar {
+            width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; flex-shrink: 0; z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; color: var(--accent-blue); }
+        .history-list { flex: 1; overflow-y: auto; padding: 10px; }
+        
+        .history-item {
+            padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 8px;
+            border: 1px solid transparent; transition: 0.2s; position: relative;
+        }
+        .history-item:hover { background: #F1F5F9; border-color: #CBD5E1; }
+        .history-item.active { background: #EFF6FF; border-color: var(--accent-blue); }
+        .h-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .h-date { font-size: 0.75rem; color: #94A3B8; }
+        .h-delete { position: absolute; right: 10px; top: 10px; opacity: 0; color: #EF4444; font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; }
+        .history-item:hover .h-delete { opacity: 1; background: #fff; border: 1px solid #EF4444; }
+
+        /* --- 主区域 --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+        /* 顶部配置栏 */
+        .config-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+        .input-group { display: flex; gap: 10px; flex: 1; }
+        input, select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; outline: none; }
+        input { flex: 1; }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; transition: 0.2s; }
         .btn-primary { background: var(--accent-blue); color: white; }
-        .btn-outline { background: white; border: 1px solid var(--border); color: #555; }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: #64748B; }
+        .btn-outline:hover { background: #F8FAFC; border-color: #94A3B8; }
 
-        /* 阅读区 */
-        .reader-container { max-width: 850px; margin: 30px auto; background: var(--paper-bg); padding: 60px 80px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); border-radius: 8px; min-height: 85vh; }
-        .article-title { font-family: "Georgia", serif; font-size: 2.4rem; font-weight: 700; margin-bottom: 20px; line-height: 1.2; }
-        .article-meta { color: #888; font-size: 0.9rem; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
-        .summary-card { background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 8px; padding: 25px; margin-bottom: 50px; }
-        .summary-title { font-weight: 700; color: #0369A1; margin-bottom: 10px; }
-        .article-body { font-family: "Georgia", serif; font-size: 1.25rem; line-height: 1.8; }
-        .article-body img { max-width: 100%; height: auto; display: block; margin: 30px auto; border-radius: 8px; }
+        /* 阅读纸张 */
+        .scroll-area { flex: 1; overflow-y: auto; padding: 40px; scroll-behavior: smooth; }
+        .reader-paper {
+            max-width: 800px; margin: 0 auto; background: white; padding: 60px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); border-radius: 8px; min-height: 100%;
+        }
 
-        /* 交互 */
-        .hard-word { background-color: var(--highlight); border-bottom: 2px solid #FCD34D; cursor: pointer; position: relative; padding: 0 2px; }
-        .hard-word:hover::after { content: attr(data-mean); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #2D3748; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-family: var(--font-sans); white-space: nowrap; margin-bottom: 8px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .trans-btn { display: inline-block; margin-left: 8px; font-size: 0.75rem; color: var(--accent-blue); cursor: pointer; font-family: var(--font-sans); background: #EFF6FF; padding: 2px 8px; border-radius: 100px; vertical-align: middle; }
-        .trans-box { display: none; margin-top: 15px; padding: 15px 20px; background: #F8FAFC; border-left: 4px solid var(--accent-blue); font-family: var(--font-sans); font-size: 1rem; color: #475569; }
+        /* 文章样式 */
+        .article-title { font-family: "Georgia", serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; line-height: 1.2; color: #1E293B; }
+        .article-meta { font-size: 0.9rem; color: #64748B; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #E2E8F0; }
+        
+        .summary-card { background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 8px; padding: 20px; margin-bottom: 40px; }
+        .summary-title { font-weight: 700; color: #0369A1; margin-bottom: 10px; font-size: 1rem; }
+        .summary-content ul { padding-left: 20px; margin: 0; }
+        .summary-content li { margin-bottom: 6px; color: #334155; line-height: 1.6; }
+
+        .article-body { font-family: "Georgia", serif; font-size: 1.2rem; line-height: 1.8; color: #334155; }
+        .para-block { margin-bottom: 25px; }
+        
+        /* 交互元素 */
+        .hard-word { background-color: var(--highlight); border-bottom: 2px solid #F59E0B; cursor: pointer; position: relative; padding: 0 2px; border-radius: 2px; }
+        .hard-word:hover::after {
+            content: attr(data-mean); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: #1E293B; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem;
+            white-space: nowrap; margin-bottom: 5px; z-index: 10; font-family: var(--font-sans);
+        }
+        
+        .trans-btn {
+            display: inline-block; margin-left: 8px; font-size: 0.7rem; color: var(--accent-blue);
+            cursor: pointer; font-family: var(--font-sans); background: #EFF6FF; padding: 1px 8px;
+            border-radius: 10px; vertical-align: middle; user-select: none;
+        }
+        .trans-box {
+            display: none; margin-top: 10px; padding: 12px 15px; background: #F8FAFC;
+            border-left: 3px solid var(--accent-blue); font-family: var(--font-sans);
+            font-size: 1rem; color: #475569; border-radius: 0 6px 6px 0;
+        }
         .trans-box.show { display: block; }
 
-        /* Loading Overlay (增强版) */
-        .overlay { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-            background: rgba(255,255,255,0.98); z-index: 200; 
-            display: none; flex-direction: column; align-items: center; justify-content: center; 
+        /* Loading */
+        .overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.98); z-index: 200;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
         }
-        .spinner { 
-            width: 50px; height: 50px; 
-            border: 4px solid #E2E8F0; border-top: 4px solid var(--accent-blue); 
-            border-radius: 50%; animation: spin 1s linear infinite; 
-        }
-        .loading-info { text-align: center; margin-top: 20px; }
-        .loading-text { font-weight: 600; color: #2C3E50; font-size: 1.1rem; margin-bottom: 5px; }
-        .loading-timer { font-family: monospace; color: #64748B; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
-        
-        .progress-container { 
-            width: 320px; height: 8px; background: #E2E8F0; 
-            border-radius: 10px; margin-top: 15px; overflow: hidden; position: relative;
-        }
-        .progress-fill { 
-            height: 100%; background: linear-gradient(90deg, #3B82F6, #2563EB); 
-            width: 0%; transition: width 0.4s ease; border-radius: 10px;
-        }
-
+        .spinner { width: 40px; height: 40px; border: 4px solid #E2E8F0; border-top: 4px solid var(--accent-blue); border-radius: 50%; animation: spin 1s linear infinite; }
+        .progress-bar { width: 300px; height: 6px; background: #E2E8F0; border-radius: 10px; margin-top: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent-blue); width: 0%; transition: width 0.3s; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Modals */
+        /* Config Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 500; display: none; align-items: center; justify-content: center; }
-        .config-modal { background: white; width: 90%; max-width: 600px; padding: 30px; border-radius: 16px; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
-        .form-group { margin-bottom: 15px; }
-        .form-group input { width: 100%; }
-        .chip { display:inline-block; padding: 6px 12px; background: #f0f0f0; border-radius: 20px; font-size: 0.8rem; cursor: pointer; margin-right:5px; margin-bottom:5px;}
+        .config-modal { background: white; width: 90%; max-width: 500px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 15px; } .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; } .form-group input { width: 100%; }
+        .chip { display:inline-block; padding: 4px 10px; background: #F1F5F9; border-radius: 15px; font-size: 0.75rem; cursor: pointer; margin-right: 5px; }
 
-        @media (max-width: 768px) { .reader-container { padding: 30px 20px; margin: 10px; } .input-area { flex-direction: column; align-items: stretch; } }
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar { position: absolute; height: 100%; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
+            .sidebar.open { transform: translateX(0); }
+            .reader-paper { padding: 20px; }
+            .config-bar { flex-wrap: wrap; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="config-bar">
-        <div class="config-container">
-            <div class="logo">📚 SmartReader</div>
-            <div class="input-area">
-                <select id="modelSelect" onchange="saveConfig()">
-                    <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0 Flash</option>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span>📚 History Library</span>
+            <button onclick="clearAllHistory()" style="background:none; border:none; color:#94A3B8; cursor:pointer; font-size:0.8rem;">Clear</button>
+        </div>
+        <div class="history-list" id="historyList">
+            <div style="padding:20px; text-align:center; color:#94A3B8; font-size:0.9rem;">No history yet.</div>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="config-bar">
+            <button class="btn btn-outline" onclick="toggleSidebar()" style="margin-right:10px;">☰</button>
+            <div class="input-group">
+                <select id="modelSelect" onchange="saveConfig()" style="width:120px;">
+                    <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0</option>
                     <option value="deepseek/deepseek-chat">DeepSeek V3</option>
                     <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
                 </select>
-                <select id="userLevel" style="width:120px;">
-                    <option value="CET4">水平: 四级</option>
-                    <option value="CET6">水平: 六级</option>
-                    <option value="IELTS">水平: 雅思</option>
+                <select id="userLevel" style="width:100px;">
+                    <option value="CET4">四级</option>
+                    <option value="CET6">六级</option>
+                    <option value="IELTS">雅思</option>
                 </select>
                 <input type="text" id="urlInput" placeholder="输入链接 or 留空粘贴">
             </div>
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="attemptReading()">🚀 开始阅读</button>
-                <button class="btn btn-outline" onclick="exportDoc()">💾 导出 Word</button>
-                <button class="btn btn-outline" onclick="openSettings()">⚙️ 配置</button>
+            <button class="btn btn-primary" onclick="attemptReading()">🚀 New Read</button>
+            <button class="btn btn-outline" onclick="exportDoc()">💾 Export</button>
+            <button class="btn btn-outline" onclick="openSettings()">⚙️</button>
+        </div>
+
+        <div class="scroll-area">
+            <div class="reader-paper">
+                <div id="welcomeScreen" style="text-align:center; padding:50px 0; color:#94A3B8;">
+                    <h2 style="color:#2C3E50; margin-bottom:10px;">Ready to Learn</h2>
+                    <p>输入文章链接，AI 将自动分析、翻译并<b>自动保存到本地</b>。</p>
+                </div>
+                
+                <div id="articleContent" style="display:none;">
+                    <h1 class="article-title" id="artTitle"></h1>
+                    <div class="article-meta" id="artMeta"></div>
+                    
+                    <div class="summary-card" id="summaryCard">
+                        <div class="summary-title">📝 AI Executive Summary</div>
+                        <div class="summary-content" id="summaryText"></div>
+                    </div>
+
+                    <div class="article-body" id="artBody"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="loading">
+        <div class="spinner"></div>
+        <div style="margin-top:20px; font-weight:600; color:#555;" id="loadingText">Connecting...</div>
+        <div style="font-family:monospace; margin-top:5px; color:#94A3B8;" id="timerDisplay">00:00</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div id="pasteModal" class="modal-overlay">
+        <div class="config-modal">
+            <h3>📝 Manual Input</h3>
+            <textarea id="pasteText" style="width:100%; height:200px; padding:10px; border:1px solid #ddd; border-radius:8px; margin:15px 0;" placeholder="Paste article content here..."></textarea>
+            <div style="text-align:right;">
+                <button class="btn btn-outline" onclick="document.getElementById('pasteModal').style.display='none'">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPaste()">Start Analysis</button>
             </div>
         </div>
     </div>
 
     <div id="configModal" class="modal-overlay">
         <div class="config-modal">
-            <h3 style="margin-bottom:15px;">⚙️ AI Service</h3>
-            <div style="margin-bottom:20px;">
-                <span style="font-size:0.8rem; color:#888;">快速预设:</span><br>
+            <h3>⚙️ AI Configuration</h3>
+            <div style="margin:15px 0;">
                 <div class="chip" onclick="fillPreset('openrouter')">OpenRouter</div>
                 <div class="chip" onclick="fillPreset('deepseek')">DeepSeek</div>
                 <div class="chip" onclick="fillPreset('openai')">OpenAI</div>
             </div>
-            <div class="form-group"><label>API Base URL</label><input type="text" id="cfgUrl"></div>
+            <div class="form-group"><label>Base URL</label><input type="text" id="cfgUrl"></div>
             <div class="form-group"><label>API Key</label><input type="password" id="cfgKey"></div>
             <div class="form-group"><label>Model ID</label><input type="text" id="cfgModel"></div>
-            <button class="btn btn-primary" style="width:100%" onclick="saveSettings()">保存</button>
-            <button class="btn btn-outline" style="width:100%; margin-top:10px; border:none;" onclick="closeSettings()">取消</button>
-        </div>
-    </div>
-
-    <div class="reader-container" id="readerArea">
-        <div id="welcomeScreen" style="text-align:center; padding:80px 20px; color:#94A3B8;">
-            <h2 style="color:#2C3E50; margin-bottom:10px;">Smart Reader Pro (Time Aware)</h2>
-            <p>支持超长文本分片处理，带实时进度监控。</p>
-        </div>
-        <div id="articleContent" style="display:none;">
-            <h1 class="article-title" id="artTitle"></h1>
-            <div class="article-meta" id="artMeta"></div>
-            <div class="summary-card" id="summaryCard">
-                <div class="summary-title">📝 AI Executive Summary</div>
-                <div class="summary-content" id="summaryText"></div>
-            </div>
-            <div class="article-body" id="artBody"></div>
-        </div>
-    </div>
-
-    <div class="overlay" id="loading">
-        <div class="spinner"></div>
-        <div class="loading-info">
-            <div class="loading-text" id="loadingText">准备就绪...</div>
-            <div class="loading-timer" id="timerDisplay">00:00</div>
-        </div>
-        <div class="progress-container">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-    </div>
-
-    <div id="pasteModal" class="modal-overlay">
-        <div class="config-modal">
-            <h3>📝 手动粘贴</h3>
-            <textarea id="pasteText" style="width:100%; height:300px; padding:10px; border:1px solid #ddd; border-radius:8px; margin:10px 0;" placeholder="请在此粘贴完整文章内容..."></textarea>
-            <div style="text-align:right;">
-                <button class="btn btn-outline" onclick="document.getElementById('pasteModal').style.display='none'">取消</button>
-                <button class="btn btn-primary" onclick="submitPaste()">开始分析</button>
-            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="saveSettings()">Save</button>
+            <button class="btn btn-outline" style="width:100%; margin-top:10px; border:none;" onclick="closeSettings()">Cancel</button>
         </div>
     </div>
 
     <script>
-        // --- 计时器逻辑 ---
-        let timerInterval;
-        let startTime;
-
-        function startTimer() {
-            startTime = Date.now();
-            clearInterval(timerInterval);
-            document.getElementById('timerDisplay').innerText = "00:00";
-            
-            timerInterval = setInterval(() => {
-                const diff = Math.floor((Date.now() - startTime) / 1000);
-                const mins = Math.floor(diff / 60).toString().padStart(2, '0');
-                const secs = (diff % 60).toString().padStart(2, '0');
-                document.getElementById('timerDisplay').innerText = `${mins}:${secs}`;
-            }, 1000);
-        }
-
-        function stopTimer() {
-            clearInterval(timerInterval);
-        }
-
-        function updateProgress(percent, text) {
-            document.getElementById('progressFill').style.width = percent + '%';
-            if(text) document.getElementById('loadingText').innerText = text;
-        }
-
-        // --- 配置管理 ---
+        // --- 初始化 & 配置 ---
         const DEFAULT_CONFIG = { url: "https://openrouter.ai/api/v1", key: "", model: "google/gemini-2.0-flash-lite-preview-02-05:free" };
         function getConfig() { return { url: localStorage.getItem('sr_url') || DEFAULT_CONFIG.url, key: localStorage.getItem('sr_key') || "", model: localStorage.getItem('sr_model') || DEFAULT_CONFIG.model }; }
         document.getElementById('modelSelect').value = getConfig().model;
-
-        // URL 参数监听
+        
+        // 页面加载时初始化
         window.addEventListener('DOMContentLoaded', () => {
+            renderHistoryList(); // 加载侧边栏历史
+            
             const params = new URLSearchParams(window.location.search);
             if (params.get('target')) {
                 document.getElementById('urlInput').value = params.get('target');
@@ -201,42 +221,24 @@
             }
         });
 
-        // UI Helpers
-        function openSettings() { const cfg = getConfig(); document.getElementById('cfgUrl').value = cfg.url; document.getElementById('cfgKey').value = cfg.key; document.getElementById('cfgModel').value = cfg.model; document.getElementById('configModal').style.display = 'flex'; }
-        function closeSettings() { document.getElementById('configModal').style.display = 'none'; }
-        function saveSettings() { localStorage.setItem('sr_url', document.getElementById('cfgUrl').value.trim()); localStorage.setItem('sr_key', document.getElementById('cfgKey').value.trim()); localStorage.setItem('sr_model', document.getElementById('cfgModel').value.trim()); closeSettings(); alert("配置已更新"); }
-        function saveConfig() { localStorage.setItem('sr_model', document.getElementById('modelSelect').value); }
-        function fillPreset(type) {
-            const presets = { 'openrouter': { u: 'https://openrouter.ai/api/v1', m: 'google/gemini-2.0-flash-lite-preview-02-05:free' }, 'deepseek': { u: 'https://api.deepseek.com/v1', m: 'deepseek-chat' }, 'openai': { u: 'https://api.openai.com/v1', m: 'gpt-4o-mini' } };
-            const p = presets[type]; document.getElementById('cfgUrl').value = p.u; document.getElementById('cfgModel').value = p.m;
-        }
-
-        // --- 核心逻辑 ---
+        // --- 核心流程：分片处理 ---
+        let timerInterval, startTime;
+        
         async function attemptReading() {
-            const cfg = getConfig();
-            if(!cfg.key && !cfg.url.includes('localhost')) { openSettings(); return; }
+            if(!getConfig().key) { openSettings(); return; }
             const url = document.getElementById('urlInput').value.trim();
             if(!url) { document.getElementById('pasteModal').style.display = 'flex'; return; }
 
-            document.getElementById('loading').style.display = 'flex';
-            startTimer();
-            updateProgress(10, "正在连接智能抓取引擎...");
-
+            startLoading("Attempting smart fetch...");
             try {
                 const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://r.jina.ai/${url}`)}`;
                 const res = await fetch(proxy); const data = await res.json();
-                
-                // 增强版检测：如果抓取内容过短，或者包含 Access denied，则认为失败
-                if(!data.contents || data.contents.length < 500 || data.contents.includes("Access denied")) {
-                    throw new Error("抓取内容无效或被拦截");
-                }
-                
+                if(!data.contents || data.contents.length < 500) throw new Error("Fetch failed");
                 await processLongText(data.contents);
             } catch (e) {
-                stopTimer();
-                document.getElementById('loading').style.display = 'none';
+                stopLoading();
                 document.getElementById('pasteModal').style.display = 'flex';
-                document.getElementById('pasteText').placeholder = `自动抓取失败 (${e.message})，请手动粘贴全文...`;
+                document.getElementById('pasteText').placeholder = "Fetch failed. Please paste text manually...";
             }
         }
 
@@ -244,152 +246,216 @@
             const text = document.getElementById('pasteText').value.trim();
             if(!text) return;
             document.getElementById('pasteModal').style.display = 'none';
-            document.getElementById('loading').style.display = 'flex';
-            startTimer();
+            startLoading("Processing text...");
             processLongText(text);
         }
 
-        // --- ✂️ 分片处理核心算法 ---
         async function processLongText(fullText) {
-            updateProgress(20, "正在进行智能分段...");
-            
-            // 1. 切片
-            const chunks = chunkString(fullText, 4500); 
+            const chunks = chunkString(fullText, 4500);
             const level = document.getElementById('userLevel').value;
-            let finalResults = [];
-            let summary = ["(Summary generating...)"];
-            let title = "Article";
+            let fullResult = { title: "Article", summary: [], paragraphs: [] };
 
-            // 2. 逐片处理
             for (let i = 0; i < chunks.length; i++) {
-                // 计算进度：20% (抓取) + 80% (分析)
-                const baseProgress = 20;
-                const chunkProgress = ((i) / chunks.length) * 75;
-                updateProgress(baseProgress + chunkProgress, `正在深度分析第 ${i+1}/${chunks.length} 部分...`);
-                
+                updateProgress(((i)/chunks.length)*100, `Analyzing part ${i+1}/${chunks.length}...`);
                 try {
-                    const isFirst = (i === 0);
-                    const result = await callAI(chunks[i], level, isFirst);
-                    
-                    if (isFirst) {
-                        if (result.title) title = result.title;
-                        if (result.summary) summary = result.summary;
+                    const isFirst = (i===0);
+                    const res = await callAI(chunks[i], level, isFirst);
+                    if(isFirst) {
+                        fullResult.title = res.title || "Untitled Article";
+                        fullResult.summary = res.summary || [];
                     }
-                    if (result.paragraphs) {
-                        finalResults = finalResults.concat(result.paragraphs);
-                    }
+                    if(res.paragraphs) fullResult.paragraphs = fullResult.paragraphs.concat(res.paragraphs);
                 } catch (e) {
-                    console.error(`Chunk ${i} failed:`, e);
-                    finalResults.push({ en: chunks[i], cn: `[系统提示：该段落 AI 分析超时，显示原文。错误信息: ${e.message}]`, words: {} });
+                    console.error(e);
+                    fullResult.paragraphs.push({ en: chunks[i], cn: "[Analysis Error]", words: {} });
                 }
             }
 
-            // 3. 渲染
-            updateProgress(100, "分析完成，正在渲染页面...");
-            stopTimer();
-            render({ title, summary, paragraphs: finalResults });
+            updateProgress(100, "Finalizing...");
+            stopLoading();
             
-            // 延迟一点隐藏 loading 以展示 100%
+            // 1. 渲染页面
+            renderPage(fullResult);
+            
+            // 2. 保存到历史
+            saveToHistory(fullResult);
+            
+            // 3. 自动下载 Word (用户要求的核心功能)
             setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-            }, 500);
+                exportDoc(true); // pass true to indicate auto-download
+            }, 1000);
         }
 
-        function chunkString(str, length) {
-            const chunks = [];
-            let currentChunk = "";
-            const paragraphs = str.split(/\n\n+/); 
-
-            paragraphs.forEach(para => {
-                if ((currentChunk.length + para.length) > length) {
-                    chunks.push(currentChunk);
-                    currentChunk = para;
-                } else {
-                    currentChunk += (currentChunk ? "\n\n" : "") + para;
-                }
-            });
-            if (currentChunk) chunks.push(currentChunk);
-            return chunks;
-        }
-
-        async function callAI(text, level, needSummary) {
-            const cfg = getConfig();
-            const prompt = `
-            Role: English Reading Tutor. Level: ${level}.
-            Task:
-            ${needSummary ? "1. Provide a Title and 3-5 bullet point Summary (Chinese)." : ""}
-            2. Split text into logical paragraphs (Keep Markdown images intact!).
-            3. Identify hard words (> ${level}).
-            4. Translate paragraphs to Chinese.
+        // --- 历史记录系统 (LocalStorage) ---
+        function saveToHistory(data) {
+            const history = JSON.parse(localStorage.getItem('sr_history') || '[]');
+            const newItem = {
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                title: data.title,
+                summary: data.summary,
+                paragraphs: data.paragraphs // 存储结构化数据，不是 HTML
+            };
             
-            Output JSON ONLY:
-            {
-                ${needSummary ? '"title": "Title", "summary": ["Point 1"],' : ""}
-                "paragraphs": [
-                    {
-                        "en": "Original text...",
-                        "cn": "Translation...",
-                        "words": { "word": "meaning" }
-                    }
-                ]
+            // 限制存储最新的 20 条，防止 storage 爆满
+            history.unshift(newItem);
+            if (history.length > 20) history.pop();
+            
+            localStorage.setItem('sr_history', JSON.stringify(history));
+            renderHistoryList();
+        }
+
+        function renderHistoryList() {
+            const list = document.getElementById('historyList');
+            const history = JSON.parse(localStorage.getItem('sr_history') || '[]');
+            
+            if (history.length === 0) {
+                list.innerHTML = '<div style="padding:20px;text-align:center;color:#94A3B8;font-size:0.9rem;">No history yet.</div>';
+                return;
             }
-            Text segment:
-            ${text}
-            `;
 
-            const endpoint = cfg.url.replace(/\/+$/, '') + '/chat/completions';
-            const headers = { "Content-Type": "application/json" };
-            if(cfg.key) headers["Authorization"] = `Bearer ${cfg.key}`;
-            if(cfg.url.includes("openrouter")) { headers["HTTP-Referer"] = window.location.href; headers["X-Title"] = "Smart Reader"; }
+            list.innerHTML = history.map(item => `
+                <div class="history-item" onclick="loadHistory(${item.id})">
+                    <div class="h-title">${item.title}</div>
+                    <div class="h-date">${item.date}</div>
+                    <div class="h-delete" onclick="deleteHistory(event, ${item.id})">✕</div>
+                </div>
+            `).join('');
+        }
 
-            const res = await fetch(endpoint, {
-                method: "POST", headers: headers,
-                body: JSON.stringify({
-                    model: cfg.model,
-                    messages: [{ role: "system", content: "You are a JSON generator." }, { role: "user", content: prompt }],
-                    response_format: { type: "json_object" }
-                })
-            });
+        function loadHistory(id) {
+            const history = JSON.parse(localStorage.getItem('sr_history') || '[]');
+            const item = history.find(i => i.id === id);
+            if (item) {
+                renderPage(item); // 复用渲染函数
+                // 高亮当前选中的 sidebar item
+                document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+                // 简单处理：重新渲染 list 有点浪费，但这在简单应用中是可行的
+                renderHistoryList();
+            }
+        }
 
-            if(!res.ok) throw new Error(`API Error: ${res.status}`);
-            const data = await res.json();
-            const content = data.choices[0].message.content.replace(/```json|```/g, '').trim();
-            return JSON.parse(content);
+        function deleteHistory(e, id) {
+            e.stopPropagation();
+            if(!confirm("Delete this record?")) return;
+            let history = JSON.parse(localStorage.getItem('sr_history') || '[]');
+            history = history.filter(i => i.id !== id);
+            localStorage.setItem('sr_history', JSON.stringify(history));
+            renderHistoryList();
+        }
+
+        function clearAllHistory() {
+            if(!confirm("Clear ALL history?")) return;
+            localStorage.removeItem('sr_history');
+            renderHistoryList();
         }
 
         // --- 渲染与导出 ---
-        function render(data) {
-            document.getElementById('welcomeScreen').style.display = 'none'; document.getElementById('articleContent').style.display = 'block';
-            document.getElementById('artTitle').innerText = data.title || "Article"; document.getElementById('artMeta').innerText = `Generated by AI • ${new Date().toLocaleDateString()}`;
+        function renderPage(data) {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('articleContent').style.display = 'block';
+            document.getElementById('artTitle').innerText = data.title;
+            document.getElementById('artMeta').innerText = `Smart Read • ${new Date().toLocaleDateString()}`;
             
-            if(data.summary) {
-                document.getElementById('summaryText').innerHTML = `<ul>${data.summary.map(s => `<li>${s}</li>`).join('')}</ul>`;
+            // Summary
+            const sumBox = document.getElementById('summaryText');
+            if (data.summary && data.summary.length > 0) {
+                sumBox.innerHTML = `<ul>${data.summary.map(s => `<li>${s}</li>`).join('')}</ul>`;
                 document.getElementById('summaryCard').style.display = 'block';
             } else {
                 document.getElementById('summaryCard').style.display = 'none';
             }
 
-            const body = document.getElementById('artBody'); body.innerHTML = '';
+            // Paragraphs
+            const body = document.getElementById('artBody');
+            body.innerHTML = '';
             data.paragraphs.forEach((p, idx) => {
-                const div = document.createElement('div'); div.style.marginBottom = "30px";
+                const div = document.createElement('div'); div.className = 'para-block';
                 let htmlEn = marked.parse(p.en);
                 const words = Object.keys(p.words || {}).sort((a,b) => b.length - a.length);
-                words.forEach(wd => { const mean = p.words[wd]; const regex = new RegExp(`\\b(${wd})\\b(?![^<]*>)`, 'gi'); htmlEn = htmlEn.replace(regex, `<span class="hard-word" data-mean="${mean}">$1</span>`); });
+                words.forEach(wd => {
+                    const regex = new RegExp(`\\b(${wd})\\b(?![^<]*>)`, 'gi');
+                    htmlEn = htmlEn.replace(regex, `<span class="hard-word" data-mean="${p.words[wd]}">$1</span>`);
+                });
+                
                 const tid = `t-${idx}`;
-                div.innerHTML = `<div class="para-en">${htmlEn}<span class="trans-btn" onclick="toggle('${tid}')">🌐 译</span></div><div id="${tid}" class="trans-box">${p.cn}</div>`;
+                div.innerHTML = `
+                    <div style="margin-bottom:8px;">${htmlEn}<span class="trans-btn" onclick="toggle('${tid}')">🌐 译</span></div>
+                    <div id="${tid}" class="trans-box">${p.cn}</div>
+                `;
                 body.appendChild(div);
             });
         }
-        function toggle(id) { document.getElementById(id).classList.toggle('show'); }
 
-        function exportDoc() {
-            const contentClone = document.getElementById('articleContent').cloneNode(true);
-            const hardWords = contentClone.querySelectorAll('.hard-word'); hardWords.forEach(span => { const text = span.innerText; const mean = span.getAttribute('data-mean'); const newHtml = `<b style="color:#C2410C">${text}</b> <span style="color:#666; font-size:0.9em">[${mean}]</span>`; span.outerHTML = newHtml; });
-            const transBoxes = contentClone.querySelectorAll('.trans-box'); transBoxes.forEach(box => { box.style.display = 'block'; box.style.borderTop = '1px dashed #ccc'; box.style.borderLeft = 'none'; box.style.marginTop = '5px'; box.style.paddingTop = '5px'; box.style.color = '#555'; });
-            const transBtns = contentClone.querySelectorAll('.trans-btn'); transBtns.forEach(btn => btn.remove());
-            const htmlString = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body { font-family: 'Calibri', sans-serif; line-height: 1.5; } h1 { color: #2C3E50; font-size: 24pt; } img { max-width: 100%; height: auto; } ul { padding-left: 20px; } li { margin-bottom: 5px; } .summary-card { background: #F0F9FF; border: 1px solid #BAE6FD; padding: 15px; margin-bottom: 20px; } .trans-box { font-size: 10pt; color: #666; margin-bottom: 15px; }</style></head><body>${contentClone.innerHTML}</body></html>`;
-            const converted = htmlDocx.asBlob(htmlString); saveAs(converted, `SmartReader_${new Date().toISOString().slice(0,10)}.docx`);
+        function exportDoc(isAuto = false) {
+            const clone = document.getElementById('articleContent').cloneNode(true);
+            
+            // 预处理：生词变成 [含义]，翻译展开
+            clone.querySelectorAll('.hard-word').forEach(el => {
+                el.outerHTML = `<b style='color:#C2410C'>${el.innerText}</b> <span style='font-size:0.9em;color:#666'>[${el.getAttribute('data-mean')}]</span>`;
+            });
+            clone.querySelectorAll('.trans-box').forEach(el => {
+                el.style.display = 'block'; el.style.borderTop = '1px dashed #ccc'; el.style.marginTop='5px'; el.style.color='#555';
+            });
+            clone.querySelectorAll('.trans-btn').forEach(el => el.remove());
+
+            const html = `<!DOCTYPE html><html><head><meta charset='UTF-8'><style>body{font-family:'Calibri',sans-serif} img{max-width:100%}</style></head><body>${clone.innerHTML}</body></html>`;
+            const blob = htmlDocx.asBlob(html);
+            
+            // 自动文件名：日期_时间_标题 (截取前30字防止文件名过长)
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}`;
+            const cleanTitle = document.getElementById('artTitle').innerText.replace(/[^\w\u4e00-\u9fa5]/g, '_').substring(0, 30);
+            
+            saveAs(blob, `${timeStr}_${cleanTitle}.docx`);
+            
+            if(isAuto) {
+                // 可以在这里加个 Toast 提示用户“已保存”
+                console.log("Auto-saved to downloads.");
+            }
         }
+
+        // --- 工具函数 ---
+        function chunkString(str, len) {
+            const chunks = []; let current = "";
+            str.split(/\n\n+/).forEach(p => {
+                if((current.length + p.length) > len) { chunks.push(current); current = p; }
+                else { current += (current ? "\n\n" : "") + p; }
+            });
+            if(current) chunks.push(current);
+            return chunks;
+        }
+
+        async function callAI(text, level, needSummary) {
+            const cfg = getConfig();
+            const prompt = `Role: English Tutor. Level: ${level}. Task: ${needSummary?"1. Title & 3-5 bullet Summary (Chinese).":""} 2. Split paragraphs (Keep markdown images!). 3. Hard words (> ${level}). 4. Translate. Output JSON: { ${needSummary?'"title":"T","summary":["S"],':""} "paragraphs": [{"en":"text","cn":"trans","words":{"wd":"mean"}}] } Content: ${text}`;
+            const headers = {"Content-Type":"application/json"}; if(cfg.key) headers["Authorization"]=`Bearer ${cfg.key}`; if(cfg.url.includes("openrouter")){headers["HTTP-Referer"]=location.href;headers["X-Title"]="SmartReader";}
+            const res = await fetch(cfg.url.replace(/\/+$/,'')+'/chat/completions', { method:"POST", headers, body:JSON.stringify({ model:cfg.model, messages:[{role:"system",content:"JSON generator"},{role:"user",content:prompt}], response_format:{type:"json_object"} }) });
+            if(!res.ok) throw new Error("API Error");
+            return JSON.parse((await res.json()).choices[0].message.content.replace(/```json|```/g,'').trim());
+        }
+
+        function startLoading(msg) { 
+            document.getElementById('loading').style.display = 'flex'; 
+            document.getElementById('loadingText').innerText = msg;
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const s = Math.floor((Date.now()-startTime)/1000);
+                document.getElementById('timerDisplay').innerText = `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
+            }, 1000);
+        }
+        function stopLoading() { clearInterval(timerInterval); document.getElementById('loading').style.display = 'none'; }
+        function updateProgress(pct, msg) { document.getElementById('progressFill').style.width = pct+'%'; if(msg) document.getElementById('loadingText').innerText = msg; }
+        
+        function toggle(id) { document.getElementById(id).classList.toggle('show'); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        
+        // Config UI
+        function openSettings() { const cfg=getConfig(); document.getElementById('cfgUrl').value=cfg.url; document.getElementById('cfgKey').value=cfg.key; document.getElementById('cfgModel').value=cfg.model; document.getElementById('configModal').style.display='flex'; }
+        function closeSettings() { document.getElementById('configModal').style.display='none'; }
+        function saveSettings() { localStorage.setItem('sr_url', document.getElementById('cfgUrl').value.trim()); localStorage.setItem('sr_key', document.getElementById('cfgKey').value.trim()); localStorage.setItem('sr_model', document.getElementById('cfgModel').value.trim()); closeSettings(); alert("Saved"); }
+        function saveConfig() { localStorage.setItem('sr_model', document.getElementById('modelSelect').value); }
+        function fillPreset(t) { const p={'openrouter':{u:'https://openrouter.ai/api/v1',m:'google/gemini-2.0-flash-lite-preview-02-05:free'},'deepseek':{u:'https://api.deepseek.com/v1',m:'deepseek-chat'},'openai':{u:'https://api.openai.com/v1',m:'gpt-4o-mini'}}[t]; document.getElementById('cfgUrl').value=p.u; document.getElementById('cfgModel').value=p.m; }
     </script>
 </body>
 </html>
