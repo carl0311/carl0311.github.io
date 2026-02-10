@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global News Navigator | 全球新闻源</title>
+    <style>
+        :root {
+            --bg: #f3f4f6;
+            --sidebar-w: 250px;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --accent: #2563eb;
+            --border: #e5e7eb;
+        }
+
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --bg: #111827; --sidebar-bg: #1f2937; --card-bg: #1f2937;
+            --text-main: #f9fafb; --text-sub: #9ca3af;
+            --border: #374151; --accent: #60a5fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { background: var(--bg); display: flex; height: 100vh; color: var(--text-main); overflow: hidden; transition: background 0.3s; }
+
+        /* Sidebar */
+        aside {
+            width: var(--sidebar-w);
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            padding: 20px 10px;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .logo { 
+            font-size: 1.3rem; font-weight: 800; color: var(--text-main); 
+            margin-bottom: 25px; padding-left: 15px; display: flex; align-items: center; gap: 10px; 
+        }
+        .logo span { background: var(--accent); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.9rem; }
+
+        .nav-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 15px; color: var(--text-sub); text-decoration: none;
+            border-radius: 8px; margin-bottom: 4px; font-size: 0.9rem; font-weight: 500;
+            transition: 0.2s;
+        }
+        .nav-item:hover { background: var(--bg); color: var(--accent); }
+        .nav-item.active { background: #eff6ff; color: var(--accent); font-weight: 700; }
+        body.dark-mode .nav-item.active { background: #374151; }
+        .count { font-size: 0.7rem; background: var(--bg); padding: 2px 6px; border-radius: 10px; color: var(--text-sub); }
+
+        /* Main */
+        main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        header {
+            background: var(--card-bg); border-bottom: 1px solid var(--border);
+            padding: 15px 30px; display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .search-bar { position: relative; width: 100%; max-width: 400px; }
+        .search-bar input {
+            width: 100%; padding: 10px 15px 10px 35px;
+            border: 1px solid var(--border); border-radius: 8px;
+            background: var(--bg); outline: none; transition: 0.2s; color: var(--text-main);
+        }
+        .search-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
+
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; user-select: none; }
+
+        /* Bookmarklet Bar */
+        .bookmark-bar {
+            background: var(--card-bg); border-bottom: 1px solid var(--border);
+            padding: 10px 30px; display: flex; align-items: center; gap: 15px; font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+        .bookmarklet-btn {
+            background: var(--text-main); color: var(--card-bg); padding: 4px 12px; 
+            border-radius: 20px; text-decoration: none; font-weight: bold; cursor: grab;
+            border: 1px solid var(--text-main); transition: 0.2s;
+        }
+        .bookmarklet-btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
+
+        /* Content Area */
+        .content { flex: 1; overflow-y: auto; padding: 30px; scroll-behavior: smooth; }
+
+        .section-header {
+            font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; margin-top: 40px;
+            display: flex; align-items: center; gap: 10px; color: var(--text-main); 
+            padding-bottom: 10px; border-bottom: 2px solid var(--border);
+        }
+        .section-header:first-child { margin-top: 0; }
+
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px; text-decoration: none;
+            transition: all 0.2s ease; 
+            display: flex; flex-direction: row; align-items: flex-start; gap: 15px;
+            position: relative; overflow: hidden;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); border-color: var(--accent); }
+
+        .card-logo {
+            width: 42px; height: 42px; border-radius: 8px;
+            background: #f3f4f6; object-fit: contain; flex-shrink: 0;
+            padding: 2px; border: 1px solid var(--border);
+        }
+
+        .card-body { flex: 1; min-width: 0; }
+
+        .card-title { 
+            font-weight: 700; font-size: 1rem; color: var(--text-main); line-height: 1.3; 
+            margin-bottom: 4px; display: block; 
+        }
+        .card-cn { font-weight: 400; font-size: 0.85rem; color: var(--text-sub); margin-left: 4px; }
+        
+        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+        
+        .country-tag { 
+            font-size: 0.7rem; color: var(--text-sub); background: var(--bg); 
+            padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; gap: 4px; font-weight: 600;
+        }
+        
+        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .bg-blue { background: #dbeafe; color: #1e40af; } 
+        .bg-green { background: #dcfce7; color: #166534; }
+        .bg-purple { background: #f3e8ff; color: #6b21a8; }
+        .bg-red { background: #fee2e2; color: #991b1b; }
+        
+        /* Indicators */
+        .indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .ind-archive { background-color: #f59e0b; }
+        .ind-regwall { background-color: #ef4444; }
+
+        /* Card Actions (Hover) */
+        .card-actions { position: absolute; right: 10px; top: 10px; opacity: 0; transition: 0.2s; display: flex; gap: 5px; }
+        .card:hover .card-actions { opacity: 1; }
+        .action-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--card-bg); border: 1px solid #d97706; color: #d97706; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .action-btn:hover { background: #d97706; color: white; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            aside { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; border-bottom: 1px solid var(--border); border-right: none; }
+            .nav-item { margin-bottom: 0; margin-right: 5px; white-space: nowrap; }
+            .content { padding: 15px; }
+            .bookmark-bar { flex-direction: column; text-align: center; gap: 10px; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<aside>
+    <div class="logo">
+        <span>AI</span> News Reader
+    </div>
+    <a href="#global-top" class="nav-item active">🌍 Global Top</a>
+    <a href="#finance" class="nav-item">💰 Finance</a>
+    <a href="#tech" class="nav-item">🚀 Tech</a>
+    <a href="#us-politics" class="nav-item">🦅 US Politics</a>
+    <a href="#europe-major" class="nav-item">🇪🇺 Europe</a>
+    <a href="#uk-ie" class="nav-item">🇬🇧 UK & IE</a>
+    <a href="#asia" class="nav-item">🌏 Asia Pacific</a>
+    <a href="#latam" class="nav-item">💃 LatAm</a>
+    <a href="#lifestyle" class="nav-item">🎨 Lifestyle</a>
+</aside>
+
+<main>
+    <header>
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search news sources...">
+        </div>
+        
+        <div class="header-controls">
+            <div style="font-size:0.75rem; color:var(--text-sub); display:flex; gap:10px;">
+                <div><span class="indicator ind-archive"></span>Archive</div>
+                <div><span class="indicator ind-regwall"></span>Regwall</div>
+            </div>
+            <div class="theme-toggle" onclick="toggleTheme()" title="切换深色模式">🌗</div>
+        </div>
+    </header>
+
+    <div class="bookmark-bar">
+        <span style="font-weight:bold; color:var(--accent);">⚡️ 效率神器：</span>
+        <span>把右侧按钮拖到书签栏 👉</span>
+        
+        <a href="javascript:(function(){window.open('https://carl0311.github.io/smart-reader.html?target='+encodeURIComponent(window.location.href), '_blank');})();" 
+           class="bookmarklet-btn"
+           onclick="event.preventDefault(); alert('请直接把这个按钮拖到浏览器的【书签栏/收藏夹栏】中。\n\n以后在任何新闻页面，点一下收藏栏里的这个按钮，就能直接用 AI 阅读了！');">
+           🤖 AI Read This
+        </a>
+    </div>
+
+    <div class="content">
+
+        <div id="global-top">
+            <div class="section-header">🌍 Global Top Tier (全球顶级综合)</div>
+            <div class="grid">
+                <a href="https://www.reuters.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Reuters <span class="card-cn">路透社</span></div>
+                        <div class="card-meta"><span class="country-tag">🇬🇧 Global</span><span class="badge bg-red">News</span></div>
+                    </div>
+                </a>
+                <a href="https://www.bloomberg.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Bloomberg <span class="card-cn">彭博社</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-green">Finance</span></div>
+                    </div>
+                </a>
+                <a href="https://www.nytimes.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">The New York Times <span class="card-cn">纽约时报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-red">Daily</span></div>
+                    </div>
+                </a>
+                <a href="https://www.wsj.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">The Wall Street Journal <span class="card-cn">华尔街日报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-green">Biz</span></div>
+                    </div>
+                </a>
+                <a href="https://www.ft.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Financial Times <span class="card-cn">金融时报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇬🇧 UK</span><span class="badge bg-green">Biz</span></div>
+                    </div>
+                </a>
+                <a href="https://www.economist.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">The Economist <span class="card-cn">经济学人</span></div>
+                        <div class="card-meta"><span class="country-tag">🇬🇧 UK</span><span class="badge bg-red">Analysis</span></div>
+                    </div>
+                </a>
+                <a href="https://www.washingtonpost.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">The Washington Post <span class="card-cn">华盛顿邮报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-red">Pol</span></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="finance">
+            <div class="section-header">💰 Business & Finance (商业与金融)</div>
+            <div class="grid">
+                <a href="https://www.barrons.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Barron's <span class="card-cn">巴伦周刊</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-green">Invest</span></div>
+                    </div>
+                </a>
+                <a href="https://www.forbes.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Forbes <span class="card-cn">福布斯</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-green">Biz</span></div>
+                    </div>
+                </a>
+                <a href="https://fortune.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Fortune <span class="card-cn">财富</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-green">Biz</span></div>
+                    </div>
+                </a>
+                <a href="https://hbr.org" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Harvard Business Review</div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-green">Mgmt</span></div>
+                    </div>
+                </a>
+                <a href="https://www.businessinsider.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Business Insider</div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-green">Biz</span></div>
+                    </div>
+                </a>
+                <a href="https://www.lesechos.fr" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Les Échos <span class="card-cn">回声报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇫🇷 FR</span><span class="badge bg-green">Fin</span></div>
+                    </div>
+                </a>
+                <a href="https://www.handelsblatt.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Handelsblatt <span class="card-cn">德国商报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇩🇪 DE</span><span class="badge bg-green">Fin</span></div>
+                    </div>
+                </a>
+                <a href="https://www.afr.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">AFR <span class="card-cn">澳洲金融评论</span></div>
+                        <div class="card-meta"><span class="country-tag">🇦🇺 AU</span><span class="badge bg-green">Fin</span></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="tech">
+            <div class="section-header">🚀 Tech & Science (科技与科学)</div>
+            <div class="grid">
+                <a href="https://www.technologyreview.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">MIT Tech Review</div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-blue">Tech</span></div>
+                    </div>
+                </a>
+                <a href="https://www.wired.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Wired <span class="card-cn">连线</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-blue">Geek</span></div>
+                    </div>
+                </a>
+                <a href="https://www.nature.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title"><span class="indicator ind-archive"></span>Nature <span class="card-cn">自然</span></div>
+                        <div class="card-meta"><span class="country-tag">🇬🇧 UK</span><span class="badge bg-blue">Sci</span></div>
+                    </div>
+                </a>
+                <a href="https://www.science.org" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Science <span class="card-cn">科学</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-blue">Sci</span></div>
+                    </div>
+                </a>
+                <a href="https://www.theinformation.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title"><span class="indicator ind-archive"></span>The Information</div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-blue">Exclusive</span></div>
+                    </div>
+                </a>
+                <a href="https://arstechnica.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Ars Technica</div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-blue">HardCore</span></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="us-politics">
+            <div class="section-header">🦅 US Politics (美国政治)</div>
+            <div class="grid">
+                <a href="https://www.politico.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Politico <span class="card-cn">政治报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-red">DC</span></div>
+                    </div>
+                </a>
+                <a href="https://www.foreignaffairs.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Foreign Affairs <span class="card-cn">外交事务</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-red">IR</span></div>
+                    </div>
+                </a>
+                <a href="https://foreignpolicy.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Foreign Policy <span class="card-cn">外交政策</span></div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-red">IR</span></div>
+                    </div>
+                </a>
+                <a href="https://www.axios.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Axios</div>
+                        <div class="card-meta"><span class="country-tag">🇺🇸 US</span><span class="badge bg-red">Brief</span></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="europe-major">
+            <div class="section-header">🇪🇺 Europe Major (欧洲主流)</div>
+            <div class="grid">
+                <a href="https://www.lemonde.fr" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Le Monde <span class="card-cn">世界报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇫🇷 FR</span><span class="badge bg-red">Daily</span></div>
+                    </div>
+                </a>
+                <a href="https://www.lefigaro.fr" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Le Figaro <span class="card-cn">费加罗报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇫🇷 FR</span><span class="badge bg-red">Daily</span></div>
+                    </div>
+                </a>
+                <a href="https://www.spiegel.de" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title"><span class="indicator ind-archive"></span>Der Spiegel <span class="card-cn">明镜</span></div>
+                        <div class="card-meta"><span class="country-tag">🇩🇪 DE</span><span class="badge bg-red">Mag</span></div>
+                    </div>
+                </a>
+                <a href="https://www.zeit.de" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title"><span class="indicator ind-archive"></span>Die Zeit <span class="card-cn">时代周报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇩🇪 DE</span><span class="badge bg-red">Weekly</span></div>
+                    </div>
+                </a>
+                <a href="https://elpais.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">El País <span class="card-cn">国家报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇪🇸 ES</span><span class="badge bg-red">Daily</span></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="uk-ie">
+            <div class="section-header">🇬🇧 UK & Ireland (英伦三岛)</div>
+            <div class="grid">
+                <a href="https://www.bbc.com/news" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">BBC News <span class="card-cn">英国广播公司</span></div>
+                        <div class="card-meta"><span class="country-tag">🇬🇧 UK</span><span class="badge bg-red">Public</span></div>
+                    </div>
+                </a>
+                <a href="https://www.theguardian.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">The Guardian <span class="card-cn">卫报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇬🇧 UK</span><span class="badge bg-red">Left</span></div>
+                    </div>
+                </a>
+                <a href="https://www.telegraph.co.uk" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">The Telegraph <span class="card-cn">每日电讯报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇬🇧 UK</span><span class="badge bg-red">Right</span></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="asia">
+            <div class="section-header">🌏 Asia Pacific (亚太地区)</div>
+            <div class="grid">
+                <a href="https://www.scmp.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">SCMP <span class="card-cn">南华早报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇭🇰 HK</span><span class="badge bg-red">News</span></div>
+                    </div>
+                </a>
+                <a href="https://asia.nikkei.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">Nikkei Asia <span class="card-cn">日经亚洲</span></div>
+                        <div class="card-meta"><span class="country-tag">🇯🇵 JP</span><span class="badge bg-green">Biz</span></div>
+                    </div>
+                </a>
+                <a href="https://www.japantimes.co.jp" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">The Japan Times <span class="card-cn">日本时报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇯🇵 JP</span><span class="badge bg-red">Daily</span></div>
+                    </div>
+                </a>
+                <a href="https://www.straitstimes.com" class="card" target="_blank">
+                    <div class="card-body">
+                        <div class="card-title">The Straits Times <span class="card-cn">海峡时报</span></div>
+                        <div class="card-meta"><span class="country-tag">🇸🇬 SG</span><span class="badge bg-red">Daily</span></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div style="height:100px;"></div>
+    </div>
+</main>
+
+<script>
+    // --- 1. 自动注入 Logo 和 Google Search 按钮 ---
+    document.querySelectorAll('.card').forEach(card => {
+        const url = new URL(card.href);
+        const domain = url.hostname.replace('www.', '');
+        
+        // Logo
+        const img = document.createElement('img');
+        img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+        img.className = 'card-logo';
+        img.onerror = function() { this.style.opacity = '0'; };
+        card.insertBefore(img, card.firstChild);
+
+        // Action Button (Google News Search)
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+        actions.innerHTML = `
+            <div class="action-btn" title="在 Google News 搜最新新闻" onclick="searchSite(event, '${domain}')">
+                📰
+            </div>
+        `;
+        card.appendChild(actions);
+    });
+
+    // 搜索函数
+    function searchSite(e, domain) {
+        e.preventDefault(); e.stopPropagation();
+        window.open(`https://www.google.com/search?q=site:${domain}&tbm=nws`, '_blank');
+    }
+
+    // --- 2. 搜索框过滤 ---
+    const searchInput = document.getElementById('searchInput');
+    const cards = document.querySelectorAll('.card');
+    const sections = document.querySelectorAll('.section-header');
+
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(term) ? 'flex' : 'none';
+        });
+        
+        // 自动隐藏空分类
+        sections.forEach(header => {
+            const nextGrid = header.nextElementSibling;
+            if (nextGrid && nextGrid.classList.contains('grid')) {
+                const hasVisible = Array.from(nextGrid.children).some(child => child.style.display !== 'none');
+                header.style.display = hasVisible ? 'flex' : 'none';
+                nextGrid.style.display = hasVisible ? 'grid' : 'none';
+            }
+        });
+    });
+
+    // --- 3. 侧边栏高亮 ---
+    const navLinks = document.querySelectorAll('aside a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            navLinks.forEach(n => n.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // --- 4. 深色模式 ---
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('nav_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    }
+    if (localStorage.getItem('nav_theme') === 'dark') document.body.classList.add('dark-mode');
+
+</script>
+
+</body>
+</html>
