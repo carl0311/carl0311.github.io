@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laser & CNC Radar | 竞品情报库</title>
+    <style>
+        :root {
+            --bg: #f3f4f6; --sidebar-w: 250px; --card-bg: #ffffff;
+            --text-main: #1f2937; --text-sub: #6b7280; --accent: #dc2626; /* 工业红 */
+            --border: #e5e7eb; --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --overlay-bg: rgba(255, 255, 255, 0.98);
+            --overlay-text: #374151;
+        }
+
+        body.dark-mode {
+            --bg: #111827; --sidebar-bg: #1f2937; --card-bg: #1f2937;
+            --text-main: #f9fafb; --text-sub: #9ca3af; --border: #374151; --accent: #ef4444;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            --overlay-bg: rgba(31, 41, 55, 0.98);
+            --overlay-text: #d1d5db;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: var(--bg); display: flex; height: 100vh; color: var(--text-main); overflow: hidden; transition: 0.3s; }
+
+        /* Sidebar */
+        aside {
+            width: var(--sidebar-w); background: var(--card-bg); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 20px 10px; flex-shrink: 0; overflow-y: auto;
+        }
+        .logo { font-size: 1.2rem; font-weight: 800; margin-bottom: 25px; padding-left: 15px; display: flex; align-items: center; gap: 8px; }
+        .logo span { background: var(--accent); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        .nav-item {
+            display: flex; align-items: center; justify-content: space-between; padding: 10px 15px;
+            color: var(--text-sub); text-decoration: none; border-radius: 8px; margin-bottom: 2px; font-size: 0.9rem; font-weight: 500; transition: 0.2s;
+        }
+        .nav-item:hover { background: var(--bg); color: var(--accent); }
+        .nav-item.active { background: #fee2e2; color: var(--accent); font-weight: 700; }
+        body.dark-mode .nav-item.active { background: #7f1d1d; }
+
+        /* Main */
+        main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header {
+            background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 15px 30px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .search-bar { position: relative; width: 100%; max-width: 400px; }
+        .search-bar input {
+            width: 100%; padding: 10px 15px 10px 35px; border: 1px solid var(--border);
+            border-radius: 8px; background: var(--bg); color: var(--text-main); outline: none; transition: 0.2s;
+        }
+        .search-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
+        .header-controls { display: flex; align-items: center; gap: 15px; font-size: 1.2rem; cursor: pointer; }
+
+        /* Bookmarklet */
+        .bookmark-bar {
+            background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 8px 30px;
+            display: flex; align-items: center; gap: 15px; font-size: 0.85rem; color: var(--text-sub);
+        }
+        .bookmarklet-btn {
+            background: var(--text-main); color: var(--card-bg); padding: 4px 12px; border-radius: 20px;
+            text-decoration: none; font-weight: bold; cursor: grab; border: 1px solid var(--text-main);
+        }
+        .bookmarklet-btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
+
+        /* Content */
+        .content { flex: 1; overflow-y: auto; padding: 30px; scroll-behavior: smooth; }
+        
+        #top-picks-container {
+            background: linear-gradient(to right, rgba(220, 38, 38, 0.05), transparent);
+            border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 30px; display: none;
+        }
+        .top-picks-header { font-weight: 800; color: var(--accent); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+
+        .section-header {
+            font-size: 1.1rem; font-weight: 700; margin: 30px 0 15px 0; display: flex; align-items: center; gap: 10px;
+            color: var(--text-main); padding-bottom: 8px; border-bottom: 2px solid var(--border);
+        }
+        .section-header:first-child { margin-top: 0; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 15px;
+            text-decoration: none; transition: 0.2s; display: flex; align-items: flex-start; gap: 12px;
+            position: relative; overflow: hidden; box-shadow: var(--card-shadow);
+        }
+        .card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 8px 15px rgba(0,0,0,0.05); }
+        
+        /* 🌟 核心升级：悬停简介层 */
+        .card::after {
+            content: attr(data-desc); /* 读取 HTML 中的 data-desc 属性 */
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: var(--overlay-bg);
+            padding: 10px 15px;
+            font-size: 0.8rem; line-height: 1.4; color: var(--overlay-text);
+            border-top: 2px solid var(--accent);
+            transform: translateY(100%); /* 默认隐藏在底部 */
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; /* 让鼠标事件穿透，不影响点击 */
+            z-index: 10;
+        }
+        .card:hover::after {
+            transform: translateY(0); /* 悬停时滑出 */
+        }
+
+        .card-logo {
+            width: 40px; height: 40px; border-radius: 8px; background: #fff; object-fit: contain;
+            flex-shrink: 0; padding: 2px; border: 1px solid var(--border);
+        }
+        .card-body { flex: 1; min-width: 0; }
+        .card-title { font-weight: 700; font-size: 0.95rem; color: var(--text-main); line-height: 1.3; margin-bottom: 4px; }
+        .card-cn { font-weight: 400; font-size: 0.8rem; color: var(--text-sub); }
+        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+        
+        .badge { font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; background: var(--bg); color: var(--text-sub); }
+        
+        /* Industry Badges */
+        .bg-laser { background: #fee2e2; color: #b91c1c; }
+        .bg-cnc { background: #e5e7eb; color: #374151; }
+        .bg-tube { background: #dbeafe; color: #1e40af; }
+        .bg-auto { background: #dcfce7; color: #166534; }
+
+        /* Actions */
+        .card-actions { position: absolute; right: 8px; top: 8px; opacity: 0; transition: 0.2s; display: flex; gap: 4px; z-index: 20; }
+        .card:hover .card-actions { opacity: 1; }
+        .action-btn {
+            width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: var(--card-bg); border: 1px solid #dc2626; color: #dc2626; cursor: pointer; font-size: 0.8rem;
+        }
+        .action-btn:hover { background: #dc2626; color: white; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            aside { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; border-right: none; border-bottom: 1px solid var(--border); }
+            .content { padding: 15px; }
+            .bookmark-bar { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<aside>
+    <div class="logo"><span>⚙️</span> Machine Radar</div>
+    <a href="#top-picks-container" class="nav-item active">🔥 My Focus</a>
+    <a href="#titans" class="nav-item">👑 Global Titans</a>
+    <a href="#china" class="nav-item">🇨🇳 China Power</a>
+    <a href="#germany" class="nav-item">🇩🇪 German Precision</a>
+    <a href="#japan" class="nav-item">🇯🇵 Japan Tech</a>
+    <a href="#italy" class="nav-item">🇮🇹 Italy Design</a>
+    <a href="#switzerland" class="nav-item">🇨🇭 Swiss & EU</a>
+    <a href="#turkey" class="nav-item">🇹🇷 Turkey & US</a>
+    <a href="#components" class="nav-item">🔩 Key Components</a>
+</aside>
+
+<main>
+    <header>
+        <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="Search brands (e.g., Trumpf, Bodor)..."></div>
+        <div class="header-controls">
+            <div title="Switch Theme" class="theme-toggle" onclick="toggleTheme()">🌗</div>
+        </div>
+    </header>
+
+    <div class="bookmark-bar">
+        <span style="font-weight:bold; color:var(--accent);">⚡️ Competitor Analysis:</span>
+        <a href="javascript:(function(){window.open('https://carl0311.github.io/smart-reader.html?target='+encodeURIComponent(window.location.href), '_blank');})();" 
+           class="bookmarklet-btn"
+           onclick="event.preventDefault(); alert('Drag to bookmark bar. Use it to analyze competitor specs with AI.');">
+           🤖 AI Analyze Specs
+        </a>
+        <span style="margin-left:auto; font-size:0.75rem; color:#aaa;">Hover card to see details</span>
+    </div>
+
+    <div class="content">
+        
+        <div id="top-picks-container">
+            <div class="top-picks-header">
+                <span id="top-picks-title">🔥 My Focus (Competitors)</span>
+                <span style="font-size:0.8rem; color:#999; cursor:pointer;" onclick="clearStats()">[Reset]</span>
+            </div>
+            <div class="grid" id="top-picks-grid"></div>
+        </div>
+
+        <div id="titans">
+            <div class="section-header">👑 Global Titans (行业第一梯队)</div>
+            <div class="grid">
+                <a href="https://www.trumpf.com" class="card" data-desc="全球工业激光与机床无可争议的领导者，高端市场标杆。"><div><div class="card-title">TRUMPF <span class="card-cn">通快</span></div><div class="card-meta"><span>🇩🇪 DE</span><span class="badge bg-laser">Leader</span></div></div></a>
+                <a href="https://www.bystronic.com" class="card" data-desc="瑞士高端品质代表，钣金加工与自动化解决方案专家。"><div><div class="card-title">Bystronic <span class="card-cn">百超</span></div><div class="card-meta"><span>🇨🇭 CH</span><span class="badge bg-laser">Premium</span></div></div></a>
+                <a href="https://www.amada.co.jp" class="card" data-desc="日本钣金巨头，以稳定性著称，冲床与折弯机市场占有率极高。"><div><div class="card-title">AMADA <span class="card-cn">阿玛达</span></div><div class="card-meta"><span>🇯🇵 JP</span><span class="badge bg-cnc">Sheet</span></div></div></a>
+                <a href="https://www.mazak.com" class="card" data-desc="全球机床行业领军者，多任务复合加工中心技术领先。"><div><div class="card-title">Mazak <span class="card-cn">马扎克</span></div><div class="card-meta"><span>🇯🇵 JP</span><span class="badge bg-cnc">CNC</span></div></div></a>
+                <a href="https://www.hanslaser.net" class="card" data-desc="亚洲最大激光设备制造商，产品线覆盖全行业。"><div><div class="card-title">Han's Laser <span class="card-cn">大族激光</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">Giant</span></div></div></a>
+                <a href="https://www.salvagninigroup.com" class="card" data-desc="柔性自动化与板材折弯中心技术的鼻祖，设计美学与性能并重。"><div><div class="card-title">Salvagnini <span class="card-cn">萨瓦尼尼</span></div><div class="card-meta"><span>🇮🇹 IT</span><span class="badge bg-auto">Panel</span></div></div></a>
+            </div>
+        </div>
+
+        <div id="china">
+            <div class="section-header">🇨🇳 China High Power (中国军团)</div>
+            <div class="grid">
+                <a href="https://www.bodor.com" class="card" data-desc="全球万瓦级激光切割机销量冠军，增长最快的激光企业之一。" style="border-color:var(--accent); background:#fff5f5;"><div><div class="card-title">Bodor Laser <span class="card-cn">邦德激光</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">No.1 Vol</span></div></div></a>
+                <a href="https://www.hsglaser.com" class="card" data-desc="专注于金属成形设备，管材切割技术具有较强竞争力。"><div><div class="card-title">HSG Laser <span class="card-cn">宏山激光</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">Laser</span></div></div></a>
+                <a href="https://www.senfeng.com" class="card" data-desc="出口业务强劲，主打中高端市场，产品线丰富。"><div><div class="card-title">Senfeng <span class="card-cn">森峰</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">Export</span></div></div></a>
+                <a href="https://www.gwklaser.com" class="card" data-desc="性价比极高的出口型企业，中小型激光设备市场表现活跃。"><div><div class="card-title">G.Weike <span class="card-cn">金威刻</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">Value</span></div></div></a>
+                <a href="https://www.hymson.com" class="card" data-desc="锂电与钣金自动化领域强劲，上市公司。"><div><div class="card-title">Hymson <span class="card-cn">海目星</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">Auto</span></div></div></a>
+                <a href="https://www.pentamachine.com" class="card" data-desc="中意合资背景，专注于高功率激光切割领域。"><div><div class="card-title">Penta Laser <span class="card-cn">奔腾激光</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">High</span></div></div></a>
+                <a href="https://www.quicklaser.com" class="card" data-desc="专注于激光自动化产线，智能仓储集成能力强。"><div><div class="card-title">Quick Laser <span class="card-cn">快仓</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">Auto</span></div></div></a>
+                <a href="https://www.leadlaser.com" class="card" data-desc="中国最早一批激光企业，大幅面设备有优势。"><div><div class="card-title">Lead Laser <span class="card-cn">领创</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">Big</span></div></div></a>
+            </div>
+        </div>
+
+        <div id="germany">
+            <div class="section-header">🇩🇪 German Precision (德国制造)</div>
+            <div class="grid">
+                <a href="https://www.messer-cutting.com" class="card" data-desc="火焰与等离子切割技术的全球标准制定者。"><div><div class="card-title">Messer <span class="card-cn">梅塞尔</span></div><div class="card-meta"><span>🇩🇪 DE</span><span class="badge bg-cnc">Plasma</span></div></div></a>
+                <a href="https://en.dmgmori.com" class="card" data-desc="全球顶级机床制造商，高端五轴联动加工中心标杆。"><div><div class="card-title">DMG MORI <span class="card-cn">德马吉</span></div><div class="card-meta"><span>🇩🇪 DE</span><span class="badge bg-cnc">CNC</span></div></div></a>
+                <a href="https://www.chiron-group.com" class="card" data-desc="立式加工中心专家，以高速切削和自动化著称。"><div><div class="card-title">CHIRON <span class="card-cn">巨浪</span></div><div class="card-meta"><span>🇩🇪 DE</span><span class="badge bg-cnc">Mill</span></div></div></a>
+                <a href="https://www.hermle.de" class="card" data-desc="五轴加工中心的'劳斯莱斯'，极高精度与稳定性。"><div><div class="card-title">Hermle <span class="card-cn">哈默</span></div><div class="card-meta"><span>🇩🇪 DE</span><span class="badge bg-cnc">5-Axis</span></div></div></a>
+                <a href="https://www.index-traub.com" class="card" data-desc="车削中心技术领导者。"><div><div class="card-title">INDEX <span class="card-cn">因代克斯</span></div><div class="card-meta"><span>🇩🇪 DE</span><span class="badge bg-cnc">Turn</span></div></div></a>
+                <a href="https://www.grobfiles.com" class="card" data-desc="汽车动力总成制造设备巨头，电动汽车产线专家。"><div><div class="card-title">GROB <span class="card-cn">格劳博</span></div><div class="card-meta"><span>🇩🇪 DE</span><span class="badge bg-auto">System</span></div></div></a>
+            </div>
+        </div>
+
+        <div id="japan">
+            <div class="section-header">🇯🇵 Japan Tech (日本技术)</div>
+            <div class="grid">
+                <a href="https://www.mitsubishielectric.com/fa/" class="card" data-desc="自主研发激光器与控制系统，稳定性极高。"><div><div class="card-title">Mitsubishi <span class="card-cn">三菱电机</span></div><div class="card-meta"><span>🇯🇵 JP</span><span class="badge bg-laser">Laser</span></div></div></a>
+                <a href="https://www.fanuc.com" class="card" data-desc="工业机器人与数控系统的全球霸主，机床的大脑。"><div><div class="card-title">FANUC <span class="card-cn">发那科</span></div><div class="card-meta"><span>🇯🇵 JP</span><span class="badge bg-auto">Robot</span></div></div></a>
+                <a href="https://www.okuma.com" class="card" data-desc="龙门加工中心与数控车床技术领先。"><div><div class="card-title">Okuma <span class="card-cn">大隈</span></div><div class="card-meta"><span>🇯🇵 JP</span><span class="badge bg-cnc">CNC</span></div></div></a>
+                <a href="https://www.makino.com" class="card" data-desc="高速加工与电火花加工(EDM)领域的专家。"><div><div class="card-title">Makino <span class="card-cn">牧野</span></div><div class="card-meta"><span>🇯🇵 JP</span><span class="badge bg-cnc">EDM</span></div></div></a>
+                <a href="https://www.sodick.com" class="card" data-desc="精密电火花加工机床领导品牌。"><div><div class="card-title">Sodick <span class="card-cn">沙迪克</span></div><div class="card-meta"><span>🇯🇵 JP</span><span class="badge bg-cnc">EDM</span></div></div></a>
+                <a href="https://www.muratec.net" class="card" data-desc="数控冲床与自动化仓储系统知名厂商。"><div><div class="card-title">Muratec <span class="card-cn">村田</span></div><div class="card-meta"><span>🇯🇵 JP</span><span class="badge bg-cnc">Punch</span></div></div></a>
+            </div>
+        </div>
+
+        <div id="italy">
+            <div class="section-header">🇮🇹 Italy Design (意大利切管/板)</div>
+            <div class="grid">
+                <a href="https://www.blmgroup.com" class="card" data-desc="全球管材加工设备绝对领导者，切管机技术风向标。"><div><div class="card-title">BLM Group <span class="card-cn">BLM</span></div><div class="card-meta"><span>🇮🇹 IT</span><span class="badge bg-tube">Tube</span></div></div></a>
+                <a href="https://www.primapower.com" class="card" data-desc="拥有三维五轴激光切割核心技术，钣金柔性线专家。"><div><div class="card-title">Prima Power <span class="card-cn">普瑞玛</span></div><div class="card-meta"><span>🇮🇹 IT</span><span class="badge bg-laser">Sheet</span></div></div></a>
+                <a href="https://www.cutlitepenta.com" class="card" data-desc="以直线电机和高功率切割头技术见长。"><div><div class="card-title">Cutlite Penta <span class="card-cn">卡特利特</span></div><div class="card-meta"><span>🇮🇹 IT</span><span class="badge bg-laser">High</span></div></div></a>
+                <a href="https://cms.it" class="card" data-desc="石材、玻璃及复合材料加工设备专家。"><div><div class="card-title">CMS</div><div class="card-meta"><span>🇮🇹 IT</span><span class="badge bg-cnc">Stone</span></div></div></a>
+            </div>
+        </div>
+
+        <div id="switzerland">
+            <div class="section-header">🇨🇭 Swiss & Europe (欧洲其他)</div>
+            <div class="grid">
+                <a href="https://www.gfms.com" class="card" data-desc="精密制造、电加工及铣削方案提供商。"><div><div class="card-title">GF Machining <span class="card-cn">乔治费歇尔</span></div><div class="card-meta"><span>🇨🇭 CH</span><span class="badge bg-cnc">EDM</span></div></div></a>
+                <a href="https://www.lvdgroup.com" class="card" data-desc="以折弯技术闻名，激光与冲床产品同样出色。"><div><div class="card-title">LVD <span class="card-cn">LVD</span></div><div class="card-meta"><span>🇧🇪 BE</span><span class="badge bg-laser">Bend</span></div></div></a>
+                <a href="https://eagle-group.eu" class="card" data-desc="波兰新势力，以超高功率(30kW+)和极高加速度著称。"><div><div class="card-title">Eagle Lasers <span class="card-cn">鹰牌</span></div><div class="card-meta"><span>🇵🇱 PL</span><span class="badge bg-laser">Speed</span></div></div></a>
+                <a href="https://www.microstep.eu" class="card" data-desc="等离子、激光、水刀等多功能切割机知名品牌。"><div><div class="card-title">MicroStep</div><div class="card-meta"><span>🇸🇰 SK</span><span class="badge bg-cnc">Plasma</span></div></div></a>
+                <a href="https://www.tci-cutting.com" class="card" data-desc="西班牙知名切割设备制造商，水刀与激光双修。"><div><div class="card-title">TCI Cutting</div><div class="card-meta"><span>🇪🇸 ES</span><span class="badge bg-laser">Water</span></div></div></a>
+            </div>
+        </div>
+
+        <div id="turkey">
+            <div class="section-header">🇹🇷 Turkey & USA (土耳其/美国)</div>
+            <div class="grid">
+                <a href="https://www.durmazlar.com.tr" class="card" data-desc="土耳其最大机械制造商，性价比高，欧洲市场占有率大。"><div><div class="card-title">Durma <span class="card-cn">杜玛</span></div><div class="card-meta"><span>🇹🇷 TR</span><span class="badge bg-cnc">Bend</span></div></div></a>
+                <a href="https://www.ermaksan.com.tr" class="card" data-desc="土耳其知名品牌，产品覆盖折弯、剪板及激光切割。"><div><div class="card-title">Ermaksan <span class="card-cn">埃尔马</span></div><div class="card-meta"><span>🇹🇷 TR</span><span class="badge bg-laser">Laser</span></div></div></a>
+                <a href="https://www.nukon.com.tr" class="card" data-desc="专注于光纤激光切割机，近年来在中东及欧洲增长迅速。"><div><div class="card-title">Nukon</div><div class="card-meta"><span>🇹🇷 TR</span><span class="badge bg-laser">Fiber</span></div></div></a>
+                <a href="https://www.haascnc.com" class="card" data-desc="北美最大数控机床制造商，以高性价比和易用性著称。"><div><div class="card-title">Haas <span class="card-cn">哈斯</span></div><div class="card-meta"><span>🇺🇸 US</span><span class="badge bg-cnc">CNC</span></div></div></a>
+                <a href="https://www.hypertherm.com" class="card" data-desc="全球等离子切割电源及易损件霸主。"><div><div class="card-title">Hypertherm <span class="card-cn">海宝</span></div><div class="card-meta"><span>🇺🇸 US</span><span class="badge bg-cnc">Plasma</span></div></div></a>
+                <a href="https://www.flowwaterjet.com" class="card" data-desc="超高压水切割技术发明者与领导者。"><div><div class="card-title">Flow <span class="card-cn">福禄</span></div><div class="card-meta"><span>🇺🇸 US</span><span class="badge bg-cnc">Water</span></div></div></a>
+            </div>
+        </div>
+
+        <div id="components">
+            <div class="section-header">🔩 Key Components (核心部件)</div>
+            <div class="grid">
+                <a href="https://www.ipgphotonics.com" class="card" data-desc="光纤激光器发明者，全球市场份额第一。"><div><div class="card-title">IPG Photonics</div><div class="card-meta"><span>🇺🇸 US</span><span class="badge bg-laser">Source</span></div></div></a>
+                <a href="https://www.raycuslaser.com" class="card" data-desc="中国第一家光纤激光器研发生产企业，国产替代主力。"><div><div class="card-title">Raycus <span class="card-cn">锐科激光</span></div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-laser">Source</span></div></div></a>
+                <a href="https://www.precitec.com" class="card" data-desc="激光切割头领域的'爱马仕'，高端设备标配。"><div><div class="card-title">Precitec <span class="card-cn">普雷吉特</span></div><div class="card-meta"><span>🇩🇪 DE</span><span class="badge bg-laser">Head</span></div></div></a>
+                <a href="https://www.fscut.com" class="card" data-desc="中国激光切割控制系统市场占有率第一(柏楚电子)。"><div><div class="card-title">FSCUT (Friendess)</div><div class="card-meta"><span>🇨🇳 CN</span><span class="badge bg-auto">Control</span></div></div></a>
+                <a href="https://www.beckhoff.com" class="card" data-desc="基于PC的自动化控制技术领导者，广泛用于高端机床。"><div><div class="card-title">Beckhoff <span class="card-cn">倍福</span></div><div class="card-meta"><span>🇩🇪 DE</span><span class="badge bg-auto">PLC</span></div></div></a>
+            </div>
+        </div>
+
+        <div style="height:100px;"></div>
+    </div>
+</main>
+
+<script>
+    // --- 1. Init Cards (Logo + Search Btn) ---
+    function initAllCards() {
+        document.querySelectorAll('.card').forEach(card => {
+            if(card.getAttribute('data-init')) return;
+            try {
+                const urlObj = new URL(card.href);
+                const domain = urlObj.hostname.replace('www.', '');
+                const cleanHref = urlObj.href;
+
+                // Logo
+                const img = document.createElement('img');
+                img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+                img.className = 'card-logo';
+                img.onerror = function() { this.style.opacity = '0'; };
+                card.insertBefore(img, card.firstChild);
+
+                // Search Btn
+                const actions = document.createElement('div');
+                actions.className = 'card-actions';
+                // 搜索时加上 "laser cutting machine" 关键词，更精准
+                actions.innerHTML = `<div class="action-btn" title="Search Models" onclick="searchSite(event, '${domain}')">🔍</div>`;
+                card.appendChild(actions);
+
+                // Track Click
+                card.onclick = function() { trackClick(cleanHref); };
+                
+                card.setAttribute('data-init', 'true');
+            } catch (e) {}
+        });
+    }
+
+    function searchSite(e, domain) {
+        e.preventDefault(); e.stopPropagation();
+        window.open(`https://www.google.com/search?q=site:${domain}+(laser+cutting+OR+cnc+machine)&tbm=isch`, '_blank');
+    }
+
+    // --- 2. Top Picks ---
+    const DEFAULT_PICKS = [
+        "https://www.trumpf.com/", "https://www.bystronic.com/",
+        "https://www.bodor.com/", "https://www.hanslaser.net/"
+    ];
+
+    function trackClick(url) {
+        let stats = JSON.parse(localStorage.getItem('machine_stats') || '{}');
+        stats[url] = (stats[url] || 0) + 1;
+        localStorage.setItem('machine_stats', JSON.stringify(stats));
+    }
+
+    function renderTopPicks() {
+        const stats = JSON.parse(localStorage.getItem('machine_stats') || '{}');
+        const container = document.getElementById('top-picks-container');
+        const grid = document.getElementById('top-picks-grid');
+        const title = document.getElementById('top-picks-title');
+        
+        let sortedUrls = Object.keys(stats).sort((a, b) => stats[b] - stats[a]);
+        
+        if (sortedUrls.length === 0) {
+            sortedUrls = DEFAULT_PICKS;
+            title.innerHTML = `🔥 Key Players <span style="font-size:0.8rem;color:#999;font-weight:normal;">(Start clicking to customize)</span>`;
+        } else {
+            title.innerHTML = `🔥 My Focus <span style="font-size:0.8rem;color:#999;font-weight:normal;">(Most visited)</span>`;
+            sortedUrls = sortedUrls.slice(0, 8);
+        }
+
+        container.style.display = 'block';
+        grid.innerHTML = '';
+
+        const allCards = Array.from(document.querySelectorAll('.content .grid:not(#top-picks-grid) .card'));
+        
+        sortedUrls.forEach(targetUrl => {
+            try {
+                const targetObj = new URL(targetUrl);
+                const foundCard = allCards.find(card => {
+                    try {
+                        const cardObj = new URL(card.href);
+                        // 修正：对比 hostname，处理末尾斜杠
+                        return cardObj.hostname === targetObj.hostname && 
+                               cardObj.pathname.replace(/\/$/, '') === targetObj.pathname.replace(/\/$/, '');
+                    } catch(e) { return false; }
+                });
+
+                if (foundCard) {
+                    const clone = foundCard.cloneNode(true);
+                    // 清理克隆的垃圾
+                    clone.removeAttribute('data-init');
+                    const oldLogo = clone.querySelector('.card-logo'); if(oldLogo) oldLogo.remove();
+                    const oldAct = clone.querySelector('.card-actions'); if(oldAct) oldAct.remove();
+                    
+                    // 绑定事件
+                    clone.onclick = function() { trackClick(foundCard.href); };
+                    
+                    grid.appendChild(clone);
+                }
+            } catch(e) {}
+        });
+        
+        // Re-init logos for top picks
+        grid.querySelectorAll('.card').forEach(card => {
+             const url = new URL(card.href);
+             const domain = url.hostname.replace('www.', '');
+             const img = document.createElement('img');
+             img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+             img.className = 'card-logo';
+             card.insertBefore(img, card.firstChild);
+             
+             const actions = document.createElement('div');
+             actions.className = 'card-actions';
+             actions.innerHTML = `<div class="action-btn" title="Search Models" onclick="searchSite(event, '${domain}')">🔍</div>`;
+             card.appendChild(actions);
+        });
+    }
+
+    function clearStats() {
+        if(confirm('Reset stats?')) { localStorage.removeItem('machine_stats'); location.reload(); }
+    }
+
+    // --- 3. Search & Theme ---
+    const searchInput = document.getElementById('searchInput');
+    if(searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.content .grid:not(#top-picks-grid) .card').forEach(card => {
+                // 搜索时同时匹配 data-desc
+                const text = card.innerText.toLowerCase() + (card.getAttribute('data-desc') || '').toLowerCase();
+                card.style.display = text.includes(term) ? 'flex' : 'none';
+            });
+            document.querySelectorAll('.section-header').forEach(header => {
+                const nextGrid = header.nextElementSibling;
+                const visible = Array.from(nextGrid.children).some(c => c.style.display !== 'none');
+                header.style.display = visible ? 'flex' : 'none';
+            });
+        });
+    }
+
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('mach_theme', document.body.classList.contains('dark-mode')?'dark':'light'); }
+    if(localStorage.getItem('mach_theme')==='dark') document.body.classList.add('dark-mode');
+
+    // Init
+    initAllCards();
+    renderTopPicks();
+    
+    // Sidebar active state
+    document.querySelectorAll('aside a').forEach(l => l.addEventListener('click', function(){
+        document.querySelectorAll('aside a').forEach(n=>n.classList.remove('active')); this.classList.add('active');
+    }));
+</script>
+
+</body>
+</html>
