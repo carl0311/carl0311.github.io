@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Insight Pro | 深度速读</title>
+    <title>Book Insight Pro | AI 图书馆</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <style>
         :root {
-            --bg: #F9FAFB; --sidebar-w: 260px; --accent: #8B5CF6; /* 紫色系代表智慧 */
+            --bg: #F9FAFB; --sidebar-w: 280px; --accent: #8B5CF6; 
             --text-main: #1F2937; --text-sub: #6B7280; --border: #E5E7EB;
-            --card-bg: #FFFFFF;
+            --card-bg: #FFFFFF; --hover: #F3F4F6;
         }
         body.dark-mode {
-            --bg: #111827; --sidebar-w: 260px; --accent: #A78BFA;
+            --bg: #111827; --accent: #A78BFA;
             --text-main: #F3F4F6; --text-sub: #9CA3AF; --border: #374151;
-            --card-bg: #1F2937;
+            --card-bg: #1F2937; --hover: #374151;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
@@ -25,16 +25,22 @@
         /* Sidebar */
         aside {
             width: var(--sidebar-w); background: var(--card-bg); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; overflow-y: auto;
+            display: flex; flex-direction: column; flex-shrink: 0;
         }
-        .logo { font-size: 1.2rem; font-weight: 800; color: var(--accent); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-        .history-item {
-            padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 5px;
-            font-size: 0.9rem; color: var(--text-sub); transition: 0.2s; border: 1px solid transparent;
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); font-size: 1.2rem; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        
+        .sidebar-scroll { flex: 1; overflow-y: auto; padding: 15px; }
+        
+        .nav-section { margin-bottom: 20px; }
+        .nav-title { font-size: 0.75rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 700; padding-left: 10px; }
+        
+        .nav-item {
+            padding: 10px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 2px;
+            font-size: 0.9rem; color: var(--text-main); transition: 0.2s; display: flex; align-items: center; gap: 8px;
         }
-        .history-item:hover { background: var(--bg); color: var(--text-main); }
-        .history-item.active { background: #F3E8FF; color: var(--accent); border-color: var(--accent); }
-        body.dark-mode .history-item.active { background: #4C1D95; color: #E9D5FF; }
+        .nav-item:hover { background: var(--hover); }
+        .nav-item.active { background: #F3E8FF; color: var(--accent); font-weight: 600; }
+        body.dark-mode .nav-item.active { background: #4C1D95; color: #E9D5FF; }
 
         /* Main Content */
         main { flex: 1; display: flex; flex-direction: column; position: relative; }
@@ -44,7 +50,6 @@
             padding: 15px 30px; border-bottom: 1px solid var(--border); background: var(--card-bg);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .controls { display: flex; gap: 10px; }
         .btn {
             padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border);
             background: var(--card-bg); color: var(--text-main); cursor: pointer; font-size: 0.85rem;
@@ -54,20 +59,18 @@
         .btn-primary { background: var(--accent); color: white; border: none; }
         .btn-primary:hover { background: #7C3AED; color: white; }
 
-        /* Scroll Area */
+        /* Content Area */
         .content-area { flex: 1; overflow-y: auto; padding: 40px; scroll-behavior: smooth; }
-        .paper { max-width: 800px; margin: 0 auto; }
+        .paper { max-width: 850px; margin: 0 auto; }
 
         /* Views */
         .view-section { display: none; animation: fadeIn 0.4s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* View 1: Search */
-        .search-container { text-align: center; margin-top: 100px; }
-        .search-box {
-            position: relative; max-width: 600px; margin: 0 auto;
-        }
+        /* View: Search */
+        .search-container { text-align: center; margin-top: 80px; }
+        .search-box { position: relative; max-width: 600px; margin: 0 auto; }
         .search-input {
             width: 100%; padding: 15px 25px; border-radius: 50px; border: 2px solid var(--border);
             font-size: 1.1rem; outline: none; background: var(--card-bg); color: var(--text-main);
@@ -79,28 +82,28 @@
             padding: 0 25px; font-size: 1rem;
         }
 
-        /* View 2: Selection (Confirmation) */
-        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
+        /* View: Explore (Recommendations) */
+        .rec-header { margin-bottom: 20px; font-size: 1.5rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .rec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
         .book-card {
             background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
-            padding: 20px; cursor: pointer; transition: 0.2s; text-align: left;
+            padding: 20px; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden;
         }
         .book-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .b-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 5px; color: var(--text-main); }
+        .b-tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; background: var(--bg); color: var(--text-sub); margin-bottom: 8px; display: inline-block; }
+        .b-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 5px; color: var(--text-main); line-height: 1.3; }
         .b-author { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 10px; }
         .b-desc { font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* View 3: Result (Reading) */
+        /* View: Reading */
         .result-container { background: var(--card-bg); padding: 60px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); border: 1px solid var(--border); }
-        .book-header { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 30px; margin-bottom: 30px; }
-        .bh-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; font-family: "Georgia", serif; }
-        .bh-meta { color: var(--text-sub); font-size: 1rem; }
+        .bh-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; font-family: "Georgia", serif; text-align: center; }
+        .bh-meta { color: var(--text-sub); font-size: 1rem; text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
         
         .markdown-body { font-family: "Georgia", serif; font-size: 1.15rem; line-height: 1.8; color: var(--text-main); }
         .markdown-body h2 { font-family: -apple-system, sans-serif; font-size: 1.5rem; margin-top: 40px; margin-bottom: 20px; color: var(--accent); border-left: 4px solid var(--accent); padding-left: 15px; }
         .markdown-body strong { color: var(--text-main); font-weight: 700; }
-        .markdown-body blockquote { background: #F3F4F6; border-left: 4px solid #D1D5DB; margin: 20px 0; padding: 15px 20px; font-style: italic; color: #4B5563; }
-        body.dark-mode .markdown-body blockquote { background: #374151; border-color: #4B5563; color: #D1D5DB; }
+        .markdown-body blockquote { background: var(--bg); border-left: 4px solid #D1D5DB; margin: 20px 0; padding: 15px 20px; font-style: italic; color: #4B5563; }
 
         /* Loading */
         .loading { display: none; text-align: center; margin-top: 50px; }
@@ -114,24 +117,55 @@
         .form-group label { display: block; margin-bottom: 5px; font-size: 0.9rem; font-weight: 600; }
         .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text-main); }
         .chip { display:inline-block; padding: 5px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 15px; font-size: 0.8rem; cursor: pointer; margin-right: 5px; }
+        
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow: auto; }
+            aside { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+            .content-area { padding: 20px; }
+            .result-container { padding: 30px; }
+        }
     </style>
 </head>
 <body>
 
 <aside>
-    <div class="logo">📖 Book Insight</div>
-    <div style="margin-bottom: 10px; font-size: 0.8rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px;">Library History</div>
-    <div id="historyList">
+    <div class="sidebar-header">
+        📖 Book Insight
+    </div>
+    <div class="sidebar-scroll">
+        <div class="nav-section">
+            <div class="nav-title">Discover 发现</div>
+            <div class="nav-item" onclick="loadRecs('douban')">🌱 豆瓣 Top 250</div>
+            <div class="nav-item" onclick="loadRecs('goodreads')">🏆 Goodreads Choice</div>
+            <div class="nav-item" onclick="loadRecs('nyt')">📰 NYT Bestsellers</div>
         </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Categories 分类</div>
+            <div class="nav-item" onclick="loadRecs('fiction')">🦄 小说 Fiction</div>
+            <div class="nav-item" onclick="loadRecs('nonfiction')">💡 非虚构 Non-Fiction</div>
+            <div class="nav-item" onclick="loadRecs('business')">💰 商业经管 Business</div>
+            <div class="nav-item" onclick="loadRecs('history')">🏛️ 历史传记 History</div>
+            <div class="nav-item" onclick="loadRecs('tech')">🚀 科技未来 Tech</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title" style="display:flex; justify-content:space-between;">
+                History 历史 <span style="cursor:pointer; opacity:0.6;" onclick="clearHistory()">🗑️</span>
+            </div>
+            <div id="historyList">
+                </div>
+        </div>
+    </div>
 </aside>
 
 <main>
     <header>
-        <div class="controls">
+        <div style="display:flex; gap:10px;">
             <button class="btn" onclick="showSearch()">🔍 New Search</button>
         </div>
-        <div class="controls">
-            <button class="btn" onclick="exportDoc()">💾 Export Word</button>
+        <div style="display:flex; gap:10px;">
+            <button class="btn" onclick="exportDoc()">💾 Word</button>
             <button class="btn" onclick="openSettings()">⚙️ Config</button>
             <button class="btn" onclick="toggleTheme()">🌗</button>
         </div>
@@ -153,29 +187,31 @@
 
             <div id="view-select" class="view-section">
                 <h2>Which book do you mean?</h2>
-                <p style="color: var(--text-sub);">AI found these matches. Select the correct one to start deep analysis.</p>
-                <div id="selectionGrid" class="book-grid"></div>
+                <p style="color: var(--text-sub);">AI found these matches. Select the correct one to start analysis.</p>
+                <div id="selectionGrid" class="rec-grid" style="margin-top:20px;"></div>
                 <div style="margin-top: 30px; text-align: center;">
                     <button class="btn" onclick="showSearch()">None of these, go back</button>
                 </div>
+            </div>
+
+            <div id="view-explore" class="view-section">
+                <div class="rec-header" id="recTitle">📚 Recommended</div>
+                <div class="rec-grid" id="recGrid"></div>
             </div>
 
             <div id="view-loading" class="view-section">
                 <div class="loading" style="display:block;">
                     <div class="spinner"></div>
                     <h3 id="loadingStatus">Reading the book...</h3>
-                    <p style="color: var(--text-sub);">This requires deep thinking, please wait about 30s.</p>
+                    <p style="color: var(--text-sub);">AI Professor is analyzing contents (approx. 30s)...</p>
                 </div>
             </div>
 
             <div id="view-result" class="view-section">
                 <div class="result-container">
-                    <div class="book-header">
-                        <h1 class="bh-title" id="resTitle">Book Title</h1>
-                        <div class="bh-meta" id="resMeta">Author • Year • Genre</div>
-                    </div>
-                    <div class="markdown-body" id="resBody">
-                        </div>
+                    <div class="bh-title" id="resTitle">Book Title</div>
+                    <div class="bh-meta" id="resMeta">Author • Year</div>
+                    <div class="markdown-body" id="resBody"></div>
                 </div>
             </div>
 
@@ -191,24 +227,66 @@
             <div class="chip" onclick="fillPreset('deepseek')">DeepSeek</div>
             <div class="chip" onclick="fillPreset('openai')">OpenAI</div>
         </div>
-        <div class="form-group">
-            <label>API Base URL</label>
-            <input type="text" id="cfgUrl">
-        </div>
-        <div class="form-group">
-            <label>API Key</label>
-            <input type="password" id="cfgKey">
-        </div>
-        <div class="form-group">
-            <label>Model ID</label>
-            <input type="text" id="cfgModel">
-        </div>
+        <div class="form-group"><label>API Base URL</label><input type="text" id="cfgUrl"></div>
+        <div class="form-group"><label>API Key</label><input type="password" id="cfgKey"></div>
+        <div class="form-group"><label>Model ID</label><input type="text" id="cfgModel"></div>
         <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="saveConfig()">Save Settings</button>
         <button class="btn" style="width: 100%; margin-top: 10px; border: none;" onclick="closeSettings()">Cancel</button>
     </div>
 </div>
 
 <script>
+    // --- Data: Curated Book Lists ---
+    const RECOMMENDATIONS = {
+        'douban': [
+            {title: "肖申克的救赎", author: "Stephen King", desc: "希望与救赎的经典之作。"},
+            {title: "三体全集", author: "刘慈欣", desc: "中国科幻巅峰，宏大的宇宙社会学。"},
+            {title: "活着", author: "余华", desc: "关于苦难与生存的深刻洞见。"},
+            {title: "百年孤独", author: "García Márquez", desc: "魔幻现实主义巨著。"},
+            {title: "1984", author: "George Orwell", desc: "反乌托邦文学的基石。"},
+            {title: "红楼梦", author: "曹雪芹", desc: "中国古典文学巅峰。"}
+        ],
+        'goodreads': [
+            {title: "The Midnight Library", author: "Matt Haig", desc: "Between life and death there is a library."},
+            {title: "Project Hail Mary", author: "Andy Weir", desc: "A lone astronaut must save the earth."},
+            {title: "Atomic Habits", author: "James Clear", desc: "Tiny changes, remarkable results."},
+            {title: "Educated", author: "Tara Westover", desc: "A memoir about leaving a survivalist family."},
+            {title: "Tomorrow, and Tomorrow, and Tomorrow", author: "Gabrielle Zevin", desc: "A novel about video games and friendship."}
+        ],
+        'nyt': [
+            {title: "The Wager", author: "David Grann", desc: "A Tale of Shipwreck, Mutiny and Murder."},
+            {title: "Outlive", author: "Peter Attia", desc: "The Science and Art of Longevity."},
+            {title: "Elon Musk", author: "Walter Isaacson", desc: "The official biography."},
+            {title: "Fourth Wing", author: "Rebecca Yarros", desc: "Dragons, war, and romance."}
+        ],
+        'fiction': [
+            {title: "To Kill a Mockingbird", author: "Harper Lee", desc: "Classic of modern American literature."},
+            {title: "The Great Gatsby", author: "F. Scott Fitzgerald", desc: "The Jazz Age and the American Dream."},
+            {title: "Norwegian Wood", author: "Haruki Murakami", desc: "A story of loss and burgeoning sexuality."}
+        ],
+        'business': [
+            {title: "Zero to One", author: "Peter Thiel", desc: "Notes on Startups, or How to Build the Future."},
+            {title: "Thinking, Fast and Slow", author: "Daniel Kahneman", desc: "The two systems that drive the way we think."},
+            {title: "Principles", author: "Ray Dalio", desc: "Life and Work."},
+            {title: "Shoe Dog", author: "Phil Knight", desc: "A Memoir by the Creator of Nike."}
+        ],
+        'history': [
+            {title: "Sapiens", author: "Yuval Noah Harari", desc: "A Brief History of Humankind."},
+            {title: "Guns, Germs, and Steel", author: "Jared Diamond", desc: "The Fates of Human Societies."},
+            {title: "The Silk Roads", author: "Peter Frankopan", desc: "A New History of the World."}
+        ],
+        'tech': [
+            {title: "Life 3.0", author: "Max Tegmark", desc: "Being Human in the Age of AI."},
+            {title: "Superintelligence", author: "Nick Bostrom", desc: "Paths, Dangers, Strategies."},
+            {title: "Steve Jobs", author: "Walter Isaacson", desc: "The biography of the Apple visionary."}
+        ],
+        'nonfiction': [
+            {title: "Quiet", author: "Susan Cain", desc: "The Power of Introverts."},
+            {title: "Becoming", author: "Michelle Obama", desc: "The memoir of the former First Lady."},
+            {title: "Into Thin Air", author: "Jon Krakauer", desc: "A Personal Account of the Mt. Everest Disaster."}
+        ]
+    };
+
     // --- State & Config ---
     const DEFAULT_CONFIG = { url: "https://openrouter.ai/api/v1", key: "", model: "google/gemini-2.0-flash-lite-preview-02-05:free" };
     let currentBookData = null;
@@ -225,29 +303,62 @@
     function showView(id) {
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        
+        // Sidebar active state
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     }
-    function showSearch() { showView('view-search'); document.getElementById('bookInput').value = ''; document.getElementById('bookInput').focus(); }
+    
+    function showSearch() { 
+        showView('view-search'); 
+        document.getElementById('bookInput').value = ''; 
+        document.getElementById('bookInput').focus(); 
+    }
     
     function handleEnter(e) { if(e.key === 'Enter') searchBooks(); }
 
-    // --- Step 1: Search Books (Identify) ---
+    // --- Feature: Recommendations ---
+    function loadRecs(category) {
+        const books = RECOMMENDATIONS[category] || [];
+        const grid = document.getElementById('recGrid');
+        const titleMap = {
+            'douban': '🌱 Douban Top 250', 'goodreads': '🏆 Goodreads Choice', 'nyt': '📰 NYT Bestsellers',
+            'fiction': '🦄 Fiction', 'nonfiction': '💡 Non-Fiction', 'business': '💰 Business', 
+            'history': '🏛️ History', 'tech': '🚀 Technology'
+        };
+        
+        document.getElementById('recTitle').innerText = titleMap[category] || 'Library';
+        grid.innerHTML = '';
+
+        books.forEach(book => {
+            const card = document.createElement('div');
+            card.className = 'book-card';
+            card.innerHTML = `
+                <div class="b-tag">${category.toUpperCase()}</div>
+                <div class="b-title">${book.title}</div>
+                <div class="b-author">${book.author}</div>
+                <div class="b-desc">${book.desc}</div>
+            `;
+            // Direct analysis from curated list
+            card.onclick = () => startDeepAnalysis({ title: book.title, author: book.author, year: "N/A" });
+            grid.appendChild(card);
+        });
+
+        showView('view-explore');
+        
+        // Highlight sidebar
+        event.currentTarget.classList.add('active');
+    }
+
+    // --- Step 1: Search (Discovery) ---
     async function searchBooks() {
         const query = document.getElementById('bookInput').value.trim();
         if(!query) return;
-        
         if(!getConfig().key) { openSettings(); return; }
 
         showView('view-loading');
         document.getElementById('loadingStatus').innerText = "Searching library...";
 
-        const prompt = `
-        User query: "${query}"
-        Task: Identify 3 most likely books matching this query.
-        Output JSON ONLY in this format:
-        [
-            {"title": "Book Title", "author": "Author Name", "year": "Year", "desc": "One sentence description"}
-        ]
-        `;
+        const prompt = `User query: "${query}". Identify 3 books. Output JSON ONLY: [{"title":"Title","author":"Author","year":"Year","desc":"Brief desc"}]`;
 
         try {
             const data = await callAI(prompt);
@@ -261,12 +372,7 @@
     function renderSelection(books) {
         const grid = document.getElementById('selectionGrid');
         grid.innerHTML = '';
-        
-        if(!Array.isArray(books) || books.length === 0) {
-            alert("No books found. Try a specific title.");
-            showSearch();
-            return;
-        }
+        if(!Array.isArray(books)) { alert("Format error"); showSearch(); return; }
 
         books.forEach(book => {
             const card = document.createElement('div');
@@ -282,38 +388,31 @@
         showView('view-select');
     }
 
-    // --- Step 2: Deep Analysis (The Mega Prompt) ---
+    // --- Step 2: Deep Analysis ---
     async function startDeepAnalysis(book) {
         showView('view-loading');
         document.getElementById('loadingStatus').innerText = `Reading "${book.title}"...`;
 
         const prompt = `
-        Role: Expert Literary Critic & Professor.
-        Task: Analyze the book "${book.title}" by ${book.author}.
-        Language: Chinese (Simplified).
-        Output Format: Markdown.
-        
-        Requirements:
-        1. **Executive Summary**: Core thesis/plot in 1 paragraph.
-        2. **Detailed Breakdown**: Chapter-by-chapter summary (or key themes if non-linear). Be VERY detailed.
-        3. **Key Concepts/Characters**: Deep dive into the main elements.
-        4. **Memorable Quotes**: 3-5 verbatim quotes.
-        5. **Critical Analysis**: Writing style, impact, controversy.
-        6. **Actionable Takeaways**: (For non-fiction) What can the reader apply?
-        
-        Ensure high quality and depth. Do not be superficial.
+        Role: Expert Literary Critic. Task: Analyze "${book.title}" by ${book.author}.
+        Language: Chinese (Simplified). Format: Markdown.
+        Structure:
+        1. **Executive Summary**: Core thesis/plot.
+        2. **Deep Dive**: Detailed chapter-by-chapter or thematic breakdown (Most Important).
+        3. **Key Characters/Concepts**.
+        4. **Quotes**: 3-5 verbatim quotes.
+        5. **Critical Analysis**: Style, context, impact.
+        6. **Takeaways**: Practical application.
+        Ensure depth and high quality.
         `;
 
         try {
-            // Using a raw text response here because we want Markdown rendering, not JSON structure for the body
+            // Using text response for markdown
             const markdownContent = await callAI_Text(prompt);
             
             const resultData = {
-                title: book.title,
-                author: book.author,
-                year: book.year,
-                content: markdownContent,
-                date: new Date().toLocaleString()
+                title: book.title, author: book.author, year: book.year,
+                content: markdownContent, date: new Date().toLocaleString()
             };
 
             renderResult(resultData);
@@ -330,7 +429,7 @@
         document.getElementById('resMeta').innerText = `${data.author} • ${data.year}`;
         document.getElementById('resBody').innerHTML = marked.parse(data.content);
         showView('view-result');
-        currentBookData = data; // For export
+        currentBookData = data;
     }
 
     // --- API Calls ---
@@ -338,55 +437,39 @@
         const cfg = getConfig();
         const res = await fetch(cfg.url.replace(/\/+$/, '') + '/chat/completions', {
             method: "POST",
-            headers: { 
-                "Content-Type": "application/json", 
-                "Authorization": `Bearer ${cfg.key}`,
-                "HTTP-Referer": window.location.href,
-                "X-Title": "BookInsight"
-            },
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${cfg.key}`, "HTTP-Referer": window.location.href, "X-Title": "BookInsight" },
             body: JSON.stringify({
                 model: cfg.model,
-                messages: [
-                    { role: "system", content: "You are a helpful JSON generator. Output only valid JSON." },
-                    { role: "user", content: prompt }
-                ],
+                messages: [{ role: "system", content: "JSON generator" }, { role: "user", content: prompt }],
                 response_format: { type: "json_object" }
             })
         });
         if (!res.ok) throw new Error("API Error");
-        const json = await res.json();
-        return JSON.parse(json.choices[0].message.content);
+        return JSON.parse((await res.json()).choices[0].message.content);
     }
 
     async function callAI_Text(prompt) {
         const cfg = getConfig();
         const res = await fetch(cfg.url.replace(/\/+$/, '') + '/chat/completions', {
             method: "POST",
-            headers: { 
-                "Content-Type": "application/json", 
-                "Authorization": `Bearer ${cfg.key}`,
-                "HTTP-Referer": window.location.href,
-                "X-Title": "BookInsight"
-            },
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${cfg.key}`, "HTTP-Referer": window.location.href, "X-Title": "BookInsight" },
             body: JSON.stringify({
                 model: cfg.model,
-                messages: [
-                    { role: "system", content: "You are an expert literary critic." },
-                    { role: "user", content: prompt }
-                ]
+                messages: [{ role: "system", content: "Expert Critic" }, { role: "user", content: prompt }]
             })
         });
         if (!res.ok) throw new Error("API Error");
-        const json = await res.json();
-        return json.choices[0].message.content;
+        return (await res.json()).choices[0].message.content;
     }
 
     // --- History & Export ---
     function saveHistory(data) {
         const history = JSON.parse(localStorage.getItem('bi_history') || '[]');
-        history.unshift(data);
-        if(history.length > 20) history.pop();
-        localStorage.setItem('bi_history', JSON.stringify(history));
+        // Remove duplicate if exists to push to top
+        const filtered = history.filter(h => h.title !== data.title);
+        filtered.unshift(data);
+        if(filtered.length > 20) filtered.pop();
+        localStorage.setItem('bi_history', JSON.stringify(filtered));
         renderHistory();
     }
 
@@ -394,35 +477,31 @@
         const list = document.getElementById('historyList');
         const history = JSON.parse(localStorage.getItem('bi_history') || '[]');
         list.innerHTML = '';
-        history.forEach((item, index) => {
+        history.forEach(item => {
             const div = document.createElement('div');
-            div.className = 'history-item';
-            div.innerText = `${item.title} (${item.author})`;
+            div.className = 'nav-item';
+            div.innerHTML = `📘 ${item.title}`;
             div.onclick = () => {
                 renderResult(item);
-                // Highlight active
-                document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+                // Reset active states
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 div.classList.add('active');
             };
             list.appendChild(div);
         });
     }
+    
+    function clearHistory() {
+        if(confirm("Clear history?")) {
+            localStorage.removeItem('bi_history');
+            renderHistory();
+        }
+    }
 
     function exportDoc() {
-        if (!currentBookData) { alert("No content to export."); return; }
-        
-        // Wrap content for Word
-        const htmlContent = `
-            <!DOCTYPE html><html><head><meta charset='UTF-8'></head><body>
-            <h1 style="color:#2E1065">${currentBookData.title}</h1>
-            <p style="color:#666"><strong>Author:</strong> ${currentBookData.author} | <strong>Generated:</strong> ${currentBookData.date}</p>
-            <hr>
-            ${marked.parse(currentBookData.content)}
-            </body></html>
-        `;
-        
-        const blob = htmlDocx.asBlob(htmlContent);
-        saveAs(blob, `BookInsight_${currentBookData.title.replace(/\s+/g, '_')}.docx`);
+        if (!currentBookData) { alert("No content."); return; }
+        const html = `<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body><h1 style="color:#4C1D95">${currentBookData.title}</h1><p><strong>${currentBookData.author}</strong></p><hr>${marked.parse(currentBookData.content)}</body></html>`;
+        saveAs(htmlDocx.asBlob(html), `BookInsight_${currentBookData.title}.docx`);
     }
 
     // --- Settings & Utils ---
@@ -434,29 +513,36 @@
         document.getElementById('configModal').style.display = 'flex';
     }
     function closeSettings() { document.getElementById('configModal').style.display = 'none'; }
-    function saveSettings() {
-        localStorage.setItem('bi_url', document.getElementById('cfgUrl').value.trim());
-        localStorage.setItem('bi_key', document.getElementById('cfgKey').value.trim());
-        localStorage.setItem('bi_model', document.getElementById('cfgModel').value.trim());
+    
+    // 修复：保存设置并反馈
+    function saveConfig() {
+        const url = document.getElementById('cfgUrl').value.trim();
+        const key = document.getElementById('cfgKey').value.trim();
+        const model = document.getElementById('cfgModel').value.trim();
+        
+        localStorage.setItem('bi_url', url);
+        localStorage.setItem('bi_key', key);
+        localStorage.setItem('bi_model', model);
+        
         closeSettings();
-        alert("Settings Saved!");
+        alert("Configuration Saved Successfully!");
     }
+    
     function fillPreset(type) {
-        const presets = {
-            'openrouter': { u: 'https://openrouter.ai/api/v1', m: 'google/gemini-2.0-flash-lite-preview-02-05:free' },
-            'deepseek': { u: 'https://api.deepseek.com/v1', m: 'deepseek-chat' },
-            'openai': { u: 'https://api.openai.com/v1', m: 'gpt-4o-mini' }
-        };
-        const p = presets[type];
+        const p = {
+            'openrouter': {u:'https://openrouter.ai/api/v1', m:'google/gemini-2.0-flash-lite-preview-02-05:free'},
+            'deepseek': {u:'https://api.deepseek.com/v1', m:'deepseek-chat'},
+            'openai': {u:'https://api.openai.com/v1', m:'gpt-4o-mini'}
+        }[type];
         document.getElementById('cfgUrl').value = p.u;
         document.getElementById('cfgModel').value = p.m;
     }
+    
     function toggleTheme() {
         document.body.classList.toggle('dark-mode');
         localStorage.setItem('bi_theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
     }
 
-    // Init
     if (localStorage.getItem('bi_theme') === 'dark') document.body.classList.add('dark-mode');
     renderHistory();
 </script>
