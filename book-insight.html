@@ -134,7 +134,7 @@
     </div>
     <div class="sidebar-scroll">
         <div class="nav-section">
-            <div class="nav-title">Discover 发现</div>
+            <div class="nav-title">Discover 榜单</div>
             <div class="nav-item" onclick="loadRecs('douban')">🌱 豆瓣 Top 250</div>
             <div class="nav-item" onclick="loadRecs('goodreads')">🏆 Goodreads Choice</div>
             <div class="nav-item" onclick="loadRecs('nyt')">📰 NYT Bestsellers</div>
@@ -146,7 +146,7 @@
             <div class="nav-item" onclick="loadRecs('nonfiction')">💡 非虚构 Non-Fiction</div>
             <div class="nav-item" onclick="loadRecs('business')">💰 商业经管 Business</div>
             <div class="nav-item" onclick="loadRecs('history')">🏛️ 历史传记 History</div>
-            <div class="nav-item" onclick="loadRecs('tech')">🚀 科技未来 Tech</div>
+            <div class="nav-item" onclick="loadRecs('tech')">🚀 科技与未来 Tech</div>
         </div>
 
         <div class="nav-section">
@@ -236,54 +236,90 @@
 </div>
 
 <script>
-    // --- Data: Curated Book Lists ---
+    // --- Data: Curated Book Lists (Expanded) ---
     const RECOMMENDATIONS = {
         'douban': [
-            {title: "肖申克的救赎", author: "Stephen King", desc: "希望与救赎的经典之作。"},
-            {title: "三体全集", author: "刘慈欣", desc: "中国科幻巅峰，宏大的宇宙社会学。"},
-            {title: "活着", author: "余华", desc: "关于苦难与生存的深刻洞见。"},
-            {title: "百年孤独", author: "García Márquez", desc: "魔幻现实主义巨著。"},
-            {title: "1984", author: "George Orwell", desc: "反乌托邦文学的基石。"},
-            {title: "红楼梦", author: "曹雪芹", desc: "中国古典文学巅峰。"}
+            {title: "红楼梦", author: "曹雪芹", desc: "中国古典文学的巅峰之作，封建社会的百科全书。"},
+            {title: "活着", author: "余华", desc: "以笑的方式哭，在死亡的伴随下活着。"},
+            {title: "1984", author: "George Orwell", desc: "反乌托邦文学的传世基石，政治寓言。"},
+            {title: "百年孤独", author: "García Márquez", desc: "魔幻现实主义的代表作，马贡多家族的兴衰史。"},
+            {title: "三体", author: "刘慈欣", desc: "中国科幻文学的里程碑，宏大的宇宙社会学。"},
+            {title: "肖申克的救赎", author: "Stephen King", desc: "关于希望、自由与救赎的越狱神作。"},
+            {title: "白夜行", author: "东野圭吾", desc: "绝望的念想，悲恸的守望。日本推理巅峰。"},
+            {title: "追风筝的人", author: "Khaled Hosseini", desc: "为你，千千万万遍。关于背叛与救赎的故事。"},
+            {title: "平凡的世界", author: "路遥", desc: "全景式表现中国当代城乡社会生活的长篇巨制。"},
+            {title: "围城", author: "钱钟书", desc: "城外的人想进去，城里的人想出来。"},
+            {title: "霍乱时期的爱情", author: "García Márquez", desc: "穷尽了所有爱情的可能性。"},
+            {title: "局外人", author: "Albert Camus", desc: "存在主义文学经典，面对荒诞世界的冷漠抵抗。"}
         ],
         'goodreads': [
-            {title: "The Midnight Library", author: "Matt Haig", desc: "Between life and death there is a library."},
-            {title: "Project Hail Mary", author: "Andy Weir", desc: "A lone astronaut must save the earth."},
-            {title: "Atomic Habits", author: "James Clear", desc: "Tiny changes, remarkable results."},
-            {title: "Educated", author: "Tara Westover", desc: "A memoir about leaving a survivalist family."},
-            {title: "Tomorrow, and Tomorrow, and Tomorrow", author: "Gabrielle Zevin", desc: "A novel about video games and friendship."}
+            {title: "The Midnight Library", author: "Matt Haig", desc: "Between life and death there is a library of infinite possibilities."},
+            {title: "Project Hail Mary", author: "Andy Weir", desc: "A lone astronaut must save the earth from disaster."},
+            {title: "Fourth Wing", author: "Rebecca Yarros", desc: "Dragons, brutal war college, and intense romance."},
+            {title: "Yellowface", author: "R.F. Kuang", desc: "A satirical thriller about diversity and publishing."},
+            {title: "Lessons in Chemistry", author: "Bonnie Garmus", desc: "A scientist turned cooking show host challenges sexism in the 1960s."},
+            {title: "Happy Place", author: "Emily Henry", desc: "A couple fakes their relationship during a friend group vacation."},
+            {title: "Tomorrow, and Tomorrow, and Tomorrow", author: "Gabrielle Zevin", desc: "A sweeping novel about video games, creativity, and friendship."},
+            {title: "The Seven Husbands of Evelyn Hugo", author: "Taylor Jenkins Reid", desc: "A reclusive Hollywood icon dictates her scandalous life story."},
+            {title: "The Maid", author: "Nita Prose", desc: "A quirky hotel maid discovers a murder."},
+            {title: "Daisy Jones & The Six", author: "Taylor Jenkins Reid", desc: "The rise and fall of a fictional 1970s rock band."}
         ],
         'nyt': [
-            {title: "The Wager", author: "David Grann", desc: "A Tale of Shipwreck, Mutiny and Murder."},
-            {title: "Outlive", author: "Peter Attia", desc: "The Science and Art of Longevity."},
-            {title: "Elon Musk", author: "Walter Isaacson", desc: "The official biography."},
-            {title: "Fourth Wing", author: "Rebecca Yarros", desc: "Dragons, war, and romance."}
+            {title: "Atomic Habits", author: "James Clear", desc: "Tiny changes, remarkable results in habit formation."},
+            {title: "The Wager", author: "David Grann", desc: "A true tale of shipwreck, mutiny and murder in the 1700s."},
+            {title: "Outlive", author: "Peter Attia", desc: "The Science and Art of Longevity and healthy aging."},
+            {title: "Spare", author: "Prince Harry", desc: "The controversial and revealing memoir of the Duke of Sussex."},
+            {title: "The Body Keeps the Score", author: "Bessel van der Kolk", desc: "Mind, brain and body in the transformation of trauma."},
+            {title: "Sapiens", author: "Yuval Noah Harari", desc: "A Brief History of Humankind."},
+            {title: "Educated", author: "Tara Westover", desc: "A memoir about leaving a survivalist family to earn a PhD."},
+            {title: "Thinking, Fast and Slow", author: "Daniel Kahneman", desc: "The two systems that drive the way we think."},
+            {title: "Born a Crime", author: "Trevor Noah", desc: "Stories from a South African childhood."},
+            {title: "The Subtle Art of Not Giving a F*ck", author: "Mark Manson", desc: "A counterintuitive approach to living a good life."}
         ],
         'fiction': [
-            {title: "To Kill a Mockingbird", author: "Harper Lee", desc: "Classic of modern American literature."},
-            {title: "The Great Gatsby", author: "F. Scott Fitzgerald", desc: "The Jazz Age and the American Dream."},
-            {title: "Norwegian Wood", author: "Haruki Murakami", desc: "A story of loss and burgeoning sexuality."}
+            {title: "To Kill a Mockingbird", author: "Harper Lee", desc: "A classic of modern American literature exploring racial injustice."},
+            {title: "The Great Gatsby", author: "F. Scott Fitzgerald", desc: "The definitive novel of the Jazz Age and the American Dream."},
+            {title: "Norwegian Wood", author: "Haruki Murakami", desc: "A nostalgic story of loss and burgeoning sexuality in 1960s Tokyo."},
+            {title: "Dune", author: "Frank Herbert", desc: "The masterpiece of science fiction and ecological world-building."},
+            {title: "Pride and Prejudice", author: "Jane Austen", desc: "A classic romance exploring manners, upbringing, and morality."},
+            {title: "Fahrenheit 451", author: "Ray Bradbury", desc: "A dystopian future where books are outlawed and burned."},
+            {title: "The Kite Runner", author: "Khaled Hosseini", desc: "A story of fathers and sons, friendship and betrayal in Afghanistan."},
+            {title: "The Alchemist", author: "Paulo Coelho", desc: "A philosophical novel about following your dreams."}
         ],
         'business': [
+            {title: "Principles", author: "Ray Dalio", desc: "Life and work principles from the founder of Bridgewater Associates."},
             {title: "Zero to One", author: "Peter Thiel", desc: "Notes on Startups, or How to Build the Future."},
-            {title: "Thinking, Fast and Slow", author: "Daniel Kahneman", desc: "The two systems that drive the way we think."},
-            {title: "Principles", author: "Ray Dalio", desc: "Life and Work."},
-            {title: "Shoe Dog", author: "Phil Knight", desc: "A Memoir by the Creator of Nike."}
+            {title: "Shoe Dog", author: "Phil Knight", desc: "A Memoir by the Creator of Nike."},
+            {title: "Good to Great", author: "Jim Collins", desc: "Why some companies make the leap... and others don't."},
+            {title: "The Lean Startup", author: "Eric Ries", desc: "How Today's Entrepreneurs Use Continuous Innovation."},
+            {title: "Rich Dad Poor Dad", author: "Robert T. Kiyosaki", desc: "What the Rich Teach Their Kids About Money."},
+            {title: "Thinking, Fast and Slow", author: "Daniel Kahneman", desc: "Understanding the dual systems of human thought."},
+            {title: "Influence", author: "Robert B. Cialdini", desc: "The Psychology of Persuasion."}
         ],
         'history': [
-            {title: "Sapiens", author: "Yuval Noah Harari", desc: "A Brief History of Humankind."},
-            {title: "Guns, Germs, and Steel", author: "Jared Diamond", desc: "The Fates of Human Societies."},
-            {title: "The Silk Roads", author: "Peter Frankopan", desc: "A New History of the World."}
+            {title: "Guns, Germs, and Steel", author: "Jared Diamond", desc: "The Fates of Human Societies across millennia."},
+            {title: "The Silk Roads", author: "Peter Frankopan", desc: "A New History of the World from an Eastern perspective."},
+            {title: "A Little History of the World", author: "E.H. Gombrich", desc: "A sweeping, accessible narrative of world history."},
+            {title: "万历十五年 (1587: A Year of No Significance)", author: "黄仁宇", desc: "大历史观下的明朝衰亡史剖析。"},
+            {title: "人类简史", author: "Yuval Noah Harari", desc: "从认知革命到智人走向巅峰的宏大叙事。"},
+            {title: "The Wright Brothers", author: "David McCullough", desc: "The dramatic story-behind-the-story about the invention of the airplane."}
         ],
         'tech': [
-            {title: "Life 3.0", author: "Max Tegmark", desc: "Being Human in the Age of AI."},
-            {title: "Superintelligence", author: "Nick Bostrom", desc: "Paths, Dangers, Strategies."},
-            {title: "Steve Jobs", author: "Walter Isaacson", desc: "The biography of the Apple visionary."}
+            {title: "Steve Jobs", author: "Walter Isaacson", desc: "The exclusive, definitive biography of the Apple visionary."},
+            {title: "Elon Musk", author: "Walter Isaacson", desc: "The intimate story of the most fascinating innovator of our era."},
+            {title: "Life 3.0", author: "Max Tegmark", desc: "Being Human in the Age of Artificial Intelligence."},
+            {title: "Superintelligence", author: "Nick Bostrom", desc: "Paths, Dangers, Strategies regarding advanced AI."},
+            {title: "Hackers & Painters", author: "Paul Graham", desc: "Big ideas from the computer age."},
+            {title: "The Innovators", author: "Walter Isaacson", desc: "How a Group of Hackers, Geniuses, and Geeks Created the Digital Revolution."},
+            {title: "AI Superpowers", author: "Kai-Fu Lee", desc: "China, Silicon Valley, and the New World Order."}
         ],
         'nonfiction': [
-            {title: "Quiet", author: "Susan Cain", desc: "The Power of Introverts."},
-            {title: "Becoming", author: "Michelle Obama", desc: "The memoir of the former First Lady."},
-            {title: "Into Thin Air", author: "Jon Krakauer", desc: "A Personal Account of the Mt. Everest Disaster."}
+            {title: "Quiet", author: "Susan Cain", desc: "The Power of Introverts in a World That Can't Stop Talking."},
+            {title: "Becoming", author: "Michelle Obama", desc: "The deeply personal memoir of the former First Lady."},
+            {title: "Into Thin Air", author: "Jon Krakauer", desc: "A Personal Account of the Mt. Everest Disaster."},
+            {title: "Man's Search for Meaning", author: "Viktor E. Frankl", desc: "A psychiatrist's memoir of life in Nazi death camps."},
+            {title: "Factfulness", author: "Hans Rosling", desc: "Ten Reasons We're Wrong About the World."},
+            {title: "The Power of Habit", author: "Charles Duhigg", desc: "Why We Do What We Do in Life and Business."}
         ]
     };
 
@@ -304,8 +340,10 @@
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         
-        // Sidebar active state
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        // 清除侧边栏高亮 (如果是搜索视图)
+        if(id === 'view-search') {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        }
     }
     
     function showSearch() { 
@@ -338,7 +376,7 @@
                 <div class="b-author">${book.author}</div>
                 <div class="b-desc">${book.desc}</div>
             `;
-            // Direct analysis from curated list
+            // 点击直接进入深度分析
             card.onclick = () => startDeepAnalysis({ title: book.title, author: book.author, year: "N/A" });
             grid.appendChild(card);
         });
@@ -346,6 +384,7 @@
         showView('view-explore');
         
         // Highlight sidebar
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         event.currentTarget.classList.add('active');
     }
 
@@ -358,7 +397,8 @@
         showView('view-loading');
         document.getElementById('loadingStatus').innerText = "Searching library...";
 
-        const prompt = `User query: "${query}". Identify 3 books. Output JSON ONLY: [{"title":"Title","author":"Author","year":"Year","desc":"Brief desc"}]`;
+        // 核心修复：要求 AI 返回一个明确的 JSON 对象结构，避免 Format Error
+        const prompt = `User query: "${query}". Identify 3 books matching the query. Output JSON ONLY in this exact format: {"books": [{"title":"Title","author":"Author","year":"Year","desc":"Brief desc"}]}`;
 
         try {
             const data = await callAI(prompt);
@@ -369,18 +409,26 @@
         }
     }
 
-    function renderSelection(books) {
+    function renderSelection(data) {
         const grid = document.getElementById('selectionGrid');
         grid.innerHTML = '';
-        if(!Array.isArray(books)) { alert("Format error"); showSearch(); return; }
+        
+        // 兼容处理：获取 books 数组
+        let books = data.books || data;
+        
+        if(!Array.isArray(books) || books.length === 0) { 
+            alert("Format error or no books found. Please try again."); 
+            showSearch(); 
+            return; 
+        }
 
         books.forEach(book => {
             const card = document.createElement('div');
             card.className = 'book-card';
             card.innerHTML = `
                 <div class="b-title">${book.title}</div>
-                <div class="b-author">${book.author} (${book.year})</div>
-                <div class="b-desc">${book.desc}</div>
+                <div class="b-author">${book.author} (${book.year || 'N/A'})</div>
+                <div class="b-desc">${book.desc || ''}</div>
             `;
             card.onclick = () => startDeepAnalysis(book);
             grid.appendChild(card);
@@ -390,6 +438,8 @@
 
     // --- Step 2: Deep Analysis ---
     async function startDeepAnalysis(book) {
+        if(!getConfig().key) { openSettings(); return; }
+        
         showView('view-loading');
         document.getElementById('loadingStatus').innerText = `Reading "${book.title}"...`;
 
@@ -402,12 +452,11 @@
         3. **Key Characters/Concepts**.
         4. **Quotes**: 3-5 verbatim quotes.
         5. **Critical Analysis**: Style, context, impact.
-        6. **Takeaways**: Practical application.
-        Ensure depth and high quality.
+        6. **Takeaways**: Practical application or philosophical insight.
+        Ensure depth and high quality. Do not use generic praises.
         `;
 
         try {
-            // Using text response for markdown
             const markdownContent = await callAI_Text(prompt);
             
             const resultData = {
@@ -420,7 +469,7 @@
 
         } catch (e) {
             alert("Analysis failed: " + e.message);
-            showView('view-select');
+            showSearch();
         }
     }
 
@@ -440,12 +489,16 @@
             headers: { "Content-Type": "application/json", "Authorization": `Bearer ${cfg.key}`, "HTTP-Referer": window.location.href, "X-Title": "BookInsight" },
             body: JSON.stringify({
                 model: cfg.model,
-                messages: [{ role: "system", content: "JSON generator" }, { role: "user", content: prompt }],
+                messages: [{ role: "system", content: "You must output ONLY valid JSON." }, { role: "user", content: prompt }],
                 response_format: { type: "json_object" }
             })
         });
-        if (!res.ok) throw new Error("API Error");
-        return JSON.parse((await res.json()).choices[0].message.content);
+        if (!res.ok) throw new Error(`API Error ${res.status}`);
+        
+        let text = (await res.json()).choices[0].message.content;
+        // 清理 AI 可能返回的 Markdown 标记
+        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+        return JSON.parse(text);
     }
 
     async function callAI_Text(prompt) {
@@ -458,14 +511,13 @@
                 messages: [{ role: "system", content: "Expert Critic" }, { role: "user", content: prompt }]
             })
         });
-        if (!res.ok) throw new Error("API Error");
+        if (!res.ok) throw new Error(`API Error ${res.status}`);
         return (await res.json()).choices[0].message.content;
     }
 
     // --- History & Export ---
     function saveHistory(data) {
         const history = JSON.parse(localStorage.getItem('bi_history') || '[]');
-        // Remove duplicate if exists to push to top
         const filtered = history.filter(h => h.title !== data.title);
         filtered.unshift(data);
         if(filtered.length > 20) filtered.pop();
@@ -483,7 +535,6 @@
             div.innerHTML = `📘 ${item.title}`;
             div.onclick = () => {
                 renderResult(item);
-                // Reset active states
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 div.classList.add('active');
             };
@@ -499,7 +550,7 @@
     }
 
     function exportDoc() {
-        if (!currentBookData) { alert("No content."); return; }
+        if (!currentBookData) { alert("No content to export."); return; }
         const html = `<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body><h1 style="color:#4C1D95">${currentBookData.title}</h1><p><strong>${currentBookData.author}</strong></p><hr>${marked.parse(currentBookData.content)}</body></html>`;
         saveAs(htmlDocx.asBlob(html), `BookInsight_${currentBookData.title}.docx`);
     }
@@ -514,7 +565,6 @@
     }
     function closeSettings() { document.getElementById('configModal').style.display = 'none'; }
     
-    // 修复：保存设置并反馈
     function saveConfig() {
         const url = document.getElementById('cfgUrl').value.trim();
         const key = document.getElementById('cfgKey').value.trim();
