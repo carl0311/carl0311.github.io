@@ -1,492 +1,438 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 智能翻译 (终极版)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
-        .textarea-box { resize: none; border: none; outline: none; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        /* 动画效果 */
-        .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
-        .fade-enter-from, .fade-leave-to { opacity: 0; }
-        .scale-enter-active { animation: scaleIn 0.2s ease-out; }
-        @keyframes scaleIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 智能翻译</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"Google Sans",Roboto,sans-serif;background:#fff;color:#202124}
+.app{display:flex;flex-direction:column;height:100vh}
+.header{background:#fff;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:64px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:500;color:#4285f4}
+.logo i{font-size:28px;color:#4285f4}
+.btn-settings{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;border:1px solid #dadce0;background:transparent;cursor:pointer;font-size:14px;color:#5f6368;transition:all .15s}
+.btn-settings:hover{background:#f1f3f4;color:#4285f4;border-color:#4285f4}
+.lang-bar{background:#f8f9fa;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;padding:0 20px;height:52px;flex-shrink:0;position:relative}
+.lang-tabs,.target-tabs{display:flex;gap:2px;flex:1;overflow:hidden}
+.lang-tab{padding:8px 16px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;color:#5f6368;border:none;background:transparent;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.lang-tab:hover{background:#e8eaed;color:#202124}
+.lang-tab.active{background:#fff;color:#4285f4;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.swap-btn{width:40px;height:40px;border-radius:50%;border:1px solid #dadce0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#4285f4;margin:0 12px;flex-shrink:0;transition:all .15s}
+.swap-btn:hover{background:#e8f0fe}
+.swap-btn i{font-size:20px}
+.panels{display:flex;flex:1;overflow:hidden}
+.panel{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.panel-src{border-right:1px solid #e0e0e0}
+.panel textarea{flex:1;width:100%;border:none;outline:none;resize:none;font-size:24px;padding:24px 48px 0 24px;background:transparent;color:#202124;line-height:1.5;font-family:inherit}
+.panel textarea::placeholder{color:#bdc1c6}
+.panel-out-text{flex:1;padding:24px;font-size:24px;color:#1a73e8;line-height:1.5;overflow-y:auto;word-break:break-word}
+.panel-out-text.empty{color:#bdc1c6}
+.panel-footer{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;min-height:44px}
+.char-count{font-size:12px;color:#9aa0a6}
+.debounce-ind{font-size:12px;color:#4285f4;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.clear-btn{position:absolute;top:16px;right:12px;width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;color:#9aa0a6;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.clear-btn:hover{background:#f1f3f4;color:#444}
+.clear-btn i{font-size:18px}
+.loading-dots{display:flex;gap:6px;padding:24px;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%;background:#4285f4;animation:bounce .8s infinite;opacity:.6}
+.dot:nth-child(2){animation-delay:.15s}
+.dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.copy-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid #dadce0;background:transparent;cursor:pointer;font-size:13px;color:#5f6368;transition:all .15s}
+.copy-btn:hover{background:#f1f3f4;color:#4285f4}
+.copy-btn.copied{color:#34a853;border-color:#34a853}
+.lang-dropdown{position:absolute;background:#fff;border:1px solid #dadce0;border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.15);min-width:200px;z-index:100;max-height:320px;display:flex;flex-direction:column;overflow:hidden;top:52px}
+.dropdown-search{padding:8px;border-bottom:1px solid #e0e0e0;flex-shrink:0}
+.dropdown-search input{width:100%;padding:7px 10px;border:1px solid #dadce0;border-radius:4px;font-size:14px;outline:none;color:#202124}
+.dropdown-search input:focus{border-color:#4285f4}
+.dropdown-list{overflow-y:auto;flex:1}
+.dropdown-item{padding:10px 16px;cursor:pointer;font-size:14px;color:#202124;display:flex;align-items:center;justify-content:space-between;transition:background .1s}
+.dropdown-item:hover{background:#f1f3f4}
+.dropdown-item.selected{color:#4285f4;font-weight:500}
+.dropdown-item.auto-item{border-bottom:1px solid #e0e0e0;color:#5f6368}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:8px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 24px 48px rgba(0,0,0,.2)}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between}
+.modal-header h2{font-size:18px;font-weight:500;color:#202124}
+.modal-close{width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5f6368;transition:background .15s}
+.modal-close:hover{background:#f1f3f4}
+.modal-body{padding:24px;display:flex;flex-direction:column;gap:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:#5f6368;margin-bottom:6px}
+.field input{width:100%;padding:10px 14px;border:1px solid #dadce0;border-radius:4px;font-size:14px;font-family:monospace;outline:none;color:#202124;transition:border .15s}
+.field input:focus{border-color:#4285f4;box-shadow:0 0 0 2px rgba(66,133,244,.15)}
+.modal-footer{padding:16px 24px;border-top:1px solid #e0e0e0;display:flex;justify-content:flex-end;gap:8px}
+.btn-cancel{padding:9px 20px;border-radius:4px;border:1px solid #dadce0;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#202124;transition:background .15s}
+.btn-cancel:hover{background:#f1f3f4}
+.btn-save{padding:9px 24px;border-radius:4px;border:none;background:#4285f4;color:#fff;cursor:pointer;font-size:14px;font-weight:500;transition:background .15s}
+.btn-save:hover{background:#1a73e8}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 24px;border-radius:4px;font-size:14px;z-index:2000;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
 </head>
-<body class="bg-gray-50 h-screen flex flex-col overflow-hidden text-gray-700">
+<body>
 
-<div id="app" class="flex flex-col h-full">
+<div id="app" class="app">
 
-    <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center shadow-sm z-20">
-        <div class="flex items-center gap-2">
-            <div class="bg-blue-600 text-white p-1.5 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                </svg>
-            </div>
-            <h1 class="text-xl font-bold tracking-tight text-gray-800">
-                AI 智能翻译
-            </h1>
-        </div>
-        <button @click="showSettings = true" class="text-gray-600 hover:bg-gray-100 hover:text-blue-600 px-3 py-2 rounded-lg transition flex items-center gap-2 text-sm font-medium">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            配置 API
-        </button>
-    </header>
+  <div class="header">
+    <div class="logo">
+      <i class="ti ti-world" aria-hidden="true"></i>
+      AI 翻译
+    </div>
+    <button class="btn-settings" id="openSettings">
+      <i class="ti ti-settings" aria-hidden="true"></i>
+      配置 API
+    </button>
+  </div>
 
-    <div class="bg-white border-b border-gray-200 px-4 py-3 flex justify-center items-center gap-4 shadow-sm z-10 relative">
-        
-        <div class="relative w-40 sm:w-56">
-            <button @click="toggleLangDropdown('source')" class="w-full text-blue-600 font-bold hover:bg-blue-50 px-4 py-2.5 rounded-lg flex items-center justify-between transition border border-transparent hover:border-blue-100">
-                <span class="truncate">{{ sourceLang }}</span>
-                <svg class="h-4 w-4 opacity-50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-            </button>
-            
-            <transition name="fade">
-                <div v-if="activeDropdown === 'source'" class="absolute top-full left-0 mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-200 max-h-80 flex flex-col overflow-hidden z-30">
-                    <div class="p-2 border-b border-gray-100 bg-gray-50">
-                        <input ref="sourceSearchInput" v-model="langSearchQuery" type="text" placeholder="搜索语言..." class="w-full px-3 py-2 bg-white border border-gray-200 rounded text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                    </div>
-                    <div class="overflow-y-auto flex-1">
-                        <div @click="selectLang('source', '自动检测')" class="px-4 py-2.5 hover:bg-blue-50 cursor-pointer text-sm text-gray-700 font-medium border-b border-gray-50 flex items-center gap-2">
-                            ✨ 自动检测
-                        </div>
-                        <div v-for="lang in filteredLanguages" :key="lang" @click="selectLang('source', lang)" class="px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm text-gray-700 flex justify-between items-center" :class="{'bg-blue-50 text-blue-700 font-medium': sourceLang === lang}">
-                            {{ lang }}
-                            <span v-if="sourceLang === lang" class="text-blue-600">✓</span>
-                        </div>
-                    </div>
-                </div>
-            </transition>
-        </div>
+  <div class="lang-bar" id="langBar">
+    <div class="lang-tabs" id="srcTabs"></div>
+    <button class="swap-btn" id="swapBtn" title="互换语言">
+      <i class="ti ti-switch-horizontal" aria-hidden="true"></i>
+    </button>
+    <div class="target-tabs" id="tgtTabs"></div>
+  </div>
 
-        <button @click="swapLanguages" class="p-2.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition border border-gray-200 bg-white shadow-sm active:scale-95 group" title="互换语言">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-            </svg>
-        </button>
-
-        <div class="relative w-40 sm:w-56">
-            <button @click="toggleLangDropdown('target')" class="w-full text-blue-600 font-bold hover:bg-blue-50 px-4 py-2.5 rounded-lg flex items-center justify-between transition border border-transparent hover:border-blue-100">
-                <span class="truncate">{{ targetLang }}</span>
-                <svg class="h-4 w-4 opacity-50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-            </button>
-             
-            <transition name="fade">
-                <div v-if="activeDropdown === 'target'" class="absolute top-full right-0 mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-200 max-h-80 flex flex-col overflow-hidden z-30">
-                    <div class="p-2 border-b border-gray-100 bg-gray-50">
-                        <input ref="targetSearchInput" v-model="langSearchQuery" type="text" placeholder="搜索语言..." class="w-full px-3 py-2 bg-white border border-gray-200 rounded text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                    </div>
-                    <div class="overflow-y-auto flex-1">
-                        <div v-for="lang in filteredLanguages" :key="lang" @click="selectLang('target', lang)" class="px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm text-gray-700 flex justify-between items-center" :class="{'bg-blue-50 text-blue-700 font-medium': targetLang === lang}">
-                            {{ lang }}
-                            <span v-if="targetLang === lang" class="text-blue-600">✓</span>
-                        </div>
-                    </div>
-                </div>
-            </transition>
-        </div>
+  <div class="panels">
+    <div class="panel panel-src">
+      <textarea id="srcText" placeholder="输入文字" maxlength="5000"></textarea>
+      <button class="clear-btn" id="clearBtn" style="display:none" title="清除">
+        <i class="ti ti-x"></i>
+      </button>
+      <div class="panel-footer">
+        <span class="char-count" id="charCount">0 / 5000</span>
+        <span class="debounce-ind" id="debounceInd" style="display:none">翻译中…</span>
+      </div>
     </div>
 
-    <div v-if="activeDropdown" @click="activeDropdown = null" class="fixed inset-0 z-0 bg-transparent"></div>
-
-    <div class="flex-1 flex flex-col md:flex-row overflow-hidden relative z-0">
-        
-        <div class="flex-1 relative border-b md:border-b-0 md:border-r border-gray-200 bg-white group flex flex-col">
-            <div class="flex-1 relative">
-                <textarea 
-                    v-model="sourceText" 
-                    @input="handleInput"
-                    class="w-full h-full p-6 text-xl text-gray-800 textarea-box bg-white leading-relaxed placeholder-gray-300" 
-                    placeholder="请输入要翻译的文本..."
-                    spellcheck="false"
-                ></textarea>
-                
-                <div v-if="sourceText" @click="clearSource" class="absolute top-4 right-4 cursor-pointer text-gray-300 hover:text-red-500 p-2 rounded-full hover:bg-gray-100 transition" title="清空文本">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </div>
-            </div>
-            
-            <div class="px-6 py-3 text-xs text-gray-400 border-t border-gray-50 bg-white flex justify-between">
-                <span>{{ sourceText.length }} 字符</span>
-                <span v-if="debounceTimer" class="text-blue-400 animate-pulse">输入中...</span>
-            </div>
-        </div>
-
-        <div class="flex-1 bg-gray-50 relative flex flex-col">
-            <div class="w-full h-full p-6 text-xl text-gray-800 overflow-y-auto no-scrollbar relative">
-                
-                <div v-if="isLoading && !translatedText" class="absolute top-6 left-6 flex items-center gap-3 text-gray-400">
-                    <div class="flex gap-1">
-                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                    </div>
-                    <span class="text-sm font-medium">正在思考...</span>
-                </div>
-
-                <div v-html="renderedOutput" class="whitespace-pre-wrap leading-relaxed min-h-[50px]"></div>
-            </div>
-            
-            <div class="absolute bottom-6 right-6 flex gap-2">
-                <button v-if="translatedText" @click="copyResult" class="flex items-center gap-2 px-4 py-2 bg-white shadow-lg rounded-full hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition border border-gray-100" title="复制译文">
-                    <span v-if="!isCopied" class="flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                        </svg>
-                        <span class="text-sm font-medium">复制</span>
-                    </span>
-                    <span v-else class="flex items-center gap-2 text-green-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span class="text-sm font-medium">已复制</span>
-                    </span>
-                </button>
-            </div>
-        </div>
+    <div class="panel">
+      <div id="loadingDots" class="loading-dots" style="display:none">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div class="panel-out-text empty" id="outText">翻译</div>
+      <div class="panel-footer">
+        <div></div>
+        <button class="copy-btn" id="copyBtn" style="display:none">
+          <i class="ti ti-copy" id="copyIcon"></i>
+          <span id="copyLabel">复制翻译</span>
+        </button>
+      </div>
     </div>
-
-    <transition name="scale">
-        <div v-if="showSettings" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-                <div class="bg-white px-6 py-5 border-b border-gray-100 flex justify-between items-center sticky top-0">
-                    <div>
-                        <h2 class="text-lg font-bold text-gray-800">API 配置</h2>
-                        <p class="text-xs text-gray-500 mt-1">请选择服务商或手动填写参数</p>
-                    </div>
-                    <button @click="showSettings = false" class="bg-gray-100 p-2 rounded-full text-gray-500 hover:bg-gray-200 transition">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                </div>
-                
-                <div class="p-6 space-y-6 overflow-y-auto custom-scrollbar">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">快速预设 (点击应用)</label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <button @click="applyPreset('siliconflow')" class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-indigo-50 hover:border-indigo-300 hover:shadow-sm transition group text-left">
-                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold group-hover:scale-110 transition">硅</div>
-                                <div>
-                                    <div class="font-bold text-gray-700 text-sm">硅基流动</div>
-                                    <div class="text-[10px] text-gray-400">DeepSeek V3/R1</div>
-                                </div>
-                            </button>
-
-                            <button @click="applyPreset('openrouter')" class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-purple-50 hover:border-purple-300 hover:shadow-sm transition group text-left">
-                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold group-hover:scale-110 transition">OR</div>
-                                <div>
-                                    <div class="font-bold text-gray-700 text-sm">OpenRouter</div>
-                                    <div class="text-[10px] text-gray-400">聚合多模型</div>
-                                </div>
-                            </button>
-                            
-                            <button @click="applyPreset('openai')" class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-green-50 hover:border-green-300 hover:shadow-sm transition group text-left">
-                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold group-hover:scale-110 transition">AI</div>
-                                <div>
-                                    <div class="font-bold text-gray-700 text-sm">OpenAI</div>
-                                    <div class="text-[10px] text-gray-400">GPT-4o / Mini</div>
-                                </div>
-                            </button>
-
-                            <button @click="applyPreset('ollama')" class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 hover:shadow-sm transition group text-left">
-                                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold group-hover:scale-110 transition">🏠</div>
-                                <div>
-                                    <div class="font-bold text-gray-700 text-sm">本地 Ollama</div>
-                                    <div class="text-[10px] text-gray-400">Llama3 / Qwen</div>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-4 pt-2 border-t border-gray-100">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">API 地址 (Base URL)</label>
-                            <input v-model="config.baseUrl" type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50 text-gray-600 font-mono">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">API 密钥 (Key) <span class="text-red-500">*</span></label>
-                            <input v-model="config.apiKey" type="password" placeholder="sk-..." class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none font-mono">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1.5">模型名称 (Model)</label>
-                            <input v-model="config.model" type="text" placeholder="例如: gpt-4o-mini" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none font-mono">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200">
-                    <button @click="showSettings = false" class="px-5 py-2.5 text-gray-600 hover:bg-gray-200 rounded-lg text-sm font-bold transition">取消</button>
-                    <button @click="saveSettings" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold shadow-md hover:shadow-lg transition transform active:scale-95">保存并生效</button>
-                </div>
-            </div>
-        </div>
-    </transition>
-
-    <transition name="fade">
-        <div v-if="toastMessage" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-50 text-sm font-medium">
-            {{ toastMessage }}
-        </div>
-    </transition>
+  </div>
 
 </div>
 
+<!-- 语言下拉 -->
+<div id="dropdown" class="lang-dropdown" style="display:none">
+  <div class="dropdown-search">
+    <input type="text" placeholder="搜索语言" id="ddSearch">
+  </div>
+  <div class="dropdown-list" id="ddList"></div>
+</div>
+
+<!-- 配置弹窗 -->
+<div class="modal-bg" id="modalBg" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>API 配置</h2>
+      <button class="modal-close" id="closeModal"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>API 地址 (Base URL)</label>
+        <input id="cfgUrl" type="text" placeholder="https://api.openai.com/v1">
+      </div>
+      <div class="field">
+        <label>API 密钥 (Key)</label>
+        <input id="cfgKey" type="password" placeholder="sk-...">
+      </div>
+      <div class="field">
+        <label>模型名称 (Model)</label>
+        <input id="cfgModel" type="text" placeholder="gpt-4o-mini">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="cancelModal">取消</button>
+      <button class="btn-save" id="saveModal">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-    const { createApp, ref, computed, nextTick } = Vue;
+const LANGS = ['简体中文','繁体中文','英语','日语','韩语','法语','西班牙语','德语','俄语','葡萄牙语','意大利语','荷兰语','波兰语','土耳其语','阿拉伯语','泰语','越南语','印尼语','希腊语','捷克语','瑞典语','丹麦语','芬兰语','挪威语','匈牙利语','罗马尼亚语','乌克兰语','希伯来语','马来语','波斯语','印地语','孟加拉语','菲律宾语'];
+const RECENT_SRC = ['自动检测','简体中文','英语','日语'];
+const RECENT_TGT = ['英语','简体中文','日语','韩语'];
 
-    createApp({
-        setup() {
-            // --- 中文语言列表 ---
-            const allLanguages = [
-                '简体中文', '繁体中文', '英语', '日语', '韩语', 
-                '法语', '西班牙语', '德语', '俄语', '葡萄牙语', '意大利语',
-                '荷兰语', '波兰语', '土耳其语', '阿拉伯语', '泰语', '越南语', 
-                '印尼语', '希腊语', '捷克语', '瑞典语', '丹麦语', '芬兰语', 
-                '挪威语', '匈牙利语', '罗马尼亚语', '乌克兰语', '希伯来语', 
-                '马来语', '波斯语', '印地语', '孟加拉语', '菲律宾语'
-            ];
+let state = {
+  srcLang: '自动检测',
+  tgtLang: '英语',
+  srcText: '',
+  outText: '',
+  isLoading: false,
+  dropdownFor: null,
+  config: {
+    baseUrl: localStorage.getItem('gt_url') || 'https://api.openai.com/v1',
+    apiKey: localStorage.getItem('gt_key') || '',
+    model: localStorage.getItem('gt_model') || 'gpt-4o-mini'
+  }
+};
 
-            // --- 响应式状态 ---
-            const sourceText = ref('');
-            const translatedText = ref('');
-            const sourceLang = ref('自动检测');
-            const targetLang = ref('英语');
-            const isLoading = ref(false);
-            const showSettings = ref(false);
-            const isCopied = ref(false);
-            const toastMessage = ref('');
-            
-            // 防抖
-            const debounceTimer = ref(null);
-            
-            // 下拉菜单
-            const activeDropdown = ref(null);
-            const langSearchQuery = ref('');
-            const sourceSearchInput = ref(null);
-            const targetSearchInput = ref(null);
+let debTimer = null;
 
-            // 配置 (持久化)
-            const config = ref({
-                baseUrl: localStorage.getItem('llm_base_url') || 'https://api.openai.com/v1',
-                apiKey: localStorage.getItem('llm_api_key') || '',
-                model: localStorage.getItem('llm_model') || 'gpt-4o-mini'
-            });
+function renderTabs() {
+  const srcTabs = document.getElementById('srcTabs');
+  const tgtTabs = document.getElementById('tgtTabs');
+  srcTabs.innerHTML = '';
+  tgtTabs.innerHTML = '';
 
-            // --- 计算属性 ---
-            const filteredLanguages = computed(() => {
-                if (!langSearchQuery.value) return allLanguages;
-                return allLanguages.filter(l => l.includes(langSearchQuery.value));
-            });
+  RECENT_SRC.forEach(l => {
+    const b = document.createElement('button');
+    b.className = 'lang-tab' + (state.srcLang === l ? ' active' : '');
+    b.textContent = l;
+    b.onclick = () => { state.srcLang = l; renderTabs(); if (state.srcText) doTranslate(); };
+    srcTabs.appendChild(b);
+  });
+  const moreS = document.createElement('button');
+  moreS.className = 'lang-tab';
+  moreS.innerHTML = '<i class="ti ti-chevron-down" style="font-size:16px"></i>';
+  moreS.onclick = (e) => openDropdown('src', e.currentTarget);
+  srcTabs.appendChild(moreS);
 
-            const renderedOutput = computed(() => translatedText.value);
+  RECENT_TGT.forEach(l => {
+    const b = document.createElement('button');
+    b.className = 'lang-tab' + (state.tgtLang === l ? ' active' : '');
+    b.textContent = l;
+    b.onclick = () => { state.tgtLang = l; renderTabs(); if (state.srcText) doTranslate(); };
+    tgtTabs.appendChild(b);
+  });
+  const moreT = document.createElement('button');
+  moreT.className = 'lang-tab';
+  moreT.innerHTML = '<i class="ti ti-chevron-down" style="font-size:16px"></i>';
+  moreT.onclick = (e) => openDropdown('tgt', e.currentTarget);
+  tgtTabs.appendChild(moreT);
+}
 
-            // --- 功能函数 ---
+function openDropdown(side, anchor) {
+  state.dropdownFor = side;
+  const dd = document.getElementById('dropdown');
+  const search = document.getElementById('ddSearch');
+  search.value = '';
+  renderDropdownList('');
+  const rect = anchor.getBoundingClientRect();
+  dd.style.top = rect.bottom + 'px';
+  if (side === 'src') { dd.style.left = '20px'; dd.style.right = 'auto'; }
+  else { dd.style.right = '20px'; dd.style.left = 'auto'; }
+  dd.style.display = 'flex';
+  setTimeout(() => search.focus(), 50);
+}
 
-            // 显示 Toast
-            const showToast = (msg) => {
-                toastMessage.value = msg;
-                setTimeout(() => toastMessage.value = '', 2000);
-            };
+function renderDropdownList(q) {
+  const list = document.getElementById('ddList');
+  list.innerHTML = '';
+  const side = state.dropdownFor;
+  const current = side === 'src' ? state.srcLang : state.tgtLang;
+  const filtered = q ? LANGS.filter(l => l.includes(q)) : LANGS;
 
-            // 应用预设
-            const applyPreset = (type) => {
-                switch(type) {
-                    case 'siliconflow':
-                        config.value.baseUrl = 'https://api.siliconflow.cn/v1';
-                        config.value.model = 'deepseek-ai/DeepSeek-V3';
-                        break;
-                    case 'openrouter':
-                        config.value.baseUrl = 'https://openrouter.ai/api/v1';
-                        config.value.model = 'google/gemini-2.0-flash-001';
-                        break;
-                    case 'openai':
-                        config.value.baseUrl = 'https://api.openai.com/v1';
-                        config.value.model = 'gpt-4o-mini';
-                        break;
-                    case 'ollama':
-                        config.value.baseUrl = 'http://localhost:11434/v1';
-                        config.value.model = 'llama3';
-                        break;
-                }
-                showToast(`已应用 ${type === 'siliconflow' ? '硅基流动' : type} 预设`);
-            };
+  if (side === 'src' && !q) {
+    const a = document.createElement('div');
+    a.className = 'dropdown-item auto-item' + (current === '自动检测' ? ' selected' : '');
+    a.textContent = '✨ 自动检测';
+    if (current === '自动检测') {
+      const ck = document.createElement('i');
+      ck.className = 'ti ti-check';
+      ck.style.fontSize = '14px';
+      a.appendChild(ck);
+    }
+    a.onclick = () => { state.srcLang = '自动检测'; closeDropdown(); renderTabs(); if (state.srcText) doTranslate(); };
+    list.appendChild(a);
+  }
 
-            // 切换语言选择框
-            const toggleLangDropdown = (type) => {
-                if (activeDropdown.value === type) {
-                    activeDropdown.value = null;
-                } else {
-                    activeDropdown.value = type;
-                    langSearchQuery.value = '';
-                    nextTick(() => {
-                        if (type === 'source' && sourceSearchInput.value) sourceSearchInput.value.focus();
-                        if (type === 'target' && targetSearchInput.value) targetSearchInput.value.focus();
-                    });
-                }
-            };
+  filtered.forEach(l => {
+    const d = document.createElement('div');
+    d.className = 'dropdown-item' + (current === l ? ' selected' : '');
+    d.textContent = l;
+    if (current === l) {
+      const ck = document.createElement('i');
+      ck.className = 'ti ti-check';
+      ck.style.fontSize = '14px';
+      d.appendChild(ck);
+    }
+    d.onclick = () => {
+      if (side === 'src') state.srcLang = l; else state.tgtLang = l;
+      closeDropdown(); renderTabs(); if (state.srcText) doTranslate();
+    };
+    list.appendChild(d);
+  });
+}
 
-            // 选中语言
-            const selectLang = (type, lang) => {
-                if (type === 'source') sourceLang.value = lang;
-                else targetLang.value = lang;
-                activeDropdown.value = null;
-                if(sourceText.value) performTranslate();
-            };
+function closeDropdown() {
+  document.getElementById('dropdown').style.display = 'none';
+  state.dropdownFor = null;
+}
 
-            // **核心逻辑：语言互换**
-            const swapLanguages = () => {
-                // 如果源语言是自动检测，无法直接互换，提示用户或默认设为当前的目标语言
-                if (sourceLang.value === '自动检测') {
-                    showToast('“自动检测”模式下无法直接互换，请先指定源语言。');
-                    return;
-                }
+document.getElementById('ddSearch').addEventListener('input', e => renderDropdownList(e.target.value));
+document.addEventListener('click', e => {
+  const dd = document.getElementById('dropdown');
+  if (dd.style.display !== 'none' && !dd.contains(e.target)) closeDropdown();
+});
 
-                // 1. 互换语言设置
-                const tempLang = sourceLang.value;
-                sourceLang.value = targetLang.value;
-                targetLang.value = tempLang;
+document.getElementById('swapBtn').addEventListener('click', () => {
+  if (state.srcLang === '自动检测') { showToast('"自动检测"模式下无法互换，请先选择源语言'); return; }
+  const tmp = state.srcLang; state.srcLang = state.tgtLang; state.tgtLang = tmp;
+  if (state.outText) {
+    document.getElementById('srcText').value = state.outText;
+    state.srcText = state.outText;
+    state.outText = '';
+    updateOut('');
+    doTranslate();
+  }
+  renderTabs();
+});
 
-                // 2. 互换文本内容 (如果有译文，则将译文作为原文，并清空译文触发重新翻译)
-                if (translatedText.value) {
-                    sourceText.value = translatedText.value;
-                    translatedText.value = ''; // 清空以显示 loading
-                    performTranslate(); // 立即反向翻译
-                }
-            };
+const srcTA = document.getElementById('srcText');
+srcTA.addEventListener('input', () => {
+  const v = srcTA.value;
+  state.srcText = v;
+  document.getElementById('charCount').textContent = v.length + ' / 5000';
+  document.getElementById('clearBtn').style.display = v ? 'flex' : 'none';
+  if (debTimer) clearTimeout(debTimer);
+  if (!v.trim()) {
+    updateOut('');
+    document.getElementById('debounceInd').style.display = 'none';
+    return;
+  }
+  document.getElementById('debounceInd').style.display = 'inline';
+  debTimer = setTimeout(() => {
+    document.getElementById('debounceInd').style.display = 'none';
+    doTranslate();
+  }, 800);
+});
 
-            // 输入处理
-            const handleInput = () => {
-                if (debounceTimer.value) clearTimeout(debounceTimer.value);
-                if (!sourceText.value.trim()) {
-                    translatedText.value = '';
-                    debounceTimer.value = null;
-                    return;
-                }
-                // 设置 800ms 防抖，避免打字时频繁请求
-                debounceTimer.value = setTimeout(() => {
-                    performTranslate();
-                    debounceTimer.value = null;
-                }, 800);
-            };
+document.getElementById('clearBtn').addEventListener('click', () => {
+  srcTA.value = '';
+  state.srcText = '';
+  state.outText = '';
+  document.getElementById('charCount').textContent = '0 / 5000';
+  document.getElementById('clearBtn').style.display = 'none';
+  updateOut('');
+});
 
-            const clearSource = () => {
-                sourceText.value = '';
-                translatedText.value = '';
-            };
+function updateOut(text) {
+  const el = document.getElementById('outText');
+  const copyBtn = document.getElementById('copyBtn');
+  if (!text) {
+    el.className = 'panel-out-text empty';
+    el.textContent = '翻译';
+    copyBtn.style.display = 'none';
+  } else {
+    el.className = 'panel-out-text';
+    el.textContent = text;
+    copyBtn.style.display = 'flex';
+  }
+}
 
-            const saveSettings = () => {
-                localStorage.setItem('llm_base_url', config.value.baseUrl);
-                localStorage.setItem('llm_api_key', config.value.apiKey);
-                localStorage.setItem('llm_model', config.value.model);
-                showSettings.value = false;
-                showToast('设置已保存');
-                if(sourceText.value) performTranslate();
-            };
+async function doTranslate() {
+  if (!state.srcText.trim()) return;
+  if (!state.config.apiKey) { showToast('请先点击"配置 API"填写 API Key'); return; }
 
-            // 一键复制
-            const copyResult = async () => {
-                try {
-                    await navigator.clipboard.writeText(translatedText.value);
-                    isCopied.value = true;
-                    setTimeout(() => isCopied.value = false, 2000);
-                } catch (err) {
-                    showToast('复制失败，请手动复制');
-                }
-            };
+  state.isLoading = true;
+  document.getElementById('loadingDots').style.display = 'flex';
+  document.getElementById('outText').style.display = 'none';
+  state.outText = '';
 
-            // --- API 调用 (流式) ---
-            const performTranslate = async () => {
-                if (!sourceText.value.trim() || !config.value.apiKey) return;
-                
-                isLoading.value = true;
-                translatedText.value = ''; 
-                
-                // 构建 Prompt：强制使用中文指令，确保模型理解语言名称（如“简体中文”到“英语”）
-                const prompt = `你是一个专业的翻译引擎。请将以下文本从【${sourceLang.value}】翻译成【${targetLang.value}】。
-                
-                规则：
-                1. 仅输出翻译结果，不要包含任何解释、注脚或额外的对话。
-                2. 保持原文的语气和格式。
-                3. 如果原文是代码，请不要翻译代码关键字，只翻译注释。
-                
-                待翻译文本：
-                ${sourceText.value}`;
+  const prompt = `你是专业翻译引擎。将以下文本从【${state.srcLang}】翻译成【${state.tgtLang}】。仅输出翻译结果，不含任何解释或额外内容。保持原文语气和格式。\n\n${state.srcText}`;
 
-                try {
-                    const baseUrl = config.value.baseUrl.replace(/\/+$/, '');
-                    const response = await fetch(`${baseUrl}/chat/completions`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${config.value.apiKey}`
-                        },
-                        body: JSON.stringify({
-                            model: config.value.model,
-                            messages: [{ role: "user", content: prompt }],
-                            stream: true,
-                            temperature: 0.3 // 低温度以保证翻译准确性
-                        })
-                    });
+  try {
+    const base = state.config.baseUrl.replace(/\/+$/, '');
+    const res = await fetch(base + '/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.config.apiKey },
+      body: JSON.stringify({ model: state.config.model, messages: [{ role: 'user', content: prompt }], stream: true, temperature: 0.3 })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
 
-                    if (!response.ok) {
-                        const errData = await response.text();
-                        throw new Error(`API 请求失败: ${response.status} - ${errData}`);
-                    }
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let acc = '';
 
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder("utf-8");
+    document.getElementById('loadingDots').style.display = 'none';
+    document.getElementById('outText').style.display = 'block';
 
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        const chunk = decoder.decode(value, { stream: true });
-                        const lines = chunk.split('\n').filter(line => line.trim() !== '');
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = dec.decode(value, { stream: true });
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data: ') || line.includes('[DONE]')) continue;
+        try {
+          const d = JSON.parse(line.slice(6));
+          acc += d.choices[0]?.delta?.content || '';
+        } catch (e) {}
+      }
+      state.outText = acc;
+      updateOut(acc);
+    }
+  } catch (e) {
+    document.getElementById('loadingDots').style.display = 'none';
+    document.getElementById('outText').style.display = 'block';
+    updateOut('翻译失败：' + e.message);
+  } finally {
+    state.isLoading = false;
+    document.getElementById('loadingDots').style.display = 'none';
+    document.getElementById('outText').style.display = 'block';
+  }
+}
 
-                        for (const line of lines) {
-                            if (line.includes('[DONE]')) return;
-                            if (line.startsWith('data: ')) {
-                                try {
-                                    const json = JSON.parse(line.replace('data: ', ''));
-                                    const content = json.choices[0]?.delta?.content || '';
-                                    translatedText.value += content;
-                                } catch (e) {}
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error(error);
-                    translatedText.value = `出错啦: ${error.message}\n请检查 API Key 和网络设置。`;
-                } finally {
-                    isLoading.value = false;
-                }
-            };
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(state.outText);
+    const btn = document.getElementById('copyBtn');
+    btn.classList.add('copied');
+    document.getElementById('copyIcon').className = 'ti ti-check';
+    document.getElementById('copyLabel').textContent = '已复制';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      document.getElementById('copyIcon').className = 'ti ti-copy';
+      document.getElementById('copyLabel').textContent = '复制翻译';
+    }, 2000);
+  } catch (e) { showToast('复制失败'); }
+});
 
-            return {
-                allLanguages, filteredLanguages,
-                sourceText, translatedText, sourceLang, targetLang,
-                isLoading, showSettings, config, renderedOutput, activeDropdown, langSearchQuery,
-                sourceSearchInput, targetSearchInput, isCopied, toastMessage, debounceTimer,
-                toggleLangDropdown, selectLang, swapLanguages, handleInput,
-                clearSource, saveSettings, copyResult, applyPreset
-            };
-        }
-    }).mount('#app');
+document.getElementById('openSettings').addEventListener('click', () => {
+  document.getElementById('cfgUrl').value = state.config.baseUrl;
+  document.getElementById('cfgKey').value = state.config.apiKey;
+  document.getElementById('cfgModel').value = state.config.model;
+  document.getElementById('modalBg').style.display = 'flex';
+});
+document.getElementById('closeModal').addEventListener('click', () => document.getElementById('modalBg').style.display = 'none');
+document.getElementById('cancelModal').addEventListener('click', () => document.getElementById('modalBg').style.display = 'none');
+document.getElementById('saveModal').addEventListener('click', () => {
+  state.config.baseUrl = document.getElementById('cfgUrl').value.trim() || 'https://api.openai.com/v1';
+  state.config.apiKey = document.getElementById('cfgKey').value.trim();
+  state.config.model = document.getElementById('cfgModel').value.trim() || 'gpt-4o-mini';
+  localStorage.setItem('gt_url', state.config.baseUrl);
+  localStorage.setItem('gt_key', state.config.apiKey);
+  localStorage.setItem('gt_model', state.config.model);
+  document.getElementById('modalBg').style.display = 'none';
+  showToast('设置已保存');
+  if (state.srcText) doTranslate();
+});
+document.getElementById('modalBg').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalBg')) document.getElementById('modalBg').style.display = 'none';
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+renderTabs();
 </script>
-
 </body>
-
 </html>
