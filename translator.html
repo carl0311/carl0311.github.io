@@ -1,438 +1,339 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 智能翻译</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"Google Sans",Roboto,sans-serif;background:#fff;color:#202124}
-.app{display:flex;flex-direction:column;height:100vh}
+.app{display:flex;flex-direction:column;height:600px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Google Sans",Roboto,sans-serif;color:#202124;position:relative}
 .header{background:#fff;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:64px;flex-shrink:0}
-.logo{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:500;color:#4285f4}
-.logo i{font-size:28px;color:#4285f4}
-.btn-settings{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;border:1px solid #dadce0;background:transparent;cursor:pointer;font-size:14px;color:#5f6368;transition:all .15s}
-.btn-settings:hover{background:#f1f3f4;color:#4285f4;border-color:#4285f4}
-.lang-bar{background:#f8f9fa;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;padding:0 20px;height:52px;flex-shrink:0;position:relative}
-.lang-tabs,.target-tabs{display:flex;gap:2px;flex:1;overflow:hidden}
-.lang-tab{padding:8px 16px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;color:#5f6368;border:none;background:transparent;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
-.lang-tab:hover{background:#e8eaed;color:#202124}
-.lang-tab.active{background:#fff;color:#4285f4;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.swap-btn{width:40px;height:40px;border-radius:50%;border:1px solid #dadce0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#4285f4;margin:0 12px;flex-shrink:0;transition:all .15s}
+.logo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:500;color:#4285f4}
+.logo i{font-size:24px}
+.btn-cfg{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:20px;border:1px solid #dadce0;background:transparent;cursor:pointer;font-size:13px;color:#5f6368;transition:all .15s;font-family:inherit}
+.btn-cfg:hover{background:#f1f3f4;color:#4285f4;border-color:#4285f4}
+.lang-bar{background:#f8f9fa;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;padding:0 16px;height:50px;flex-shrink:0;position:relative;z-index:10}
+.lang-side{display:flex;gap:2px;flex:1;align-items:center;min-width:0}
+.ltab{padding:7px 14px;border-radius:18px;cursor:pointer;font-size:13px;font-weight:500;color:#5f6368;border:none;background:transparent;transition:all .15s;white-space:nowrap;font-family:inherit;flex-shrink:0}
+.ltab:hover{background:#e8eaed;color:#202124}
+.ltab.active{background:#fff;color:#4285f4;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.more-btn{width:32px;height:32px;border-radius:50%;border:1px solid #dadce0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5f6368;transition:all .15s;flex-shrink:0;margin-left:2px}
+.more-btn:hover{background:#e8f0fe;color:#4285f4;border-color:#4285f4}
+.more-btn i{font-size:16px;line-height:1;display:block}
+.swap-btn{width:38px;height:38px;border-radius:50%;border:1px solid #dadce0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#4285f4;margin:0 10px;flex-shrink:0;transition:all .15s}
 .swap-btn:hover{background:#e8f0fe}
-.swap-btn i{font-size:20px}
+.swap-btn i{font-size:18px;line-height:1;display:block}
 .panels{display:flex;flex:1;overflow:hidden}
-.panel{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.panel-src{border-right:1px solid #e0e0e0}
-.panel textarea{flex:1;width:100%;border:none;outline:none;resize:none;font-size:24px;padding:24px 48px 0 24px;background:transparent;color:#202124;line-height:1.5;font-family:inherit}
+.panel{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.panel-l{border-right:1px solid #e0e0e0;position:relative}
+.panel textarea{flex:1;width:100%;border:none;outline:none;resize:none;font-size:22px;padding:20px 44px 0 20px;background:transparent;color:#202124;line-height:1.5;font-family:inherit}
 .panel textarea::placeholder{color:#bdc1c6}
-.panel-out-text{flex:1;padding:24px;font-size:24px;color:#1a73e8;line-height:1.5;overflow-y:auto;word-break:break-word}
-.panel-out-text.empty{color:#bdc1c6}
-.panel-footer{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;min-height:44px}
-.char-count{font-size:12px;color:#9aa0a6}
-.debounce-ind{font-size:12px;color:#4285f4;animation:pulse 1s infinite}
+.out-text{flex:1;padding:20px;font-size:22px;color:#1a73e8;line-height:1.5;overflow-y:auto;word-break:break-word}
+.out-text.ph{color:#bdc1c6}
+.pfoot{padding:6px 14px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;min-height:40px}
+.char-ct{font-size:11px;color:#9aa0a6}
+.dind{font-size:11px;color:#4285f4;animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.clear-btn{position:absolute;top:16px;right:12px;width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;color:#9aa0a6;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.clear-btn:hover{background:#f1f3f4;color:#444}
-.clear-btn i{font-size:18px}
-.loading-dots{display:flex;gap:6px;padding:24px;align-items:center}
-.dot{width:10px;height:10px;border-radius:50%;background:#4285f4;animation:bounce .8s infinite;opacity:.6}
+.clr-btn{position:absolute;top:14px;right:10px;width:30px;height:30px;border-radius:50%;border:none;background:transparent;cursor:pointer;color:#9aa0a6;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.clr-btn:hover{background:#f1f3f4;color:#444}
+.clr-btn i{font-size:17px;line-height:1;display:block}
+.ldots{display:flex;gap:5px;padding:20px;align-items:center}
+.dot{width:9px;height:9px;border-radius:50%;background:#4285f4;animation:bonce .8s infinite;opacity:.6}
 .dot:nth-child(2){animation-delay:.15s}
 .dot:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.copy-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid #dadce0;background:transparent;cursor:pointer;font-size:13px;color:#5f6368;transition:all .15s}
+@keyframes bonce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.copy-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:18px;border:1px solid #dadce0;background:transparent;cursor:pointer;font-size:12px;color:#5f6368;transition:all .15s;font-family:inherit}
 .copy-btn:hover{background:#f1f3f4;color:#4285f4}
-.copy-btn.copied{color:#34a853;border-color:#34a853}
-.lang-dropdown{position:absolute;background:#fff;border:1px solid #dadce0;border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.15);min-width:200px;z-index:100;max-height:320px;display:flex;flex-direction:column;overflow:hidden;top:52px}
-.dropdown-search{padding:8px;border-bottom:1px solid #e0e0e0;flex-shrink:0}
-.dropdown-search input{width:100%;padding:7px 10px;border:1px solid #dadce0;border-radius:4px;font-size:14px;outline:none;color:#202124}
-.dropdown-search input:focus{border-color:#4285f4}
-.dropdown-list{overflow-y:auto;flex:1}
-.dropdown-item{padding:10px 16px;cursor:pointer;font-size:14px;color:#202124;display:flex;align-items:center;justify-content:space-between;transition:background .1s}
-.dropdown-item:hover{background:#f1f3f4}
-.dropdown-item.selected{color:#4285f4;font-weight:500}
-.dropdown-item.auto-item{border-bottom:1px solid #e0e0e0;color:#5f6368}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal{background:#fff;border-radius:8px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 24px 48px rgba(0,0,0,.2)}
-.modal-header{padding:20px 24px 16px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between}
-.modal-header h2{font-size:18px;font-weight:500;color:#202124}
-.modal-close{width:36px;height:36px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5f6368;transition:background .15s}
-.modal-close:hover{background:#f1f3f4}
-.modal-body{padding:24px;display:flex;flex-direction:column;gap:16px}
-.field label{display:block;font-size:13px;font-weight:500;color:#5f6368;margin-bottom:6px}
-.field input{width:100%;padding:10px 14px;border:1px solid #dadce0;border-radius:4px;font-size:14px;font-family:monospace;outline:none;color:#202124;transition:border .15s}
+.copy-btn.ok{color:#34a853;border-color:#34a853}
+.dd-wrap{position:absolute;background:#fff;border:1px solid #dadce0;border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,.18);width:220px;z-index:500;max-height:300px;display:none;flex-direction:column;overflow:hidden}
+.dd-search{padding:8px;border-bottom:1px solid #e0e0e0;flex-shrink:0}
+.dd-search input{width:100%;padding:6px 10px;border:1px solid #dadce0;border-radius:4px;font-size:13px;outline:none;color:#202124;font-family:inherit}
+.dd-search input:focus{border-color:#4285f4}
+.dd-list{overflow-y:auto;flex:1}
+.dd-item{padding:9px 16px;cursor:pointer;font-size:13px;color:#202124;display:flex;align-items:center;justify-content:space-between}
+.dd-item:hover{background:#f1f3f4}
+.dd-item.sel{color:#4285f4;font-weight:500}
+.dd-item.auto-sep{border-bottom:1px solid #e0e0e0;color:#5f6368}
+.modal-wrap{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:8px;width:100%;max-width:440px}
+.mhead{padding:18px 20px 14px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between}
+.mhead h3{font-size:16px;font-weight:500;color:#202124}
+.mcls{width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5f6368}
+.mcls:hover{background:#f1f3f4}
+.mcls i{font-size:18px;line-height:1;display:block}
+.mbody{padding:20px;display:flex;flex-direction:column;gap:14px}
+.field label{display:block;font-size:12px;font-weight:500;color:#5f6368;margin-bottom:5px}
+.field input{width:100%;padding:9px 12px;border:1px solid #dadce0;border-radius:4px;font-size:13px;font-family:monospace;outline:none;color:#202124}
 .field input:focus{border-color:#4285f4;box-shadow:0 0 0 2px rgba(66,133,244,.15)}
-.modal-footer{padding:16px 24px;border-top:1px solid #e0e0e0;display:flex;justify-content:flex-end;gap:8px}
-.btn-cancel{padding:9px 20px;border-radius:4px;border:1px solid #dadce0;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#202124;transition:background .15s}
+.mfoot{padding:14px 20px;border-top:1px solid #e0e0e0;display:flex;justify-content:flex-end;gap:8px}
+.btn-cancel{padding:8px 18px;border-radius:4px;border:1px solid #dadce0;background:transparent;cursor:pointer;font-size:13px;font-weight:500;color:#202124;font-family:inherit}
 .btn-cancel:hover{background:#f1f3f4}
-.btn-save{padding:9px 24px;border-radius:4px;border:none;background:#4285f4;color:#fff;cursor:pointer;font-size:14px;font-weight:500;transition:background .15s}
+.btn-save{padding:8px 22px;border-radius:4px;border:none;background:#4285f4;color:#fff;cursor:pointer;font-size:13px;font-weight:500;font-family:inherit}
 .btn-save:hover{background:#1a73e8}
-.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 24px;border-radius:4px;font-size:14px;z-index:2000;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap}
-.toast.show{opacity:1}
+.toast-msg{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:9px 20px;border-radius:4px;font-size:13px;z-index:700;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast-msg.on{opacity:1}
 </style>
-</head>
-<body>
 
-<div id="app" class="app">
-
+<div class="app" id="app">
   <div class="header">
-    <div class="logo">
-      <i class="ti ti-world" aria-hidden="true"></i>
-      AI 翻译
-    </div>
-    <button class="btn-settings" id="openSettings">
-      <i class="ti ti-settings" aria-hidden="true"></i>
-      配置 API
-    </button>
+    <div class="logo"><i class="ti ti-world" aria-hidden="true"></i> AI 翻译</div>
+    <button class="btn-cfg" id="openCfg"><i class="ti ti-settings" aria-hidden="true"></i> 配置 API</button>
   </div>
 
-  <div class="lang-bar" id="langBar">
-    <div class="lang-tabs" id="srcTabs"></div>
-    <button class="swap-btn" id="swapBtn" title="互换语言">
-      <i class="ti ti-switch-horizontal" aria-hidden="true"></i>
-    </button>
-    <div class="target-tabs" id="tgtTabs"></div>
+  <div class="lang-bar">
+    <div class="lang-side" id="srcSide"></div>
+    <button class="swap-btn" id="swapBtn" title="互换语言"><i class="ti ti-switch-horizontal" aria-hidden="true"></i></button>
+    <div class="lang-side" id="tgtSide"></div>
   </div>
 
   <div class="panels">
-    <div class="panel panel-src">
-      <textarea id="srcText" placeholder="输入文字" maxlength="5000"></textarea>
-      <button class="clear-btn" id="clearBtn" style="display:none" title="清除">
-        <i class="ti ti-x"></i>
-      </button>
-      <div class="panel-footer">
-        <span class="char-count" id="charCount">0 / 5000</span>
-        <span class="debounce-ind" id="debounceInd" style="display:none">翻译中…</span>
+    <div class="panel panel-l">
+      <textarea id="srcTA" placeholder="输入文字" maxlength="5000"></textarea>
+      <button class="clr-btn" id="clrBtn" style="display:none"><i class="ti ti-x"></i></button>
+      <div class="pfoot">
+        <span class="char-ct" id="charCt">0 / 5000</span>
+        <span class="dind" id="dind" style="display:none">翻译中…</span>
       </div>
     </div>
-
     <div class="panel">
-      <div id="loadingDots" class="loading-dots" style="display:none">
-        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-      </div>
-      <div class="panel-out-text empty" id="outText">翻译</div>
-      <div class="panel-footer">
+      <div class="ldots" id="ldots" style="display:none"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="out-text ph" id="outEl">翻译</div>
+      <div class="pfoot">
         <div></div>
         <button class="copy-btn" id="copyBtn" style="display:none">
-          <i class="ti ti-copy" id="copyIcon"></i>
-          <span id="copyLabel">复制翻译</span>
+          <i class="ti ti-copy" id="copyIco"></i><span id="copyLbl">复制翻译</span>
         </button>
       </div>
     </div>
   </div>
 
-</div>
-
-<!-- 语言下拉 -->
-<div id="dropdown" class="lang-dropdown" style="display:none">
-  <div class="dropdown-search">
-    <input type="text" placeholder="搜索语言" id="ddSearch">
+  <div class="dd-wrap" id="ddWrap">
+    <div class="dd-search"><input type="text" id="ddQ" placeholder="搜索语言…" autocomplete="off"></div>
+    <div class="dd-list" id="ddList"></div>
   </div>
-  <div class="dropdown-list" id="ddList"></div>
-</div>
 
-<!-- 配置弹窗 -->
-<div class="modal-bg" id="modalBg" style="display:none">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>API 配置</h2>
-      <button class="modal-close" id="closeModal"><i class="ti ti-x"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="field">
-        <label>API 地址 (Base URL)</label>
-        <input id="cfgUrl" type="text" placeholder="https://api.openai.com/v1">
+  <div class="modal-wrap" id="modalWrap">
+    <div class="modal">
+      <div class="mhead"><h3>API 配置</h3><button class="mcls" id="mCls"><i class="ti ti-x"></i></button></div>
+      <div class="mbody">
+        <div class="field"><label>API 地址 (Base URL)</label><input id="cfgUrl" type="text" placeholder="https://api.openai.com/v1"></div>
+        <div class="field"><label>API 密钥 (Key)</label><input id="cfgKey" type="password" placeholder="sk-..."></div>
+        <div class="field"><label>模型名称 (Model)</label><input id="cfgMdl" type="text" placeholder="gpt-4o-mini"></div>
       </div>
-      <div class="field">
-        <label>API 密钥 (Key)</label>
-        <input id="cfgKey" type="password" placeholder="sk-...">
+      <div class="mfoot">
+        <button class="btn-cancel" id="mCancel">取消</button>
+        <button class="btn-save" id="mSave">保存</button>
       </div>
-      <div class="field">
-        <label>模型名称 (Model)</label>
-        <input id="cfgModel" type="text" placeholder="gpt-4o-mini">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" id="cancelModal">取消</button>
-      <button class="btn-save" id="saveModal">保存</button>
     </div>
   </div>
-</div>
 
-<div class="toast" id="toast"></div>
+  <div class="toast-msg" id="toast"></div>
+</div>
 
 <script>
-const LANGS = ['简体中文','繁体中文','英语','日语','韩语','法语','西班牙语','德语','俄语','葡萄牙语','意大利语','荷兰语','波兰语','土耳其语','阿拉伯语','泰语','越南语','印尼语','希腊语','捷克语','瑞典语','丹麦语','芬兰语','挪威语','匈牙利语','罗马尼亚语','乌克兰语','希伯来语','马来语','波斯语','印地语','孟加拉语','菲律宾语'];
-const RECENT_SRC = ['自动检测','简体中文','英语','日语'];
-const RECENT_TGT = ['英语','简体中文','日语','韩语'];
+const LANGS=['简体中文','繁体中文','英语','日语','韩语','法语','西班牙语','德语','俄语','葡萄牙语','意大利语','荷兰语','波兰语','土耳其语','阿拉伯语','泰语','越南语','印尼语','希腊语','捷克语','瑞典语','丹麦语','芬兰语','挪威语','匈牙利语','罗马尼亚语','乌克兰语','希伯来语','马来语','波斯语','印地语','孟加拉语','菲律宾语'];
+const SQ=['自动检测','简体中文','英语','日语'];
+const TQ=['英语','简体中文','日语','韩语'];
 
-let state = {
-  srcLang: '自动检测',
-  tgtLang: '英语',
-  srcText: '',
-  outText: '',
-  isLoading: false,
-  dropdownFor: null,
-  config: {
-    baseUrl: localStorage.getItem('gt_url') || 'https://api.openai.com/v1',
-    apiKey: localStorage.getItem('gt_key') || '',
-    model: localStorage.getItem('gt_model') || 'gpt-4o-mini'
+const S={
+  src:'自动检测', tgt:'英语', out:'', ddFor:null,
+  cfg:{
+    url:localStorage.getItem('gt_url')||'https://api.openai.com/v1',
+    key:localStorage.getItem('gt_key')||'',
+    mdl:localStorage.getItem('gt_mdl')||'gpt-4o-mini'
   }
 };
+let debT=null;
 
-let debTimer = null;
-
-function renderTabs() {
-  const srcTabs = document.getElementById('srcTabs');
-  const tgtTabs = document.getElementById('tgtTabs');
-  srcTabs.innerHTML = '';
-  tgtTabs.innerHTML = '';
-
-  RECENT_SRC.forEach(l => {
-    const b = document.createElement('button');
-    b.className = 'lang-tab' + (state.srcLang === l ? ' active' : '');
-    b.textContent = l;
-    b.onclick = () => { state.srcLang = l; renderTabs(); if (state.srcText) doTranslate(); };
-    srcTabs.appendChild(b);
+function buildTabs(){
+  ['srcSide','tgtSide'].forEach((id,si)=>{
+    const el=document.getElementById(id);
+    el.innerHTML='';
+    const quick=si===0?SQ:TQ;
+    const cur=si===0?S.src:S.tgt;
+    quick.forEach(l=>{
+      const b=document.createElement('button');
+      b.className='ltab'+(cur===l?' active':'');
+      b.textContent=l;
+      b.onclick=()=>{
+        if(si===0)S.src=l; else S.tgt=l;
+        buildTabs();
+        if(document.getElementById('srcTA').value.trim())go();
+      };
+      el.appendChild(b);
+    });
+    const more=document.createElement('button');
+    more.className='more-btn';
+    more.title=si===0?'更多源语言':'更多目标语言';
+    more.innerHTML='<i class="ti ti-chevron-down" aria-hidden="true"></i>';
+    more.addEventListener('click',function(e){
+      e.stopPropagation();
+      openDD(si===0?'src':'tgt', this);
+    });
+    el.appendChild(more);
   });
-  const moreS = document.createElement('button');
-  moreS.className = 'lang-tab';
-  moreS.innerHTML = '<i class="ti ti-chevron-down" style="font-size:16px"></i>';
-  moreS.onclick = (e) => openDropdown('src', e.currentTarget);
-  srcTabs.appendChild(moreS);
-
-  RECENT_TGT.forEach(l => {
-    const b = document.createElement('button');
-    b.className = 'lang-tab' + (state.tgtLang === l ? ' active' : '');
-    b.textContent = l;
-    b.onclick = () => { state.tgtLang = l; renderTabs(); if (state.srcText) doTranslate(); };
-    tgtTabs.appendChild(b);
-  });
-  const moreT = document.createElement('button');
-  moreT.className = 'lang-tab';
-  moreT.innerHTML = '<i class="ti ti-chevron-down" style="font-size:16px"></i>';
-  moreT.onclick = (e) => openDropdown('tgt', e.currentTarget);
-  tgtTabs.appendChild(moreT);
 }
 
-function openDropdown(side, anchor) {
-  state.dropdownFor = side;
-  const dd = document.getElementById('dropdown');
-  const search = document.getElementById('ddSearch');
-  search.value = '';
-  renderDropdownList('');
-  const rect = anchor.getBoundingClientRect();
-  dd.style.top = rect.bottom + 'px';
-  if (side === 'src') { dd.style.left = '20px'; dd.style.right = 'auto'; }
-  else { dd.style.right = '20px'; dd.style.left = 'auto'; }
-  dd.style.display = 'flex';
-  setTimeout(() => search.focus(), 50);
+function openDD(side, anchor){
+  S.ddFor=side;
+  const dd=document.getElementById('ddWrap');
+  const app=document.getElementById('app');
+  const ar=anchor.getBoundingClientRect();
+  const pr=app.getBoundingClientRect();
+  dd.style.top=(ar.bottom-pr.top+2)+'px';
+  if(side==='src'){dd.style.left='10px';dd.style.right='auto';}
+  else{dd.style.right='10px';dd.style.left='auto';}
+  document.getElementById('ddQ').value='';
+  fillDD('');
+  dd.style.display='flex';
+  setTimeout(()=>document.getElementById('ddQ').focus(),40);
 }
 
-function renderDropdownList(q) {
-  const list = document.getElementById('ddList');
-  list.innerHTML = '';
-  const side = state.dropdownFor;
-  const current = side === 'src' ? state.srcLang : state.tgtLang;
-  const filtered = q ? LANGS.filter(l => l.includes(q)) : LANGS;
-
-  if (side === 'src' && !q) {
-    const a = document.createElement('div');
-    a.className = 'dropdown-item auto-item' + (current === '自动检测' ? ' selected' : '');
-    a.textContent = '✨ 自动检测';
-    if (current === '自动检测') {
-      const ck = document.createElement('i');
-      ck.className = 'ti ti-check';
-      ck.style.fontSize = '14px';
-      a.appendChild(ck);
-    }
-    a.onclick = () => { state.srcLang = '自动检测'; closeDropdown(); renderTabs(); if (state.srcText) doTranslate(); };
+function fillDD(q){
+  const list=document.getElementById('ddList');
+  list.innerHTML='';
+  const cur=S.ddFor==='src'?S.src:S.tgt;
+  const items=q?LANGS.filter(l=>l.includes(q)):LANGS;
+  if(S.ddFor==='src'&&!q){
+    const a=document.createElement('div');
+    a.className='dd-item auto-sep'+(cur==='自动检测'?' sel':'');
+    const span=document.createElement('span');
+    span.textContent='✨ 自动检测';
+    a.appendChild(span);
+    if(cur==='自动检测'){const ck=document.createElement('i');ck.className='ti ti-check';ck.style.cssText='font-size:13px;color:#4285f4';a.appendChild(ck);}
+    a.onclick=()=>{S.src='自动检测';closeDD();buildTabs();if(document.getElementById('srcTA').value.trim())go();};
     list.appendChild(a);
   }
-
-  filtered.forEach(l => {
-    const d = document.createElement('div');
-    d.className = 'dropdown-item' + (current === l ? ' selected' : '');
-    d.textContent = l;
-    if (current === l) {
-      const ck = document.createElement('i');
-      ck.className = 'ti ti-check';
-      ck.style.fontSize = '14px';
-      d.appendChild(ck);
-    }
-    d.onclick = () => {
-      if (side === 'src') state.srcLang = l; else state.tgtLang = l;
-      closeDropdown(); renderTabs(); if (state.srcText) doTranslate();
+  items.forEach(l=>{
+    const d=document.createElement('div');
+    d.className='dd-item'+(cur===l?' sel':'');
+    const span=document.createElement('span');
+    span.textContent=l;
+    d.appendChild(span);
+    if(cur===l){const ck=document.createElement('i');ck.className='ti ti-check';ck.style.cssText='font-size:13px;color:#4285f4';d.appendChild(ck);}
+    d.onclick=()=>{
+      if(S.ddFor==='src')S.src=l; else S.tgt=l;
+      closeDD();buildTabs();if(document.getElementById('srcTA').value.trim())go();
     };
     list.appendChild(d);
   });
 }
 
-function closeDropdown() {
-  document.getElementById('dropdown').style.display = 'none';
-  state.dropdownFor = null;
+function closeDD(){document.getElementById('ddWrap').style.display='none';S.ddFor=null;}
+
+document.getElementById('ddQ').addEventListener('input',e=>fillDD(e.target.value));
+
+document.addEventListener('click',function(e){
+  const dd=document.getElementById('ddWrap');
+  if(dd.style.display==='flex'&&!dd.contains(e.target))closeDD();
+});
+
+document.getElementById('swapBtn').addEventListener('click',()=>{
+  if(S.src==='自动检测'){toast('"自动检测"下无法互换，请先选择源语言');return;}
+  const t=S.src;S.src=S.tgt;S.tgt=t;
+  if(S.out){
+    document.getElementById('srcTA').value=S.out;
+    S.out='';setOut('');go();
+  }
+  buildTabs();
+});
+
+const ta=document.getElementById('srcTA');
+ta.addEventListener('input',()=>{
+  const v=ta.value;
+  document.getElementById('charCt').textContent=v.length+' / 5000';
+  document.getElementById('clrBtn').style.display=v?'flex':'none';
+  if(debT)clearTimeout(debT);
+  if(!v.trim()){setOut('');document.getElementById('dind').style.display='none';return;}
+  document.getElementById('dind').style.display='inline';
+  debT=setTimeout(()=>{document.getElementById('dind').style.display='none';go();},800);
+});
+
+document.getElementById('clrBtn').addEventListener('click',()=>{
+  ta.value='';S.out='';
+  document.getElementById('charCt').textContent='0 / 5000';
+  document.getElementById('clrBtn').style.display='none';
+  setOut('');
+});
+
+function setOut(txt){
+  const el=document.getElementById('outEl');
+  const cb=document.getElementById('copyBtn');
+  if(!txt){el.className='out-text ph';el.textContent='翻译';cb.style.display='none';}
+  else{el.className='out-text';el.textContent=txt;cb.style.display='flex';}
+  S.out=txt;
 }
 
-document.getElementById('ddSearch').addEventListener('input', e => renderDropdownList(e.target.value));
-document.addEventListener('click', e => {
-  const dd = document.getElementById('dropdown');
-  if (dd.style.display !== 'none' && !dd.contains(e.target)) closeDropdown();
-});
-
-document.getElementById('swapBtn').addEventListener('click', () => {
-  if (state.srcLang === '自动检测') { showToast('"自动检测"模式下无法互换，请先选择源语言'); return; }
-  const tmp = state.srcLang; state.srcLang = state.tgtLang; state.tgtLang = tmp;
-  if (state.outText) {
-    document.getElementById('srcText').value = state.outText;
-    state.srcText = state.outText;
-    state.outText = '';
-    updateOut('');
-    doTranslate();
-  }
-  renderTabs();
-});
-
-const srcTA = document.getElementById('srcText');
-srcTA.addEventListener('input', () => {
-  const v = srcTA.value;
-  state.srcText = v;
-  document.getElementById('charCount').textContent = v.length + ' / 5000';
-  document.getElementById('clearBtn').style.display = v ? 'flex' : 'none';
-  if (debTimer) clearTimeout(debTimer);
-  if (!v.trim()) {
-    updateOut('');
-    document.getElementById('debounceInd').style.display = 'none';
-    return;
-  }
-  document.getElementById('debounceInd').style.display = 'inline';
-  debTimer = setTimeout(() => {
-    document.getElementById('debounceInd').style.display = 'none';
-    doTranslate();
-  }, 800);
-});
-
-document.getElementById('clearBtn').addEventListener('click', () => {
-  srcTA.value = '';
-  state.srcText = '';
-  state.outText = '';
-  document.getElementById('charCount').textContent = '0 / 5000';
-  document.getElementById('clearBtn').style.display = 'none';
-  updateOut('');
-});
-
-function updateOut(text) {
-  const el = document.getElementById('outText');
-  const copyBtn = document.getElementById('copyBtn');
-  if (!text) {
-    el.className = 'panel-out-text empty';
-    el.textContent = '翻译';
-    copyBtn.style.display = 'none';
-  } else {
-    el.className = 'panel-out-text';
-    el.textContent = text;
-    copyBtn.style.display = 'flex';
-  }
-}
-
-async function doTranslate() {
-  if (!state.srcText.trim()) return;
-  if (!state.config.apiKey) { showToast('请先点击"配置 API"填写 API Key'); return; }
-
-  state.isLoading = true;
-  document.getElementById('loadingDots').style.display = 'flex';
-  document.getElementById('outText').style.display = 'none';
-  state.outText = '';
-
-  const prompt = `你是专业翻译引擎。将以下文本从【${state.srcLang}】翻译成【${state.tgtLang}】。仅输出翻译结果，不含任何解释或额外内容。保持原文语气和格式。\n\n${state.srcText}`;
-
-  try {
-    const base = state.config.baseUrl.replace(/\/+$/, '');
-    const res = await fetch(base + '/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.config.apiKey },
-      body: JSON.stringify({ model: state.config.model, messages: [{ role: 'user', content: prompt }], stream: true, temperature: 0.3 })
+async function go(){
+  const src=ta.value.trim();
+  if(!src)return;
+  if(!S.cfg.key){toast('请先点击"配置 API"填写 API Key');return;}
+  document.getElementById('ldots').style.display='flex';
+  document.getElementById('outEl').style.display='none';
+  S.out='';
+  const prompt=`你是专业翻译引擎。将以下文本从【${S.src}】翻译成【${S.tgt}】。仅输出翻译结果，不含任何解释。保持原文语气和格式。\n\n${src}`;
+  try{
+    const base=S.cfg.url.replace(/\/+$/,'');
+    const res=await fetch(base+'/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.cfg.key},
+      body:JSON.stringify({model:S.cfg.mdl,messages:[{role:'user',content:prompt}],stream:true,temperature:0.3})
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-
-    const reader = res.body.getReader();
-    const dec = new TextDecoder();
-    let acc = '';
-
-    document.getElementById('loadingDots').style.display = 'none';
-    document.getElementById('outText').style.display = 'block';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = dec.decode(value, { stream: true });
-      for (const line of chunk.split('\n')) {
-        if (!line.startsWith('data: ') || line.includes('[DONE]')) continue;
-        try {
-          const d = JSON.parse(line.slice(6));
-          acc += d.choices[0]?.delta?.content || '';
-        } catch (e) {}
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const reader=res.body.getReader();
+    const dec=new TextDecoder();
+    let acc='';
+    document.getElementById('ldots').style.display='none';
+    document.getElementById('outEl').style.display='block';
+    while(true){
+      const{done,value}=await reader.read();
+      if(done)break;
+      const chunk=dec.decode(value,{stream:true});
+      for(const line of chunk.split('\n')){
+        if(!line.startsWith('data: ')||line.includes('[DONE]'))continue;
+        try{const d=JSON.parse(line.slice(6));acc+=d.choices[0]?.delta?.content||'';}catch(_){}
       }
-      state.outText = acc;
-      updateOut(acc);
+      setOut(acc);
     }
-  } catch (e) {
-    document.getElementById('loadingDots').style.display = 'none';
-    document.getElementById('outText').style.display = 'block';
-    updateOut('翻译失败：' + e.message);
-  } finally {
-    state.isLoading = false;
-    document.getElementById('loadingDots').style.display = 'none';
-    document.getElementById('outText').style.display = 'block';
+  }catch(e){
+    document.getElementById('ldots').style.display='none';
+    document.getElementById('outEl').style.display='block';
+    setOut('翻译失败：'+e.message);
   }
 }
 
-document.getElementById('copyBtn').addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(state.outText);
-    const btn = document.getElementById('copyBtn');
-    btn.classList.add('copied');
-    document.getElementById('copyIcon').className = 'ti ti-check';
-    document.getElementById('copyLabel').textContent = '已复制';
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      document.getElementById('copyIcon').className = 'ti ti-copy';
-      document.getElementById('copyLabel').textContent = '复制翻译';
-    }, 2000);
-  } catch (e) { showToast('复制失败'); }
+document.getElementById('copyBtn').addEventListener('click',async()=>{
+  try{
+    await navigator.clipboard.writeText(S.out);
+    const b=document.getElementById('copyBtn');
+    b.classList.add('ok');
+    document.getElementById('copyIco').className='ti ti-check';
+    document.getElementById('copyLbl').textContent='已复制';
+    setTimeout(()=>{b.classList.remove('ok');document.getElementById('copyIco').className='ti ti-copy';document.getElementById('copyLbl').textContent='复制翻译';},2000);
+  }catch(e){toast('复制失败');}
 });
 
-document.getElementById('openSettings').addEventListener('click', () => {
-  document.getElementById('cfgUrl').value = state.config.baseUrl;
-  document.getElementById('cfgKey').value = state.config.apiKey;
-  document.getElementById('cfgModel').value = state.config.model;
-  document.getElementById('modalBg').style.display = 'flex';
+document.getElementById('openCfg').addEventListener('click',()=>{
+  document.getElementById('cfgUrl').value=S.cfg.url;
+  document.getElementById('cfgKey').value=S.cfg.key;
+  document.getElementById('cfgMdl').value=S.cfg.mdl;
+  document.getElementById('modalWrap').style.display='flex';
 });
-document.getElementById('closeModal').addEventListener('click', () => document.getElementById('modalBg').style.display = 'none');
-document.getElementById('cancelModal').addEventListener('click', () => document.getElementById('modalBg').style.display = 'none');
-document.getElementById('saveModal').addEventListener('click', () => {
-  state.config.baseUrl = document.getElementById('cfgUrl').value.trim() || 'https://api.openai.com/v1';
-  state.config.apiKey = document.getElementById('cfgKey').value.trim();
-  state.config.model = document.getElementById('cfgModel').value.trim() || 'gpt-4o-mini';
-  localStorage.setItem('gt_url', state.config.baseUrl);
-  localStorage.setItem('gt_key', state.config.apiKey);
-  localStorage.setItem('gt_model', state.config.model);
-  document.getElementById('modalBg').style.display = 'none';
-  showToast('设置已保存');
-  if (state.srcText) doTranslate();
-});
-document.getElementById('modalBg').addEventListener('click', e => {
-  if (e.target === document.getElementById('modalBg')) document.getElementById('modalBg').style.display = 'none';
+const closeMod=()=>document.getElementById('modalWrap').style.display='none';
+document.getElementById('mCls').addEventListener('click',closeMod);
+document.getElementById('mCancel').addEventListener('click',closeMod);
+document.getElementById('modalWrap').addEventListener('click',e=>{if(e.target===document.getElementById('modalWrap'))closeMod();});
+document.getElementById('mSave').addEventListener('click',()=>{
+  S.cfg.url=document.getElementById('cfgUrl').value.trim()||'https://api.openai.com/v1';
+  S.cfg.key=document.getElementById('cfgKey').value.trim();
+  S.cfg.mdl=document.getElementById('cfgMdl').value.trim()||'gpt-4o-mini';
+  localStorage.setItem('gt_url',S.cfg.url);
+  localStorage.setItem('gt_key',S.cfg.key);
+  localStorage.setItem('gt_mdl',S.cfg.mdl);
+  closeMod();toast('设置已保存');
+  if(ta.value.trim())go();
 });
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2500);
 }
 
-renderTabs();
+buildTabs();
 </script>
-</body>
-</html>
