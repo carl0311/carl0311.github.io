@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百部必看纪录片探索指南</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #FAF6F0; /* 极致典雅的暖杏色背景 */
+            color: #3C3630;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+        }
+        .filter-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px -10px rgba(139, 92, 26, 0.15);
+        }
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F3ECE3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D5C2AD;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #BFA58A;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- 顶部导航栏 -->
+    <nav class="bg-[#1E1B18] text-white py-4 px-6 sticky top-0 z-40 shadow-lg">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-amber-500 text-2xl"><i class="fa-solid fa-clapperboard"></i></span>
+                <span class="font-bold text-lg letter tracking-wider">DocuTop 100</span>
+            </div>
+            <div class="text-sm text-stone-400">
+                <span id="globalStats">加载中...</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主容器 -->
+    <div class="max-w-7xl mx-auto p-4 md:p-8 flex-grow w-full">
+        <header class="text-center my-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#2C2520] mb-3 tracking-tight">
+                百部必看纪录片探索指南
+            </h1>
+            <p class="text-base md:text-lg text-[#7C6E62] max-w-2xl mx-auto font-light">
+                “摄影机就像是一面镜子，让我们洞察自然、审视历史、理解人类自身。”
+            </p>
+        </header>
+
+        <!-- 数据大盘与介绍 -->
+        <main class="space-y-8">
+            <section id="overview" class="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-[#EFEAE2]">
+                <div class="lg:col-span-2 flex flex-col justify-between space-y-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-[#2C2520] flex items-center gap-2 mb-4">
+                            <span class="text-amber-600"><i class="fa-solid fa-compass"></i></span> 片单概览
+                        </h2>
+                        <div class="space-y-3 text-stone-600 text-sm md:text-base leading-relaxed">
+                            <p>本指南精心收录了100部在影史、人文、科学领域具有极高启发价值的经典纪录片。它们不仅仅是音像资料，更是拓宽认知边界、解构纷繁世界的工具。</p>
+                            <p>我们为您划分了五个大类：<strong>自然与科学</strong>、<strong>社会与人文</strong>、<strong>历史与传记</strong>、<strong>艺术与文化</strong>以及<strong>罪案与调查</strong>。点击任何卡片可查阅详情，并可以使用右上角的小书签进行收藏。</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 pt-4 border-t border-stone-100 text-center">
+                        <div class="bg-[#FAF6F0] p-3 rounded-xl">
+                            <p class="text-xs text-stone-500 mb-1">精选总数</p>
+                            <p class="text-2xl font-bold text-[#8B5E3C]">100部</p>
+                        </div>
+                        <div class="bg-[#FAF6F0] p-3 rounded-xl">
+                            <p class="text-xs text-stone-500 mb-1">覆盖领域</p>
+                            <p class="text-2xl font-bold text-[#8B5E3C]">5大门类</p>
+                        </div>
+                        <div class="bg-[#FAF6F0] p-3 rounded-xl">
+                            <p class="text-xs text-stone-500 mb-1">我的收藏</p>
+                            <p id="favCount" class="text-2xl font-bold text-amber-600">0部</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center justify-center p-4 border-t lg:border-t-0 lg:border-l border-stone-100">
+                    <h3 class="text-sm font-bold text-stone-500 mb-4 text-center">影片门类比例分布</h3>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 探索面板与控制器 -->
+            <section id="explorer" class="space-y-6">
+                <div class="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-[#EFEAE2] sticky top-16 z-30 space-y-4">
+                    <!-- 分类筛选器 -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex flex-wrap gap-2" id="filters">
+                            <!-- 动态加载分类按钮 -->
+                        </div>
+                    </div>
+
+                    <!-- 搜索与排序 -->
+                    <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 pt-2 border-t border-stone-100">
+                        <div class="relative flex-grow max-w-md">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-stone-400">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="searchInput" placeholder="搜索影片中文/英文名称..." class="w-full pl-10 pr-10 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm transition outline-none">
+                            <button id="clearSearch" class="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-600 hidden">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-stone-500 whitespace-nowrap"><i class="fa-solid fa-sort"></i> 排序方式</span>
+                            <select id="sortSelect" class="bg-stone-50 border border-stone-200 rounded-xl py-2 px-3 text-sm focus:ring-2 focus:ring-amber-500 outline-none text-[#2C2520]">
+                                <option value="rankAsc">按排名：从 #1 到 #100</option>
+                                <option value="rankDesc">按排名：从 #100 到 #1</option>
+                                <option value="yearDesc">上映时间：由新到旧</option>
+                                <option value="yearAsc">上映时间：由旧到新</option>
+                            </select>
+                            <span id="resultsCounter" class="text-xs font-medium text-stone-500 bg-stone-100 px-3 py-2 rounded-lg">
+                                已筛选 100 部
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 纪录片卡片网格 -->
+                <div id="documentaryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- 卡片动态生成 -->
+                </div>
+                
+                <!-- 空结果提示 -->
+                <div id="noResults" class="hidden text-center py-16 bg-white rounded-2xl border border-[#EFEAE2]">
+                    <div class="text-stone-300 text-5xl mb-4"><i class="fa-solid fa-box-open"></i></div>
+                    <p class="text-stone-600 text-lg font-medium">没有找到符合条件的纪录片</p>
+                    <p class="text-stone-400 text-sm mt-1">请尝试更换筛选条件或清除搜索框</p>
+                    <button id="resetFilters" class="mt-4 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-xl transition">
+                        重置搜索与筛选
+                    </button>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="text-center mt-16 py-8 border-t border-stone-200 text-stone-400 text-sm">
+            <p>&copy; 2026 纪录片探索指南 | 探索世界、认知自我的影像工具</p>
+        </footer>
+    </div>
+
+    <!-- 详情弹窗 (Modal) -->
+    <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col">
+            <!-- 头部 -->
+            <div class="bg-[#1E1B18] text-white p-6 relative">
+                <button id="closeModal" class="absolute top-4 right-4 text-stone-400 hover:text-white transition text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center space-x-2 mb-2">
+                    <span id="modalRank" class="bg-amber-500 text-stone-900 font-extrabold text-xs px-2.5 py-0.5 rounded-full">#1</span>
+                    <span id="modalCategory" class="text-amber-400 text-xs font-bold uppercase tracking-wider">自然与科学</span>
+                </div>
+                <h3 id="modalTitleCn" class="text-2xl font-bold mb-1">地球脉动</h3>
+                <p id="modalTitleEn" class="text-sm text-stone-300 italic">Planet Earth</p>
+            </div>
+            <!-- 内容 -->
+            <div class="p-6 space-y-4 overflow-y-auto flex-grow">
+                <div class="flex items-center space-x-6 text-sm text-stone-500 border-b border-stone-100 pb-4">
+                    <div><i class="fa-regular fa-calendar-days mr-1"></i> 上映年份: <span id="modalYear" class="font-bold text-stone-800">2016</span></div>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">内容简介</h4>
+                    <p id="modalDescription" class="text-stone-700 leading-relaxed text-base">影片简介加载中...</p>
+                </div>
+                <div class="pt-4 border-t border-stone-100 flex justify-between items-center">
+                    <button id="modalFavBtn" class="flex items-center gap-2 px-4 py-2 border border-amber-600 rounded-xl text-amber-700 hover:bg-amber-50 transition text-sm font-medium">
+                        <i class="fa-regular fa-bookmark"></i> <span>加入收藏</span>
+                    </button>
+                    <span class="text-xs text-stone-400"><i class="fa-solid fa-circle-info mr-1"></i> 数据由探索指南权威评选</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-[#1E1B18] hover:bg-amber-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-40">
+        <i class="fa-solid fa-chevron-up"></i>
+    </button>
+
+    <script>
+        // 彻底清洗并修正的 100 部纪录片数据（无重叠，正确排序，完全符合语法）
+        const documentaries = [
+            { rank: 1, title_cn: "地球脉动 第二季", title_en: "Planet Earth II", year: 2016, category: "自然与科学", description: "以前所未有的视角，深入探索地球上最壮丽的栖息地与生物，展现自然的极致之美与残酷。" },
+            { rank: 2, title_cn: "人类星球", title_en: "Human Planet", year: 2011, category: "社会与人文", description: "讲述人类为适应不同环境而创造的非凡生存故事，展现人与自然的惊人关系。" },
+            { rank: 3, title_cn: "宇宙：时空之旅", title_en: "Cosmos: A Spacetime Odyssey", year: 2014, category: "自然与科学", description: "继承卡尔·萨根的经典，以壮丽的特效和清晰的叙事，带领观众遨游宇宙，探索科学的奥秘。" },
+            { rank: 4, title_cn: "蓝色星球 第二季", title_en: "Blue Planet II", year: 2017, category: "自然与科学", description: "探索深邃海洋的未知领域，揭示令人惊叹的海洋生物及其行为，同时警示海洋面临的威胁。" },
+            { rank: 5, title_cn: "河西走廊", title_en: "Hexi Corridor", year: 2015, category: "历史与传记", description: "系统梳理了从汉代到今天的河西走廊历史，展现了其在中国历史和文明进程中的重要地位。" },
+            { rank: 6, title_cn: "人生七年", title_en: "Up Series", year: 2019, category: "社会与人文", description: "一部史诗级的纪录片系列，每七年追踪一群英国人的生活，深刻探讨阶级、命运与人生选择。" },
+            { rank: 7, title_cn: "海豚湾", title_en: "The Cove", year: 2009, category: "社会与人文", description: "一部充满勇气和争议的影片，揭露了日本太地町残忍捕杀海豚的秘密，引发全球关注。" },
+            { rank: 8, title_cn: "浮生一日", title_en: "Life in a Day", year: 2011, category: "社会与人文", description: "汇集全球网友在2010年7月24日这一天拍摄的影像，构成一部描绘人类生活多样性的全球画卷。" },
+            { rank: 9, title_cn: "徒手攀岩", title_en: "Free Solo", year: 2018, category: "历史与传记", description: "记录了攀岩大师亚历克斯·霍诺德无保护攀登酋长岩的壮举，探讨了梦想、恐惧与人类极限。" },
+            { rank: 10, title_cn: "食品公司", title_en: "Food, Inc.", year: 2008, category: "社会与人文", description: "揭示了美国食品工业背后由少数公司控制的真相，探讨了其对环境、健康和动物福利的影响。" },
+            { rank: 11, title_cn: "制造杀人犯", title_en: "Making a Murderer", year: 2015, category: "罪案与调查", description: "追踪了史蒂文·艾弗里的离奇案件，对美国司法系统提出了深刻的质疑，引发了广泛的社会讨论。" },
+            { rank: 12, title_cn: "最后的舞动", title_en: "The Last Dance", year: 2020, category: "历史与传记", description: "聚焦迈克尔·乔丹和芝加哥公牛队在1990年代的辉煌岁月，展现了一代篮球王朝的幕后故事。" },
+            { rank: 13, title_cn: "大国崛起", title_en: "The Rise of Great Powers", year: 2006, category: "历史与传记", description: "探讨了葡萄牙、西班牙、荷兰、英国、法国、德国、日本、俄罗斯和美国等九个世界性大国崛起的历史。" },
+            { rank: 14, title_cn: "黑鱼", title_en: "Blackfish", year: 2013, category: "自然与科学", description: "讲述了圈养虎鲸提里库姆的故事，揭示了海洋公园娱乐产业背后的残酷真相，推动了社会变革。" },
+            { rank: 15, title_cn: "帝企鹅日记", title_en: "March of the Penguins", year: 2005, category: "自然与科学", description: "在南极的严酷环境下，记录了帝企鹅为了繁衍后代而进行的艰苦卓绝的迁徙旅程，充满生命力。" },
+            { rank: 16, title_cn: "监守自盗", title_en: "Inside Job", year: 2010, category: "社会与人文", description: "全面深入地剖析了2008年全球金融危机的成因，揭露了金融体系的腐败与贪婪。" },
+            { rank: 17, title_cn: "寻找小糖人", title_en: "Searching for Sugar Man", year: 2012, category: "艺术与文化", description: "讲述了美国一位被遗忘的民谣歌手罗德里格斯，其音乐却在南非意外走红并成为传奇的奇妙故事。" },
+            { rank: 18, title_cn: "我们的星球", title_en: "Our Planet", year: 2019, category: "自然与科学", description: "以令人惊叹的摄影技术，展现了地球上生物多样性的奇迹，并强调了气候变化对它们的威胁。" },
+            { rank: 19, title_cn: "医疗内幕", title_en: "Sicko", year: 2007, category: "社会与人文", description: "迈克尔·摩尔对美国医疗保健系统的尖锐批评，通过与其他国家的对比，揭示了其深层问题。" },
+            { rank: 20, title_cn: "灰熊人", title_en: "Grizzly Man", year: 2005, category: "历史与传记", description: "探讨了灰熊爱好者蒂莫西·崔德威尔的生与死，沃纳·赫尔佐格通过他的影像资料，思考人与自然的边界。" },
+            { rank: 21, title_cn: "艾米", title_en: "Amy", year: 2015, category: "艺术与文化", description: "通过大量私人影像资料，真实记录了天才爵士女歌手艾米·怀恩豪斯从成名到陨落的短暂而璀璨的一生。" },
+            { rank: 22, title_cn: "阿波罗11号", title_en: "Apollo 11", year: 2019, category: "历史与传记", description: "利用最新修复的70毫米胶片，以前所未有的沉浸感，再现了人类首次登月的完整过程。" },
+            { rank: 23, title_cn: "看不见的战争", title_en: "The Invisible War", year: 2012, category: "社会与人文", description: "一部揭露美军内部性侵问题的震撼之作，引发了美国国防政策的重大改革。" },
+            { rank: 24, title_cn: "细细的蓝线", title_en: "The Thin Blue Line", year: 1988, category: "罪案与调查", description: "通过情景重现和访谈，调查了一起错判的谋杀案，最终帮助主角洗清罪名，是纪实电影的里程碑。" },
+            { rank: 25, title_cn: "舌尖上的中国 第一季", title_en: "A Bite of China I", year: 2012, category: "社会与人文", description: "通过中华美食的多个侧面，来感受食物给中国人生活带来的仪式、伦理、趣味等方面的文化特质。" },
+            { rank: 26, title_cn: "篮球梦", title_en: "Hoop Dreams", year: 1994, category: "历史与传记", description: "历时五年拍摄，追踪两个来自芝加哥贫民区的黑人少年追求篮球梦想的成长故事，反映了美国的社会现实。" },
+            { rank: 27, title_cn: "我在故宫修文物", title_en: "Masters in The Forbidden City", year: 2016, category: "艺术与文化", description: "首次系统地梳理了中国文物修复的历史源流，展现了世界顶级的文物“复活”技术，以及文物修复师的“工匠精神”。" },
+            { rank: 28, title_cn: "冰冻星球", title_en: "Frozen Planet", year: 2011, category: "自然与科学", description: "对地球两极——北极和南极的壮丽景色、季节变化和野生动物进行了权威性的探索。" },
+            { rank: 29, title_cn: "天地玄黄", title_en: "Baraka", year: 1992, category: "艺术与文化", description: "一部非叙事性的影像诗，通过在全球24个国家拍摄的壮观画面，展现了地球与人类文明的宏大图景。" },
+            { rank: 30, title_cn: "二十二", title_en: "Twenty-Two", year: 2017, category: "历史与传记", description: "记录了中国幸存的“慰安妇”的晚年生活，以平静而克制的镜头，讲述了一段沉重的历史。" },
+            { rank: 31, title_cn: "辛普森：美国制造", title_en: "O.J.: Made in America", year: 2016, category: "罪案与调查", description: "一部近8小时的史诗巨作，通过O.J.辛普森案，深刻剖析了美国社会中的种族、名望与司法问题。" },
+            { rank: 32, title_cn: "与我为邻", title_en: "Won't You Be My Neighbor?", year: 2018, category: "历史与传记", description: "关于美国传奇儿童电视节目主持人弗雷德·罗杰斯的温馨纪录片，探讨了他的哲学思想和对几代人的深远影响。" },
+            { rank: 33, title_cn: "杀戮演绎", title_en: "The Act of Killing", year: 2012, category: "历史与传记", description: "一部极具颠覆性的纪录片，让印尼大屠杀的刽子手们以电影的方式重演他们当年的暴行，直面历史的罪恶。" },
+            { rank: 34, title_cn: "地球公民", title_en: "Earthlings", year: 2005, category: "社会与人文", description: "系统全面地揭露了人类如何将动物当作商品、宠物、食物、服装、实验品和娱乐工具，内容极为震撼。" },
+            { rank: 35, title_cn: "塞纳", title_en: "Senna", year: 2010, category: "历史与传记", description: "记录了巴西传奇赛车手埃尔顿·塞纳的职业生涯和英年早逝，充满了速度、激情与悲情。" },
+            { rank: 36, title_cn: "夜与雾", title_en: "Night and Fog", year: 1956, category: "历史与传记", description: "法国导演阿伦·雷乃拍摄的关于纳粹集中营的短片，是反思大屠杀历史的开创性作品。" },
+            { rank: 37, title_cn: "我的章鱼老师", title_en: "My Octopus Teacher", year: 2020, category: "自然与科学", description: "讲述了一位电影制作人与一只生活在南非海藻林中的章鱼之间建立的非凡友谊，温暖而治愈。" },
+            { rank: 38, title_cn: "时代精神", title_en: "Zeitgeist: The Movie", year: 2007, category: "社会与人文", description: "一部引发巨大争议的独立纪录片，对宗教、9/11事件和联邦储备系统等提出了颠覆性的阴谋论观点。" },
+            { rank: 39, title_cn: "不愿面对的真相", title_en: "An Inconvenient Truth", year: 2006, category: "自然与科学", description: "美国前副总统戈尔关于全球变暖问题的演讲纪录片，极大地提高了公众对气候变化的关注度。" },
+            { rank: 40, title_cn: "走钢丝的人", title_en: "Man on Wire", year: 2008, category: "历史与传记", description: "记录了1974年法国杂技艺术家菲利普·珀蒂在纽约世贸中心双子塔之间搭建钢丝并成功漫步的壮举，扣人心弦。" },
+            { rank: 41, title_cn: "脸庞，村庄", title_en: "Faces Places", year: 2017, category: "艺术与文化", description: "新浪潮祖母阿涅斯·瓦尔达与街头艺术家JR合作，开着车在法国的村庄里为普通人拍摄巨幅肖像，充满人文关怀。" },
+            { rank: 42, title_cn: "第四公民", title_en: "Citizenfour", year: 2014, category: "社会与人文", description: "真实记录了导演与记者在香港酒店房间里采访爱德华·斯诺登，揭露“棱镜门”事件的全过程，紧张如谍战片。" },
+            { rank: 43, title_cn: "敲开天堂的门：鲍勃·迪伦的时光", title_en: "No Direction Home: Bob Dylan", year: 2005, category: "艺术与文化", description: "马丁·斯科塞斯执导，深入探讨了鲍勃·迪伦在1961至1966年间的音乐生涯转变及其对美国文化的影响。" },
+            { rank: 44, title_cn: "曼岛TT：靠近边缘", title_en: "TT3D: Closer to the Edge", year: 2011, category: "历史与传记", description: "以3D形式记录了世界上最危险、最壮观的摩托车赛事——曼岛TT大赛，展现了车手们的勇气与疯狂。" },
+            { rank: 45, title_cn: "内心引力", title_en: "Inner Gravity", year: 2016, category: "社会与人文", description: "记录了7位中国独立品牌创始人的创业故事，探讨了在商业世界中坚持理想与初心的挣扎与喜悦。" },
+            { rank: 46, title_cn: "守门人", title_en: "The Gatekeepers", year: 2012, category: "历史与传记", description: "前所未有地采访了六位以色列国家安全总局（辛贝特）的前任负责人，深入探讨了巴以冲突的核心问题。" },
+            { rank: 47, title_cn: "奇异的恩典：艾瑞莎·富兰克林", title_en: "Amazing Grace", year: 2018, category: "艺术与文化", description: "尘封近半个世纪的影像，记录了“灵魂歌后”艾瑞莎·富兰克林在1972年录制其传奇福音专辑《Amazing Grace》的现场。" },
+            { rank: 48, title_cn: "轮回", title_en: "Samsara", year: 2011, category: "艺术与文化", description: "继承《天地玄黄》的风格，花费5年时间在全球25个国家拍摄，通过令人震撼的70mm胶片影像，探索生、死与重生的主题。" },
+            { rank: 49, title_cn: "网络审查员", title_en: "The Cleaners", year: 2018, category: "社会与人文", description: "揭示了在菲律宾，一群“数字清洁工”每天为Facebook、YouTube等社交媒体删除不当内容的隐秘世界，探讨了网络审查的伦理困境。" },
+            { rank: 50, title_cn: "苏联故事", title_en: "The Soviet Story", year: 2008, category: "历史与传记", description: "一部具有争议性的纪录片，将苏联共产主义与纳粹主义进行对比，揭示了苏联政权下的大饥荒、大屠杀和古拉格等历史罪行。" },
+            { rank: 51, title_cn: "美国工厂", title_en: "American Factory", year: 2019, category: "社会与人文", description: "讲述了中国福耀集团在美国俄亥俄州开设工厂的故事，深刻展现了中美两国在文化、劳工和经济上的冲突与融合。" },
+            { rank: 52, title_cn: "孪生陌生人", title_en: "Three Identical Strangers", year: 2018, category: "社会与人文", description: "讲述了三位在出生时被分开，并在19年后意外重逢的三胞胎兄弟的离奇故事，其背后隐藏着一个令人震惊的科学实验。" },
+            { rank: 53, title_cn: "凛冬烈火：乌克兰为自由而战", title_en: "Winter on Fire: Ukraine's Fight for Freedom", year: 2015, category: "历史与传记", description: "真实记录了2013至2014年乌克兰亲欧盟示威运动的全过程，展现了民众为争取自由而付出的巨大代价。" },
+            { rank: 54, title_cn: "九月刊", title_en: "The September Issue", year: 2009, category: "艺术与文化", description: "真实记录了传奇时尚编辑安娜·温图尔和她的团队制作《Vogue》杂志2007年九月单期（史上最厚的一期）的幕后故事。" },
+            { rank: 55, title_cn: "滑板少年", title_en: "Minding the Gap", year: 2018, category: "社会与人文", description: "导演刘冰记录了他和两位朋友在“铁锈地带”小镇的成长，通过滑板探讨了家庭暴力、阶级和种族等沉重话题。" },
+            { rank: 56, title_cn: "北方的纳努克", title_en: "Nanook of the North", year: 1922, category: "社会与人文", description: "被誉为世界上第一部真正意义上的纪录片，记录了因纽特人纳努克一家在北极地区的艰苦生活。" },
+            { rank: 57, title_cn: "宪法第十三修正案", title_en: "13th", year: 2016, category: "社会与人文", description: "导演阿娃·杜威内深刻剖析了美国宪法第十三修正案如何导致了大规模的黑人监禁和种族不平等问题。" },
+            { rank: 58, title_cn: "我不是你的黑鬼", title_en: "I Am Not Your Negro", year: 2016, category: "历史与传记", description: "基于美国黑人作家詹姆斯·鲍德温未完成的手稿，探讨了美国历史上的种族主义问题，以及三位民权领袖的遇刺。" },
+            { rank: 59, title_cn: "伊卡洛斯", title_en: "Icarus", year: 2017, category: "罪案与调查", description: "导演布莱恩·福格尔原想调查体育界的兴奋剂问题，却意外揭露了俄罗斯国家层面的庞大禁药丑闻。" },
+            { rank: 60, title_cn: "狗镇与滑板少年", title_en: "Dogtown and Z-Boys", year: 2001, category: "艺术与文化", description: "讲述了1970年代加州一群被称为“西风少年”的年轻人如何彻底改变了滑板文化，并将其推向世界。" },
+            { rank: 61, title_cn: "战争迷雾", title_en: "The Fog of War", year: 2003, category: "历史与传记", description: "通过对前美国国防部长罗伯特·麦克纳马拉的深度访谈，反思了20世纪的战争、政治和人性。" },
+            { rank: 62, title_cn: "史蒂夫·乔布斯：机器人生", title_en: "Steve Jobs: The Man in the Machine", year: 2015, category: "历史与传记", description: "一部深入探讨苹果公司创始人史蒂夫·乔布斯复杂个性的纪录片，展现了他辉煌成就背后的矛盾与争议。" },
+            { rank: 63, title_cn: "皮娜", title_en: "Pina", year: 2011, category: "艺术与文化", description: "德国电影大师维姆·文德斯为纪念已故现代舞先驱皮娜·鲍什而拍摄的3D纪录片，将舞蹈的魅力展现得淋漓尽致。" },
+            { rank: 64, title_cn: "大卫·爱登堡：地球上的一段生命旅程", title_en: "David Attenborough: A Life on Our Planet", year: 2020, category: "自然与科学", description: "94岁的“世界自然纪录片之父”大卫·爱登堡回顾他一生的工作，并为地球的未来发出了最沉痛、也最充满希望的警告。" },
+            { rank: 65, title_cn: "幼儿园", title_en: "Kindergarten", year: 2009, category: "社会与人文", description: "记录了武汉一所幼儿园的真实生活，以孩子的视角观察成人的世界，充满了童趣和对社会现实的微妙反思。" },
+            { rank: 66, title_cn: "离开梦幻岛", title_en: "Leaving Neverland", year: 2019, category: "罪案与调查", description: "一部极具争议的纪录片，采访了两位声称在童年时期受到迈克尔·杰克逊性侵的男性，引发了全球范围的激烈辩论。" },
+            { rank: 67, title_cn: "维龙加", title_en: "Virunga", year: 2014, category: "自然与科学", description: "记录了一群勇敢的守护者如何冒着生命危险，在刚果的维龙加国家公园保护世界上最后幸存的山地大猩猩。" },
+            { rank: 68, title_cn: "尖端医疗的真相", title_en: "The Bleeding Edge", year: 2018, category: "社会与人文", description: "揭露了价值4000亿美元的美国医疗器械产业的黑幕，许多未经充分测试的产品给患者带来了毁灭性的伤害。" },
+            { rank: 69, title_cn: "当堤坝决口时", title_en: "When the Levees Broke: A Requiem in Four Acts", year: 2006, category: "历史与传记", description: "斯派克·李执导，全面记录了卡特里娜飓风对新奥尔良造成的毁灭性打击，以及政府应对不力的社会悲剧。" },
+            { rank: 70, title_cn: "持摄影机的人", title_en: "Man with a Movie Camera", year: 1929, category: "艺术与文化", description: "苏联导演吉加·维尔托夫的实验性默片，被誉为“电影眼睛”理论的巅峰之作，是纪录片史上的一座丰碑。" },
+            { rank: 71, title_cn: "东京画", title_en: "Tokyo-Ga", year: 1985, category: "艺术与文化", description: "维姆·文德斯为致敬日本电影大师小津安二郎而拍摄的影像日记，在现代东京的街头寻找小津电影中失落的传统日本。" },
+            { rank: 72, title_cn: "我们讲述的故事", title_en: "Stories We Tell", year: 2012, category: "历史与传记", description: "导演萨拉·波莉通过采访家人和朋友，试图拼凑出自己母亲的真实形象，巧妙地探讨了家庭秘密、记忆与叙事的本质。" },
+            { rank: 73, title_cn: "异见者", title_en: "The Dissident", year: 2020, category: "罪案与调查", description: "深入调查了沙特记者贾迈勒·卡舒吉在伊斯坦布尔领事馆被残忍谋杀的案件，直指幕后黑手。" },
+            { rank: 74, title_cn: "科比的缪斯", title_en: "Kobe Bryant's Muse", year: 2015, category: "历史与传记", description: "科比·布莱恩特亲自制片并解说，深入剖析了他在跟腱断裂后的人生思考、职业生涯的起落和“曼巴精神”的内核。" },
+            { rank: 75, title_cn: "蜂蜜之地", title_en: "Honeyland", year: 2019, category: "社会与人文", description: "记录了北马其顿一位以传统方式养蜂的女人的生活，当新来的邻居打破了“取一半，留一半”的自然法则时，冲突与悲剧随之而来。" },
+            { rank: 76, title_cn: "泰森", title_en: "Tyson", year: 2008, category: "历史与传记", description: "通过对拳王迈克·泰森本人的深度访谈，回顾了他充满争议、极具戏剧性的职业生涯和个人生活。" },
+            { rank: 77, title_cn: "芭蕾首秀", title_en: "First Position", year: 2011, category: "艺术与文化", description: "追踪了六位来自不同背景的年轻芭蕾舞者，记录了他们为参加美国青年芭蕾大奖赛而付出的汗水、泪水与梦想。" },
+            { rank: 78, title_cn: "资本主义：一个爱情故事", title_en: "Capitalism: A Love Story", year: 2009, category: "社会与人文", description: "迈克尔·摩尔再次将矛头对准华尔街和美国企业，探讨了金融危机对普通民众生活的毁灭性影响。" },
+            { rank: 79, title_cn: "书缘：纽约公共图书馆", title_en: "Ex Libris: The New York Public Library", year: 2017, category: "社会与人文", description: "纪录片大师弗雷德里克·怀斯曼将镜头对准纽约公共图书馆，展现了这座知识殿堂在现代社会中扮演的多元而重要的角色。" },
+            { rank: 80, title_cn: "进入深渊", title_en: "Into the Abyss", year: 2011, category: "罪案与调查", description: "沃纳·赫尔佐格通过采访德州的一位死刑犯及其相关人员，对死刑制度和暴力根源进行了深刻的哲学思考。" },
+            { rank: 81, title_cn: "地下", title_en: "Underground", year: 1976, category: "历史与传记", description: "记录了1970年代美国极左翼激进组织“地下气象员”的活动，展现了一个动荡时代的侧影。" },
+            { rank: 82, title_cn: "麦胖报告", title_en: "Super Size Me", year: 2004, category: "社会与人文", description: "导演摩根·史柏路亲身实验，连续30天只吃麦当劳，以记录快餐对身体健康的惊人影响。" },
+            { rank: 83, title_cn: "社交困境", title_en: "The Social Dilemma", year: 2020, category: "社会与人文", description: "采访了多位硅谷科技公司的前高管和工程师，揭示了社交媒体如何利用算法操纵用户心理，并对社会造成了巨大危害。" },
+            { rank: 84, title_cn: "拾荒者与我", title_en: "The Gleaners and I", year: 2000, category: "艺术与文化", description: "阿涅斯·瓦尔达手持数码摄像机，记录下法国各地以不同理由捡拾废弃物的人们，探讨消费社会、艺术创作与生命流逝。" },
+            { rank: 85, title_cn: "我的建筑师", title_en: "My Architect", year: 2003, category: "艺术与文化", description: "导演纳撒尼尔·康是著名建筑师路易斯·康的私生子，他通过一部影片来寻找并理解自己那位神秘而传奇的父亲。" },
+            { rank: 86, title_cn: "铁砧乐团传奇", title_en: "Anvil! The Story of Anvil", year: 2008, category: "艺术与文化", description: "一部充满激情与幽默的纪录片，讲述了曾经影响过许多著名乐队的加拿大重金属乐队Anvil，如何在被遗忘后依然坚持追逐音乐梦想。" },
+            { rank: 87, title_cn: "最后的华尔兹", title_en: "The Last Waltz", year: 1978, category: "艺术与文化", description: "马丁·斯科塞斯执导，被誉为史上最伟大的摇滚演唱会电影，记录了传奇乐队The Band的告别演出。" },
+            { rank: 88, title_cn: "黑暗之心：一个电影人的启示录", title_en: "Hearts of Darkness: A Filmmaker's Apocalypse", year: 1991, category: "艺术与文化", description: "记录了弗朗西斯·福特·科波拉在拍摄《现代启示录》时所经历的种种磨难与疯狂，是关于电影制作的终极纪录片。" },
+            { rank: 89, title_cn: "浩劫", title_en: "Shoah", year: 1985, category: "历史与传记", description: "一部长达9个半小时的史诗级纪录片，导演克洛德·朗兹曼花费11年时间，采访了大屠杀的幸存者、见证者和纳粹分子，没有使用任何历史影像资料。" },
+            { rank: 90, title_cn: "创新简史", title_en: "How We Got to Now with Steven Johnson", year: 2014, category: "自然与科学", description: "探讨了六项看似平凡的发明（如玻璃、冷气、声音）如何引发了连锁反应，并最终塑造了我们今天的现代世界。" },
+            { rank: 91, title_cn: "勒内·马格里特", title_en: "Monsieur René Magritte", year: 1978, category: "艺术与文化", description: "一部关于比利时超现实主义画家勒内·马格里特的纪录片，深入探索了他充满哲思与奇想的艺术世界。" },
+            { rank: 92, title_cn: "人", title_en: "Human", year: 2015, category: "社会与人文", description: "导演扬恩·亚瑟-贝特朗花费3年时间，采访了来自60个国家的2020位普通人，让他们讲述自己的故事，构成一部关于人类本质的宏大影像集。" },
+            { rank: 93, title_cn: "我们生存的家园", title_en: "The House I Live In", year: 2012, category: "社会与人文", description: "对美国长达40年的“禁毒战争”进行了全面而深刻的审视，揭示了其如何演变成一场针对穷人和少数族裔的战争。" },
+            { rank: 94, title_cn: "阿涅斯论瓦尔达", title_en: "Varda by Agnès", year: 2019, category: "艺术与文化", description: "法国新浪潮祖母阿涅斯·瓦尔达的最后一部作品，她亲自回顾了自己超过60年的创作生涯，分享了她对电影、艺术和生活的热爱。" },
+            { rank: 95, title_cn: "驾驭巨浪", title_en: "Riding Giants", year: 2004, category: "历史与传记", description: "追溯了巨浪冲浪运动的历史，从夏威夷的古老传统到现代冲浪手挑战百尺巨浪的极限壮举。" },
+            { rank: 96, title_cn: "寿司之神", title_en: "Jiro Dreams of Sushi", year: 2011, category: "艺术与文化", description: "跟随85岁的寿司大师小野二郎，探索他如何将简单的寿司制作提升到艺术的高度，体现了极致的工匠精神。" },
+            { rank: 97, title_cn: "失衡生活", title_en: "Koyaanisqatsi", year: 1982, category: "艺术与文化", description: "一部实验性的非叙事纪录片，“Koyaanisqatsi”在霍皮语中意为“失去平衡的生活”，影片通过震撼的影像和菲利普·格拉斯的配乐，展现了现代工业文明对自然的冲击。" },
+            { rank: 98, title_cn: "天梯：蔡国强的艺术", title_en: "Sky Ladder: The Art of Cai Guo-Qiang", year: 2016, category: "艺术与文化", description: "追踪了国际著名爆破艺术家蔡国强历时21年，最终在家乡泉州实现其惊天动地的“天梯”烟火作品的梦想。" },
+            { rank: 99, title_cn: "给我庇护", title_en: "Gimme Shelter", year: 1970, category: "艺术与文化", description: "记录了滚石乐队1969年美国巡演的最后几周，并真实捕捉到了在阿尔塔蒙特免费音乐会上发生的致命暴力事件，标志着嬉皮士时代的终结。" },
+            { rank: 100, title_cn: "电影史话", title_en: "The Story of Film: An Odyssey", year: 2011, category: "艺术与文化", description: "一部长达15小时的鸿篇巨制，全面梳理了世界电影的发展历史，从默片时代到数字时代，是影迷的必看之作。" }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('documentaryGrid');
+            const filtersContainer = document.getElementById('filters');
+            const searchInput = document.getElementById('searchInput');
+            const clearSearchBtn = document.getElementById('clearSearch');
+            const sortSelect = document.getElementById('sortSelect');
+            const noResults = document.getElementById('noResults');
+            const resultsCounter = document.getElementById('resultsCounter');
+            const globalStats = document.getElementById('globalStats');
+            const favCountBadge = document.getElementById('favCount');
+            
+            // 模态框 DOM 元素
+            const detailModal = document.getElementById('detailModal');
+            const closeModalBtn = document.getElementById('closeModal');
+            const modalRank = document.getElementById('modalRank');
+            const modalCategory = document.getElementById('modalCategory');
+            const modalTitleCn = document.getElementById('modalTitleCn');
+            const modalTitleEn = document.getElementById('modalTitleEn');
+            const modalYear = document.getElementById('modalYear');
+            const modalDescription = document.getElementById('modalDescription');
+            const modalFavBtn = document.getElementById('modalFavBtn');
+
+            // 状态变量
+            let currentFilter = '全部';
+            let favorites = JSON.parse(localStorage.getItem('docu_favorites')) || [];
+            let chartInstance = null;
+
+            // 获取全部分类
+            const categories = ['全部', '我的收藏', ...new Set(documentaries.map(d => d.category))];
+
+            // 更新收藏状态和数字标记
+            function updateFavStats() {
+                favCountBadge.textContent = favorites.length + '部';
+                globalStats.textContent = `精选100部纪录片 • 已收藏 ${favorites.length} 部`;
+                localStorage.setItem('docu_favorites', JSON.stringify(favorites));
+            }
+
+            // 切换收藏状态
+            function toggleFavorite(rank, event) {
+                if (event) {
+                    event.stopPropagation(); // 阻止冒泡到卡片点击
+                }
+                const index = favorites.indexOf(rank);
+                if (index > -1) {
+                    favorites.splice(index, 1);
+                } else {
+                    favorites.push(rank);
+                }
+                updateFavStats();
+                filterAndRender();
+                
+                // 如果当前正好在详情弹窗中，同步弹窗内的按钮状态
+                updateModalFavBtnState(rank);
+            }
+
+            // 更新弹窗收藏按钮状态
+            function updateModalFavBtnState(rank) {
+                const isFav = favorites.includes(rank);
+                if (isFav) {
+                    modalFavBtn.innerHTML = '<i class="fa-solid fa-bookmark text-amber-500"></i> <span>已收藏</span>';
+                    modalFavBtn.className = "flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-600 rounded-xl text-amber-700 transition text-sm font-medium";
+                } else {
+                    modalFavBtn.innerHTML = '<i class="fa-regular fa-bookmark"></i> <span>加入收藏</span>';
+                    modalFavBtn.className = "flex items-center gap-2 px-4 py-2 border border-stone-300 rounded-xl text-stone-700 hover:bg-stone-50 transition text-sm font-medium";
+                }
+            }
+
+            // 渲染列表卡片
+            function renderDocumentaries(docs) {
+                grid.innerHTML = '';
+                if (docs.length === 0) {
+                    noResults.classList.remove('hidden');
+                    grid.classList.add('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                    grid.classList.remove('hidden');
+                }
+
+                docs.forEach(doc => {
+                    const isFav = favorites.includes(doc.rank);
+                    const card = document.createElement('div');
+                    card.className = 'card bg-white rounded-2xl shadow-sm border border-[#EFEAE2] overflow-hidden flex flex-col cursor-pointer';
+                    card.setAttribute('data-rank', doc.rank);
+                    
+                    card.innerHTML = `
+                        <div class="p-5 flex-grow relative">
+                            <!-- 收藏图标 -->
+                            <button class="fav-icon-btn absolute top-4 right-4 text-lg transition duration-200 z-10" data-rank="${doc.rank}">
+                                <i class="${isFav ? 'fa-solid fa-bookmark text-amber-500 hover:text-amber-600' : 'fa-regular fa-bookmark text-stone-300 hover:text-amber-500'}"></i>
+                            </button>
+                            <div class="flex items-center space-x-2 mb-3">
+                                <span class="text-xs font-black bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full">#${doc.rank}</span>
+                                <span class="text-xs text-stone-400 font-bold">${doc.year}</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-stone-800 group-hover:text-amber-700 transition line-clamp-1 pr-6">${doc.title_cn}</h3>
+                            <p class="text-xs text-stone-400 mb-3 italic line-clamp-1">${doc.title_en}</p>
+                            <p class="text-sm text-stone-500 line-clamp-3 leading-relaxed">${doc.description}</p>
+                        </div>
+                        <div class="bg-[#FAF6F0] px-5 py-3 border-t border-[#F3ECE3] flex justify-between items-center">
+                            <span class="text-xs font-bold text-[#8B6E53]"><i class="fa-solid fa-tags mr-1"></i> ${doc.category}</span>
+                            <span class="text-xs text-amber-600 font-semibold group-hover:translate-x-1 transition flex items-center gap-1">
+                                详情 <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </div>
+                    `;
+
+                    // 卡片点击事件（展示弹窗）
+                    card.addEventListener('click', () => {
+                        showMovieDetails(doc);
+                    });
+
+                    // 卡片内的收藏按钮点击事件
+                    const favBtn = card.querySelector('.fav-icon-btn');
+                    favBtn.addEventListener('click', (e) => {
+                        toggleFavorite(doc.rank, e);
+                    });
+
+                    grid.appendChild(card);
+                });
+
+                resultsCounter.textContent = `已筛选 ${docs.length} 部`;
+            }
+
+            // 更新分类按钮UI
+            function updateFilters() {
+                filtersContainer.innerHTML = '';
+                categories.forEach(category => {
+                    const button = document.createElement('button');
+                    button.className = `filter-btn px-4 py-2 text-xs md:text-sm font-medium rounded-full transition-all duration-200`;
+                    
+                    if (category === '我的收藏') {
+                        button.innerHTML = `<i class="fa-solid fa-bookmark mr-1"></i> 我的收藏`;
+                    } else {
+                        button.textContent = category;
+                    }
+
+                    if (category === currentFilter) {
+                        button.classList.add('bg-amber-600', 'text-white', 'shadow-sm');
+                    } else {
+                        button.classList.add('bg-white', 'text-stone-600', 'hover:bg-stone-100', 'border', 'border-stone-200');
+                    }
+
+                    button.addEventListener('click', () => {
+                        currentFilter = category;
+                        filterAndRender();
+                        updateActiveButton();
+                    });
+                    filtersContainer.appendChild(button);
+                });
+            }
+
+            function updateActiveButton() {
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    const isFavBtn = btn.innerHTML.includes('我的收藏');
+                    const btnText = isFavBtn ? '我的收藏' : btn.textContent;
+                    
+                    if (btnText === currentFilter) {
+                        btn.className = "filter-btn px-4 py-2 text-xs md:text-sm font-medium rounded-full transition-all duration-200 bg-amber-600 text-white shadow-sm";
+                    } else {
+                        btn.className = "filter-btn px-4 py-2 text-xs md:text-sm font-medium rounded-full transition-all duration-200 bg-white text-stone-600 hover:bg-stone-100 border border-stone-200";
+                    }
+                });
+            }
+
+            // 统一筛选与排序入口
+            function filterAndRender() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                let filteredDocs = documentaries;
+
+                // 1. 分类筛选
+                if (currentFilter === '我的收藏') {
+                    filteredDocs = filteredDocs.filter(doc => favorites.includes(doc.rank));
+                } else if (currentFilter !== '全部') {
+                    filteredDocs = filteredDocs.filter(doc => doc.category === currentFilter);
+                }
+
+                // 2. 搜索关键词
+                if (searchTerm) {
+                    clearSearchBtn.classList.remove('hidden');
+                    filteredDocs = filteredDocs.filter(doc => 
+                        doc.title_cn.toLowerCase().includes(searchTerm) ||
+                        doc.title_en.toLowerCase().includes(searchTerm) ||
+                        doc.description.toLowerCase().includes(searchTerm)
+                    );
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                }
+
+                // 3. 排序机制
+                const sortType = sortSelect.value;
+                if (sortType === 'rankAsc') {
+                    filteredDocs.sort((a, b) => a.rank - b.rank);
+                } else if (sortType === 'rankDesc') {
+                    filteredDocs.sort((a, b) => b.rank - a.rank);
+                } else if (sortType === 'yearDesc') {
+                    filteredDocs.sort((a, b) => {
+                        const ya = typeof a.year === 'string' ? parseInt(a.year.split('-')[0]) : a.year;
+                        const yb = typeof b.year === 'string' ? parseInt(b.year.split('-')[0]) : b.year;
+                        return yb - ya;
+                    });
+                } else if (sortType === 'yearAsc') {
+                    filteredDocs.sort((a, b) => {
+                        const ya = typeof a.year === 'string' ? parseInt(a.year.split('-')[0]) : a.year;
+                        const yb = typeof b.year === 'string' ? parseInt(b.year.split('-')[0]) : b.year;
+                        return ya - yb;
+                    });
+                }
+
+                renderDocumentaries(filteredDocs);
+            }
+
+            // 渲染类别饼图
+            function renderCategoryChart() {
+                const categoryCounts = documentaries.reduce((acc, doc) => {
+                    acc[doc.category] = (acc[doc.category] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const chartData = {
+                    labels: Object.keys(categoryCounts),
+                    datasets: [{
+                        data: Object.values(categoryCounts),
+                        backgroundColor: [
+                            '#8B5E3C', // 自然科学 (木质深啡)
+                            '#D5A021', // 社会人文 (典雅金黄)
+                            '#5B7065', // 历史传记 (复古墨绿)
+                            '#A25B5B', // 艺术文化 (温柔砖红)
+                            '#4A5568', // 罪案调查 (深邃冷灰)
+                        ],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2,
+                        hoverOffset: 6
+                    }]
+                };
+
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+
+                chartInstance = new Chart(categoryChartCtx, {
+                    type: 'doughnut',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        family: "'Noto Sans SC', sans-serif",
+                                        size: 11
+                                    },
+                                    boxWidth: 10,
+                                    padding: 10
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` ${context.label}: ${context.parsed} 部`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            // 打开电影详情弹窗
+            function showMovieDetails(doc) {
+                modalRank.textContent = `#${doc.rank}`;
+                modalCategory.textContent = doc.category;
+                modalTitleCn.textContent = doc.title_cn;
+                modalTitleEn.textContent = doc.title_en;
+                modalYear.textContent = doc.year;
+                modalDescription.textContent = doc.description;
+                
+                // 设置并监听收藏按钮
+                updateModalFavBtnState(doc.rank);
+                
+                // 重置按钮事件，防止闭包累加
+                const newFavBtn = modalFavBtn.cloneNode(true);
+                modalFavBtn.parentNode.replaceChild(newFavBtn, modalFavBtn);
+                document.getElementById('modalFavBtn').addEventListener('click', () => {
+                    toggleFavorite(doc.rank);
+                });
+
+                // 显示模态框（淡入过渡）
+                detailModal.classList.remove('hidden');
+                setTimeout(() => {
+                    detailModal.classList.remove('opacity-0');
+                    detailModal.querySelector('.transform').classList.remove('scale-95');
+                }, 50);
+            }
+
+            // 关闭详情弹窗
+            function hideMovieDetails() {
+                detailModal.classList.add('opacity-0');
+                detailModal.querySelector('.transform').classList.add('scale-95');
+                setTimeout(() => {
+                    detailModal.classList.add('hidden');
+                }, 300);
+            }
+
+            // 绑定事件
+            closeModalBtn.addEventListener('click', hideMovieDetails);
+            detailModal.addEventListener('click', (e) => {
+                if (e.target === detailModal) {
+                    hideMovieDetails();
+                }
+            });
+
+            // 监听Esc按键关闭弹窗
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !detailModal.classList.contains('hidden')) {
+                    hideMovieDetails();
+                }
+            });
+
+            // 输入搜索逻辑
+            searchInput.addEventListener('input', filterAndRender);
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                filterAndRender();
+            });
+
+            // 重置全部状态
+            document.getElementById('resetFilters').addEventListener('click', () => {
+                searchInput.value = '';
+                currentFilter = '全部';
+                sortSelect.value = 'rankAsc';
+                updateFilters();
+                filterAndRender();
+            });
+
+            sortSelect.addEventListener('change', filterAndRender);
+
+            // 返回顶部逻辑
+            const backToTopBtn = document.getElementById('backToTop');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+                } else {
+                    backToTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+                }
+            });
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // 初始化画板
+            const categoryChartCtx = document.getElementById('categoryChart').getContext('2d');
+
+            // 启动初始化流程
+            updateFilters();
+            updateFavStats();
+            filterAndRender();
+            renderCategoryChart();
+        });
+    </script>
+</body>
+</html>
