@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HolaKit · 西语直觉 — 像母语者一样自然开口</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        apple: {
+                            bg: '#F5F5F7',
+                            darkBg: '#000000',
+                            card: '#FFFFFF',
+                            darkCard: '#1C1C1E',
+                            darkElevated: '#2C2C2E',
+                            text: '#1D1D1F',
+                            darkText: '#F5F5F7',
+                            subtext: '#86868B',
+                            blue: '#0071E3',
+                            orange: '#FF6B00',
+                            red: '#FF3B30',
+                            green: '#34C759',
+                            amber: '#FF9500',
+                            purple: '#AF52DE'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"PingFang SC"', '"Hiragino Sans GB"', '"Microsoft YaHei"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'apple': '0 4px 24px rgba(0, 0, 0, 0.04)',
+                        'apple-hover': '0 12px 36px rgba(0, 0, 0, 0.08)',
+                        'apple-dark': '0 4px 24px rgba(0, 0, 0, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Apple 风格细节与动效定制 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 渐变标题文字 */
+        .apple-gradient-text {
+            background: linear-gradient(135deg, #1D1D1F 0%, #434347 45%, #FF6B00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .dark .apple-gradient-text {
+            background: linear-gradient(135deg, #FFFFFF 0%, #A1A1A6 45%, #FF9500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Bento 卡片基础悬浮过渡 */
+        .bento-card {
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-3px);
+        }
+
+        /* 3D 翻转词卡样式 */
+        .perspective-1000 {
+            perspective: 1200px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* 声波动画 */
+        @keyframes soundWave {
+            0%, 100% { transform: scaleY(0.35); }
+            50% { transform: scaleY(1); }
+        }
+        .wave-bar {
+            animation: soundWave 0.9s ease-in-out infinite;
+            transform-origin: center;
+        }
+        .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.2s; }
+
+        /* 大舌音舌尖颤动动画 */
+        @keyframes tongueTrill {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-3px) rotate(-2deg); }
+            75% { transform: translateY(2px) rotate(2deg); }
+        }
+        .trill-anim {
+            animation: tongueTrill 0.14s ease-in-out infinite;
+            transform-origin: left center;
+        }
+
+        /* 隐藏滚动条但保留滑动 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-apple-bg dark:bg-apple-darkBg text-apple-text dark:text-apple-darkText transition-colors duration-300 selection:bg-apple-orange/20 selection:text-apple-orange">
+
+    <!-- ==================== 顶部毛玻璃导航栏 ==================== -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-apple-darkCard/80 border-b border-black/[0.06] dark:border-white/[0.08] transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+            <!-- 品牌 Logo -->
+            <a href="#" class="flex items-center gap-2.5 group shrink-0">
+                <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-apple-orange to-apple-red flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0l-1.414-1.414M7.05 7.05L5.636 5.636M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-lg tracking-tight">HolaKit</span>
+                        <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-apple-orange/10 text-apple-orange">西语直觉</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 中间导航胶囊 (桌面端显示) -->
+            <nav class="hidden md:flex items-center gap-1 bg-black/[0.04] dark:bg-white/[0.06] p-1 rounded-full text-sm font-medium">
+                <a href="#pronunciation" class="px-3.5 py-1.5 rounded-full hover:bg-white dark:hover:bg-apple-darkElevated transition-all">1. 图解发音</a>
+                <a href="#grammar" class="px-3.5 py-1.5 rounded-full hover:bg-white dark:hover:bg-apple-darkElevated transition-all">2. 直觉语法</a>
+                <a href="#scenarios" class="px-3.5 py-1.5 rounded-full hover:bg-white dark:hover:bg-apple-darkElevated transition-all">3. 生存场景</a>
+                <a href="#practice" class="px-3.5 py-1.5 rounded-full hover:bg-white dark:hover:bg-apple-darkElevated transition-all">4. 词卡与闯关</a>
+            </nav>
+
+            <!-- 右侧工具栏：语速切换 + 进度 + 深浅色 + GitHub部署指南 -->
+            <div class="flex items-center gap-2 sm:gap-2.5">
+                <!-- 语速切换按钮 -->
+                <button id="speedToggleBtn" onclick="toggleSpeechSpeed()" title="切换发音语速" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.09] dark:hover:bg-white/[0.14] transition-all">
+                    <svg class="w-3.5 h-3.5 text-apple-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                    </svg>
+                    <span id="speedLabel">1.0x 正常</span>
+                </button>
+
+                <!-- 掌握进度胶囊 -->
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-apple-green/10 text-apple-green text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-apple-green animate-pulse"></span>
+                    <span>已掌握 <strong id="navMasteryCount">0</strong> 项</span>
+                </div>
+
+                <!-- 深色模式切换 -->
+                <button onclick="toggleDarkMode()" aria-label="切换深色模式" class="p-2 rounded-full bg-black/[0.05] dark:bg-white/[0.08] hover:bg-black/[0.1] dark:hover:bg-white/[0.15] transition-all">
+                    <!-- 太阳图标 -->
+                    <svg id="sunIcon" class="w-4 h-4 hidden text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <!-- 月亮图标 -->
+                    <svg id="moonIcon" class="w-4 h-4 text-apple-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+
+                <!-- GitHub 部署指南按钮 -->
+                <button onclick="openGithubModal()" class="hidden lg:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-apple-text text-white dark:bg-white dark:text-apple-text hover:opacity-90 transition-all">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    </svg>
+                    <span>部署指南</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 移动端快捷导航条 -->
+        <div class="md:hidden flex items-center justify-around border-t border-black/[0.04] dark:border-white/[0.06] py-2 px-2 text-xs font-medium bg-white/60 dark:bg-apple-darkCard/60">
+            <a href="#pronunciation" class="px-2.5 py-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10">1. 图解发音</a>
+            <a href="#grammar" class="px-2.5 py-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10">2. 直觉语法</a>
+            <a href="#scenarios" class="px-2.5 py-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10">3. 生存场景</a>
+            <a href="#practice" class="px-2.5 py-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10">4. 词卡闯关</a>
+        </div>
+    </header>
+
+    <!-- ==================== 语音播放动态浮窗 (Speaking Toast) ==================== -->
+    <div id="speechToast" class="fixed bottom-6 right-6 z-50 pointer-events-none opacity-0 translate-y-4 transition-all duration-300">
+        <div class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-apple-text/95 dark:bg-white/95 text-white dark:text-apple-text shadow-xl backdrop-blur-lg">
+            <div class="flex items-center gap-1 h-4">
+                <span class="w-1 h-4 bg-apple-orange rounded-full wave-bar"></span>
+                <span class="w-1 h-4 bg-apple-orange rounded-full wave-bar"></span>
+                <span class="w-1 h-4 bg-apple-orange rounded-full wave-bar"></span>
+                <span class="w-1 h-4 bg-apple-orange rounded-full wave-bar"></span>
+            </div>
+            <div>
+                <p id="speechToastWord" class="text-sm font-bold tracking-wide">¡Hola!</p>
+                <p id="speechToastSub" class="text-[11px] opacity-75">正在朗读西语发音...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 主体内容容器 ==================== -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 space-y-24">
+
+        <!-- ==================== HERO & BENTO 仪表盘 ==================== -->
+        <section class="space-y-10">
+            <!-- Hero 大标题 -->
+            <div class="text-center max-w-3xl mx-auto pt-4 sm:pt-8 space-y-5">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-apple-darkCard border border-black/[0.06] dark:border-white/[0.08] shadow-sm text-xs font-medium text-apple-subtext">
+                    <span class="w-2 h-2 rounded-full bg-apple-orange"></span>
+                    <span>汲取 Language Transfer 与 FSI 开源教学精髓 · 零语法术语负担</span>
+                </div>
+                <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.12] apple-gradient-text">
+                    用直觉学西语，<br class="hidden sm:inline">像母语者一样自然开口。
+                </h1>
+                <p class="text-base sm:text-xl text-apple-subtext leading-relaxed max-w-2xl mx-auto">
+                    告别死记硬背复杂的变位表。通过<strong>口腔发音图解</strong>、<strong>动词积木拼图</strong>与<strong>字面逻辑拆解</strong>，点按任意卡片即可聆听纯正西语发音。
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <button onclick="speakSpanish('¡Hola! Bienvenido a HolaKit, aprender español es muy fácil.', '欢迎来到 HolaKit，学西语其实很简单')" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-apple-blue text-white font-semibold text-sm shadow-lg shadow-apple-blue/25 hover:bg-blue-600 active:scale-95 transition-all">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <span>试听西语原声欢迎词</span>
+                    </button>
+                    <a href="#pronunciation" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white dark:bg-apple-darkCard border border-black/[0.08] dark:border-white/[0.1] font-semibold text-sm hover:bg-black/[0.02] dark:hover:bg-white/[0.04] transition-all">
+                        <span>从 10 分钟拼读开始</span>
+                        <svg class="w-4 h-4 text-apple-subtext" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bento Grid 3大核心概览卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+                <!-- Bento 卡片 1: 见词能读黄金法则 (占 5 列) -->
+                <div class="md:col-span-5 bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-6 sm:p-7 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-apple-orange bg-apple-orange/10 px-3 py-1 rounded-full">直觉法则 01 · 拼读</span>
+                            <button onclick="speakSpanish('a, e, i, o, u. ¡Amigo!', '五大纯净元音：A E I O U')" class="text-xs font-semibold text-apple-blue hover:underline flex items-center gap-1">
+                                <span>点此试听</span>
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                            </button>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-bold">所见即所读，没有音标</h3>
+                        <p class="text-sm text-apple-subtext leading-relaxed">
+                            英语里字母 <code class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10">a</code> 有七八种读法，而西班牙语里 <strong>5 个元音永远只有 1 种固定发音</strong>。学会规则后，哪怕不认识整本书的单词也能一字不差读出来。
+                        </p>
+                    </div>
+
+                    <!-- 视觉元音口腔张合度阶梯图 SVG -->
+                    <div class="mt-6 pt-4 border-t border-black/[0.05] dark:border-white/[0.06]">
+                        <div class="flex items-end justify-between gap-2">
+                            <button onclick="speakSpanish('A, Amigo', '元音 A：嘴巴张最大')" class="flex-1 group text-center p-2 rounded-2xl hover:bg-apple-orange/10 transition-all">
+                                <svg class="w-10 h-10 mx-auto mb-1" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="20" fill="#FF6B00" fill-opacity="0.12"/>
+                                    <ellipse cx="24" cy="24" rx="12" ry="11" fill="none" stroke="#FF6B00" stroke-width="3"/>
+                                </svg>
+                                <span class="block font-bold text-base text-apple-orange">A</span>
+                                <span class="text-[11px] text-apple-subtext">张最大[啊]</span>
+                            </button>
+                            <button onclick="speakSpanish('E, Café', '元音 E：嘴角向两侧裂开')" class="flex-1 group text-center p-2 rounded-2xl hover:bg-apple-amber/10 transition-all">
+                                <svg class="w-10 h-10 mx-auto mb-1" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="20" fill="#FF9500" fill-opacity="0.12"/>
+                                    <ellipse cx="24" cy="24" rx="13" ry="6.5" fill="none" stroke="#FF9500" stroke-width="3"/>
+                                </svg>
+                                <span class="block font-bold text-base text-apple-amber">E</span>
+                                <span class="text-[11px] text-apple-subtext">微笑[诶]</span>
+                            </button>
+                            <button onclick="speakSpanish('I, Sí', '元音 I：牙齿微缝')" class="flex-1 group text-center p-2 rounded-2xl hover:bg-apple-green/10 transition-all">
+                                <svg class="w-10 h-10 mx-auto mb-1" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="20" fill="#34C759" fill-opacity="0.12"/>
+                                    <ellipse cx="24" cy="24" rx="14" ry="3.2" fill="none" stroke="#34C759" stroke-width="3"/>
+                                </svg>
+                                <span class="block font-bold text-base text-apple-green">I</span>
+                                <span class="text-[11px] text-apple-subtext">扁平[衣]</span>
+                            </button>
+                            <button onclick="speakSpanish('O, Hola', '元音 O：双唇拢圆')" class="flex-1 group text-center p-2 rounded-2xl hover:bg-apple-blue/10 transition-all">
+                                <svg class="w-10 h-10 mx-auto mb-1" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="20" fill="#0071E3" fill-opacity="0.12"/>
+                                    <circle cx="24" cy="24" r="8" fill="none" stroke="#0071E3" stroke-width="3"/>
+                                </svg>
+                                <span class="block font-bold text-base text-apple-blue">O</span>
+                                <span class="text-[11px] text-apple-subtext">拢圆[哦]</span>
+                            </button>
+                            <button onclick="speakSpanish('U, Uno', '元音 U：最小圆唇')" class="flex-1 group text-center p-2 rounded-2xl hover:bg-apple-purple/10 transition-all">
+                                <svg class="w-10 h-10 mx-auto mb-1" viewBox="0 0 48 48">
+                                    <circle cx="24" cy="24" r="20" fill="#AF52DE" fill-opacity="0.12"/>
+                                    <circle cx="24" cy="24" r="4.5" fill="none" stroke="#AF52DE" stroke-width="3"/>
+                                </svg>
+                                <span class="block font-bold text-base text-apple-purple">U</span>
+                                <span class="text-[11px] text-apple-subtext">嘟嘴[乌]</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento 卡片 2: 懒人核心积木公式 (占 4 列) -->
+                <div class="md:col-span-4 bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-6 sm:p-7 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-apple-blue bg-apple-blue/10 px-3 py-1 rounded-full">直觉法则 02 · 造句</span>
+                        <h3 class="text-xl sm:text-2xl font-bold">1 个公式搞定 80% 表达</h3>
+                        <p class="text-sm text-apple-subtext leading-relaxed">
+                            怕背不出动词变位？在西语里，只要先说出<strong>「我想 (Quiero)」</strong>或<strong>「我能 (Puedo)」</strong>，后面的动作直接套用词典原形！
+                        </p>
+                    </div>
+
+                    <!-- 视觉积木公式 -->
+                    <div class="mt-6 space-y-2.5">
+                        <div onclick="speakSpanish('Quiero comer paella', '我想吃海鲜饭')" class="cursor-pointer group p-3.5 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated hover:ring-2 hover:ring-apple-blue/40 transition-all flex items-center justify-between">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-2.5 py-1 rounded-lg bg-apple-blue text-white text-xs font-bold">Quiero (我想)</span>
+                                <span class="text-apple-subtext font-bold">+</span>
+                                <span class="px-2.5 py-1 rounded-lg bg-apple-orange/15 text-apple-orange text-xs font-bold">comer (吃-原形)</span>
+                            </div>
+                            <span class="text-xs text-apple-blue font-semibold group-hover:translate-x-0.5 transition-transform">🔊 试听</span>
+                        </div>
+                        <div onclick="speakSpanish('¿Puedo pagar con tarjeta?', '我能刷卡付钱吗？')" class="cursor-pointer group p-3.5 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated hover:ring-2 hover:ring-apple-blue/40 transition-all flex items-center justify-between">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="px-2.5 py-1 rounded-lg bg-apple-green text-white text-xs font-bold">Puedo (我能)</span>
+                                <span class="text-apple-subtext font-bold">+</span>
+                                <span class="px-2.5 py-1 rounded-lg bg-apple-purple/15 text-apple-purple text-xs font-bold">pagar (付钱-原形)</span>
+                            </div>
+                            <span class="text-xs text-apple-blue font-semibold group-hover:translate-x-0.5 transition-transform">🔊 试听</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento 卡片 3: 个人进度面板 (占 3 列) -->
+                <div class="md:col-span-3 bento-card rounded-3xl bg-gradient-to-br from-apple-text to-neutral-800 dark:from-apple-darkCard dark:to-apple-darkElevated text-white p-6 sm:p-7 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-white/70">本地学习进度</span>
+                            <button onclick="resetAllProgress()" class="text-[11px] text-white/50 hover:text-white transition-colors">重置记录</button>
+                        </div>
+                        <h3 class="text-xl font-bold">今日直觉打卡</h3>
+                        <p class="text-xs text-white/70">数据自动保存在你的浏览器中，刷新不丢失。</p>
+                    </div>
+
+                    <!-- 进度环与统计 -->
+                    <div class="my-4 flex items-center gap-4">
+                        <div class="relative w-16 h-16 shrink-0">
+                            <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+                                <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="6"/>
+                                <circle id="heroProgressCircle" cx="32" cy="32" r="26" fill="none" stroke="#34C759" stroke-width="6" stroke-linecap="round" stroke-dasharray="163.36" stroke-dashoffset="163.36" class="transition-all duration-700"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center text-xs font-extrabold" id="heroProgressPercent">0%</div>
+                        </div>
+                        <div class="space-y-1 text-xs">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-white/70">已掌握表达：</span>
+                                <span class="font-bold text-apple-green" id="statPhrases">0 / 24</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-white/70">已攻克词卡：</span>
+                                <span class="font-bold text-apple-amber" id="statCards">0 / 10</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-white/70">闯关最高分：</span>
+                                <span class="font-bold text-sky-400" id="statQuiz">未挑战</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="#scenarios" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-center text-xs font-semibold transition-all">
+                        去点亮第一张场景卡 →
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MODULE 1: 图解发音实验室 ==================== -->
+        <section id="pronunciation" class="scroll-mt-20 space-y-10">
+            <!-- 章节头部 -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div class="space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-widest text-apple-orange">Module 01 · Pronunciation Lab</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">见词能读 · 图解发音实验室</h2>
+                    <p class="text-apple-subtext text-sm sm:text-base max-w-2xl">
+                        西语拼读只需两步：先记住<strong>「5 个绝不变音的纯净元音」</strong>，再认识<strong>「6 个长相特殊的辅音」</strong>。点击任意卡片即可跟读。
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-apple-subtext bg-white dark:bg-apple-darkCard px-4 py-2.5 rounded-2xl border border-black/[0.05] dark:border-white/[0.08]">
+                    <span class="text-base">💡</span>
+                    <span><strong>重音潜规则：</strong>元音或 n/s 结尾重音在<strong>倒数第二音节</strong>；带重音符号（如 á, é, ó）则直接重读该字母！</span>
+                </div>
+            </div>
+
+            <!-- 第一部分：五大纯净元音口腔图解 -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-apple-orange text-white text-xs flex items-center justify-center font-bold">1</span>
+                    <span>五大纯净元音（嘴型固定、短促干脆，绝不拖泥带水）</span>
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="vowelGrid">
+                    <!-- 由 JS 动态渲染包含定制口腔 SVG 图解的 5 张元音卡 -->
+                </div>
+            </div>
+
+            <!-- 第二部分：六大特殊辅音 + 大舌音终极解剖图 -->
+            <div class="space-y-4 pt-4">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-apple-blue text-white text-xs flex items-center justify-center font-bold">2</span>
+                    <span>六大必考特殊辅音 & 大舌音（RR）终极图解</span>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+                    <!-- 左侧 5 张特殊辅音图文卡 (占 7 列) -->
+                    <div class="md:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4" id="consonantGrid">
+                        <!-- 由 JS 渲染 H, J, Ñ, LL/Y, C/Z 视觉卡片 -->
+                    </div>
+
+                    <!-- 右侧：大舌音 RR 终极解剖图解卡 (占 5 列) -->
+                    <div class="md:col-span-5 bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-6 sm:p-7 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="px-3 py-1 rounded-full bg-apple-red/10 text-apple-red text-xs font-bold">新手最大痛点拆解</span>
+                                <button onclick="speakSpanish('Perro, Carro, Rápido, Ferrocarril', '大舌音练习：Perro, Carro, Rápido')" class="px-3 py-1.5 rounded-full bg-apple-red text-white text-xs font-semibold hover:opacity-90 transition-all flex items-center gap-1.5">
+                                    <span>🔊 听大舌音示范</span>
+                                </button>
+                            </div>
+                            <h4 class="text-2xl font-extrabold">R / RR 大舌音原理图解</h4>
+                            <p class="text-xs sm:text-sm text-apple-subtext leading-relaxed">
+                                很多人发不出大舌音，是因为<strong>舌头太用力</strong>！大舌音不是舌头主动弹动，而是像<strong>风吹动旗帜</strong>一样，靠气流把放松的舌尖吹得颤动起来。
+                            </p>
+
+                            <!-- 定制口腔气流与舌尖颤动 SVG 剖面图 -->
+                            <div class="p-4 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated border border-black/[0.04] dark:border-white/[0.06]">
+                                <svg class="w-full h-40" viewBox="0 0 320 150" fill="none">
+                                    <!-- 上颚与上齿龈 (Alveolar Ridge) -->
+                                    <path d="M40 35 C110 20, 190 25, 240 55 L245 72 L232 72 L228 58 C185 38, 110 35, 40 50 Z" fill="#F87171" fill-opacity="0.25" stroke="#EF4444" stroke-width="2"/>
+                                    <!-- 牙齿 -->
+                                    <rect x="232" y="55" width="12" height="20" rx="4" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
+                                    <rect x="232" y="102" width="12" height="18" rx="4" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
+                                    <!-- 标注：上齿龈接触点 -->
+                                    <circle cx="215" cy="52" r="6" fill="#FF3B30" class="animate-ping" style="animation-duration: 2s;"/>
+                                    <circle cx="215" cy="52" r="5" fill="#FF3B30"/>
+                                    <text x="115" y="24" fill="#EF4444" font-size="11" font-weight="bold">① 舌尖轻触上齿龈后方（完全放松）</text>
+
+                                    <!-- 气流箭头虚线 -->
+                                    <path d="M55 82 Q135 65 210 62" stroke="#0071E3" stroke-width="2.5" stroke-dasharray="5 4"/>
+                                    <polygon points="212,62 203,58 205,67" fill="#0071E3"/>
+                                    <text x="60" y="72" fill="#0071E3" font-size="11" font-weight="bold">② 强气流冲出 (Airflow)</text>
+
+                                    <!-- 舌头与颤动舌尖 -->
+                                    <g class="trill-anim">
+                                        <path d="M45 120 C100 115, 165 105, 212 60 C218 55, 222 65, 210 78 C175 115, 110 130, 45 132 Z" fill="#FB923C" fill-opacity="0.35" stroke="#EA580C" stroke-width="2.5"/>
+                                    </g>
+                                    <text x="115" y="138" fill="#EA580C" font-size="11" font-weight="bold">③ 舌尖被气流吹动每秒颤动 3~5 次</text>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- 零基础 3 步速成口诀 -->
+                        <div class="mt-4 space-y-2 text-xs">
+                            <div class="p-3 rounded-xl bg-apple-orange/10 border border-apple-orange/20">
+                                <span class="font-bold text-apple-orange">🎯 30秒破冰邪道练习法：</span>
+                                <ol class="mt-1.5 space-y-1 text-apple-text dark:text-apple-darkText list-decimal list-inside">
+                                    <li>仰起头，快速连读中文<strong>「得拉、得拉、得拉 (de-la)」</strong>体会舌尖弹上颚的位置。</li>
+                                    <li>模仿冬天冷得发抖喊<strong>「突噜噜 (trrr...)」</strong>，用一口气把舌尖吹响。</li>
+                                    <li><strong>听懂优先：</strong>就算暂时发不出大舌音，母语者也 100% 听得懂你！</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MODULE 2: 大白话图解语法 ==================== -->
+        <section id="grammar" class="scroll-mt-20 space-y-12">
+            <!-- 章节头部 -->
+            <div class="space-y-2">
+                <span class="text-xs font-bold uppercase tracking-widest text-apple-blue">Module 02 · Intuitive Grammar</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">零术语 · 大白话图解语法</h2>
+                <p class="text-apple-subtext text-sm sm:text-base max-w-2xl">
+                    抛开枯燥的语法书黑话。用<strong>「太阳与月亮」</strong>理解阴阳词性，用<strong>「身份证与电池电量」</strong>秒懂西语里最核心的两个“是”，再用积木拼出成百上千个句子。
+                </p>
+            </div>
+
+            <!-- 语法卡片 1 & 2 并排：词性阴阳 + Ser vs Estar -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- 卡片 1: 万物皆有性别 El vs La (占 5 列) -->
+                <div class="lg:col-span-5 bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-6 sm:p-8 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between space-y-6">
+                    <div class="space-y-2">
+                        <span class="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold">潜规则 01 · 名词性别</span>
+                        <h3 class="text-2xl font-bold">万物皆有性别：认准词尾 -O 与 -A</h3>
+                        <p class="text-sm text-apple-subtext">
+                            西语里连桌子和咖啡都有性别。好消息是：<strong>90% 的词看最后一个字母就能猜对！</strong>点击下方单词听发音：
+                        </p>
+                    </div>
+
+                    <!-- 太阳阳性 vs 月亮阴性 图文对比 -->
+                    <div class="grid grid-cols-2 gap-3.5">
+                        <!-- 阳性 El -->
+                        <div class="p-4 rounded-2xl bg-sky-500/[0.07] border border-sky-500/20 space-y-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-xl bg-sky-500 text-white flex items-center justify-center font-extrabold text-sm">El</div>
+                                <div>
+                                    <div class="font-bold text-sm text-sky-600 dark:text-sky-400">阳性名词</div>
+                                    <div class="text-[11px] text-apple-subtext">通常以 <strong>-o</strong> 结尾</div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-xs">
+                                <button onclick="speakSpanish('El libro', '书（阳性）')" class="w-full p-2 rounded-xl bg-white dark:bg-apple-darkElevated flex items-center justify-between hover:scale-[1.02] transition-transform">
+                                    <span>📘 <strong>El</strong> libr<u class="text-sky-500 font-bold">o</u></span>
+                                    <span class="text-apple-subtext">书 🔊</span>
+                                </button>
+                                <button onclick="speakSpanish('El gato', '猫咪（阳性）')" class="w-full p-2 rounded-xl bg-white dark:bg-apple-darkElevated flex items-center justify-between hover:scale-[1.02] transition-transform">
+                                    <span>🐱 <strong>El</strong> gat<u class="text-sky-500 font-bold">o</u></span>
+                                    <span class="text-apple-subtext">猫 🔊</span>
+                                </button>
+                                <button onclick="speakSpanish('El vino', '红酒（阳性）')" class="w-full p-2 rounded-xl bg-white dark:bg-apple-darkElevated flex items-center justify-between hover:scale-[1.02] transition-transform">
+                                    <span>🍷 <strong>El</strong> vin<u class="text-sky-500 font-bold">o</u></span>
+                                    <span class="text-apple-subtext">酒 🔊</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 阴性 La -->
+                        <div class="p-4 rounded-2xl bg-rose-500/[0.07] border border-rose-500/20 space-y-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-xl bg-rose-500 text-white flex items-center justify-center font-extrabold text-sm">La</div>
+                                <div>
+                                    <div class="font-bold text-sm text-rose-600 dark:text-rose-400">阴性名词</div>
+                                    <div class="text-[11px] text-apple-subtext">通常以 <strong>-a</strong> 结尾</div>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-xs">
+                                <button onclick="speakSpanish('La casa', '房子（阴性）')" class="w-full p-2 rounded-xl bg-white dark:bg-apple-darkElevated flex items-center justify-between hover:scale-[1.02] transition-transform">
+                                    <span>🏠 <strong>La</strong> cas<u class="text-rose-500 font-bold">a</u></span>
+                                    <span class="text-apple-subtext">房子 🔊</span>
+                                </button>
+                                <button onclick="speakSpanish('La mesa', '桌子（阴性）')" class="w-full p-2 rounded-xl bg-white dark:bg-apple-darkElevated flex items-center justify-between hover:scale-[1.02] transition-transform">
+                                    <span>🪑 <strong>La</strong> mes<u class="text-rose-500 font-bold">a</u></span>
+                                    <span class="text-apple-subtext">桌子 🔊</span>
+                                </button>
+                                <button onclick="speakSpanish('La cerveza', '啤酒（阴性）')" class="w-full p-2 rounded-xl bg-white dark:bg-apple-darkElevated flex items-center justify-between hover:scale-[1.02] transition-transform">
+                                    <span>🍺 <strong>La</strong> cervez<u class="text-rose-500 font-bold">a</u></span>
+                                    <span class="text-apple-subtext">啤酒 🔊</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 开源记忆口诀 -->
+                    <div class="p-3.5 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated text-xs space-y-1">
+                        <div class="font-bold text-apple-text dark:text-apple-darkText">🧠 进阶记忆口诀（Language Transfer 经典技巧）：</div>
+                        <p class="text-apple-subtext">
+                            • 阳性词常以 <strong>L-O-N-E-R-S</strong> 结尾（如 <em>el hotel, el amor, el tren</em>）<br>
+                            • 阴性词常以 <strong>-a, -ción, -sión, -dad</strong> 结尾（对应英文 <em>-tion / -ty</em>，如 <em>la nación, la ciudad</em>）
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 卡片 2: Ser vs Estar 视觉对比器 (占 7 列) -->
+                <div class="lg:col-span-7 bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-6 sm:p-8 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between space-y-6">
+                    <div class="space-y-2">
+                        <span class="px-3 py-1 rounded-full bg-apple-purple/10 text-apple-purple text-xs font-bold">潜规则 02 · 两大“是”字诀</span>
+                        <h3 class="text-2xl font-bold">Ser 还是 Estar？看它是「身份证」还是「电量条」</h3>
+                        <p class="text-sm text-apple-subtext">
+                            中文和英文都只有一个“是 (am/is/are)”，而西语把<strong>「本质属性」</strong>和<strong>「当前状态」</strong>分得清清楚楚：
+                        </p>
+                    </div>
+
+                    <!-- Ser vs Estar 视觉图解双栏 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- SER: 身份证/DNA -->
+                        <div class="p-5 rounded-2xl bg-indigo-500/[0.06] border border-indigo-500/20 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <!-- 身份证 SVG -->
+                                    <svg class="w-9 h-9 text-indigo-500" viewBox="0 0 36 36" fill="none">
+                                        <rect x="3" y="7" width="30" height="22" rx="4" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"/>
+                                        <circle cx="12" cy="16" r="3.5" fill="currentColor"/>
+                                        <path d="M7 24C7 21.5 9.5 20 12 20C14.5 20 17 21.5 17 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        <line x1="20" y1="14" x2="29" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        <line x1="20" y1="19" x2="27" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <div>
+                                        <h4 class="font-extrabold text-base text-indigo-600 dark:text-indigo-400">SER (Soy / Eres / Es)</h4>
+                                        <p class="text-[11px] text-apple-subtext">出厂设置 · 永久身份 · 国籍职业</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5 text-xs">
+                                <div onclick="speakSpanish('Soy de China', '我来自中国（永久籍贯）')" class="cursor-pointer p-2.5 rounded-xl bg-white dark:bg-apple-darkElevated flex justify-between items-center hover:ring-1 hover:ring-indigo-400">
+                                    <span><strong>Soy</strong> de China <span class="text-apple-subtext">(我来自中国)</span></span>
+                                    <span class="text-indigo-500 font-semibold">🔊</span>
+                                </div>
+                                <div onclick="speakSpanish('Ella es médica', '她是医生（职业身份）')" class="cursor-pointer p-2.5 rounded-xl bg-white dark:bg-apple-darkElevated flex justify-between items-center hover:ring-1 hover:ring-indigo-400">
+                                    <span>Ella <strong>es</strong> médica <span class="text-apple-subtext">(她是医生)</span></span>
+                                    <span class="text-indigo-500 font-semibold">🔊</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ESTAR: 电池状态/GPS定位 -->
+                        <div class="p-5 rounded-2xl bg-emerald-500/[0.06] border border-emerald-500/20 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <!-- 电池与定位 SVG -->
+                                    <svg class="w-9 h-9 text-emerald-500" viewBox="0 0 36 36" fill="none">
+                                        <rect x="3" y="10" width="26" height="16" rx="3.5" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2"/>
+                                        <rect x="6.5" y="13.5" width="14" height="9" rx="1.5" fill="currentColor"/>
+                                        <path d="M31 15V21" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                    </svg>
+                                    <div>
+                                        <h4 class="font-extrabold text-base text-emerald-600 dark:text-emerald-400">ESTAR (Estoy / Estás / Está)</h4>
+                                        <p class="text-[11px] text-apple-subtext">实时电量 · 当前心情 · 所在位置</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5 text-xs">
+                                <div onclick="speakSpanish('Estoy muy cansado hoy', '我今天很累（当前状态）')" class="cursor-pointer p-2.5 rounded-xl bg-white dark:bg-apple-darkElevated flex justify-between items-center hover:ring-1 hover:ring-emerald-400">
+                                    <span><strong>Estoy</strong> cansado <span class="text-apple-subtext">(我现在很累)</span></span>
+                                    <span class="text-emerald-500 font-semibold">🔊</span>
+                                </div>
+                                <div onclick="speakSpanish('El café está frío', '这杯咖啡凉了（当前温度状态）')" class="cursor-pointer p-2.5 rounded-xl bg-white dark:bg-apple-darkElevated flex justify-between items-center hover:ring-1 hover:ring-emerald-400">
+                                    <span>El café <strong>está</strong> frío <span class="text-apple-subtext">(咖啡凉了)</span></span>
+                                    <span class="text-emerald-500 font-semibold">🔊</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 趣味互动：同一个形容词配 Ser vs Estar 意思大变 -->
+                    <div class="p-4 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span class="text-xs font-bold">⚡ 点击切换体验：同一个词，换个“是”意思完全不同！</span>
+                            <div class="flex gap-1.5" id="serEstarSwitchBtns">
+                                <button onclick="selectSerEstarDemo(0)" class="ser-demo-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-apple-blue text-white">rico (富/好吃)</button>
+                                <button onclick="selectSerEstarDemo(1)" class="ser-demo-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-black/5 dark:bg-white/10">aburrido (无聊/闷)</button>
+                                <button onclick="selectSerEstarDemo(2)" class="ser-demo-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-black/5 dark:bg-white/10">listo (聪明/就绪)</button>
+                            </div>
+                        </div>
+                        <div id="serEstarCompareBox" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <!-- 由 JS 动态渲染对比内容 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 语法卡片 3: 互动动词积木拼图 (Verb Lego Builder) -->
+            <div class="bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-6 sm:p-9 border border-black/[0.06] dark:border-white/[0.08] shadow-apple space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-black/[0.06] dark:border-white/[0.08] pb-5">
+                    <div class="space-y-1">
+                        <span class="px-3 py-1 rounded-full bg-apple-orange/10 text-apple-orange text-xs font-bold">潜规则 03 · 交互式造句实验室</span>
+                        <h3 class="text-2xl font-bold">西语动词乐高拼图（Verb Lego Builder）</h3>
+                        <p class="text-sm text-apple-subtext">点击下方积木块，实时拼装地道西语句子并聆听发音。</p>
+                    </div>
+                    <!-- 模式切换 Tab -->
+                    <div class="inline-flex p-1 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated self-start">
+                        <button id="tabLazyBtn" onclick="switchVerbTab('lazy')" class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-apple-darkCard shadow-sm transition-all">
+                            🧩 零基础万能双核公式
+                        </button>
+                        <button id="tabConjBtn" onclick="switchVerbTab('conj')" class="px-4 py-2 rounded-xl text-xs font-bold text-apple-subtext hover:text-apple-text dark:hover:text-white transition-all">
+                            ⚙️ 动词词尾变位透视镜
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab A: 零基础万能双核公式 (核心动词 + 原形) -->
+                <div id="verbTabLazy" class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                        <!-- 左侧积木选择区 (7列) -->
+                        <div class="lg:col-span-7 space-y-5">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-apple-blue">第一步：选择「核心意愿块」（已为你变好位）</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="legoCoreBtns">
+                                    <!-- JS 渲染 -->
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-apple-orange">第二步：拼接任意「动作原形块」（完全不用变位！）</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="legoActionBtns">
+                                    <!-- JS 渲染 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 右侧实时拼装预览屏 (5列) -->
+                        <div class="lg:col-span-5 p-6 rounded-3xl bg-gradient-to-br from-apple-bg to-white dark:from-apple-darkElevated dark:to-apple-darkCard border border-black/[0.08] dark:border-white/[0.1] shadow-inner flex flex-col justify-between space-y-5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-apple-subtext">实时拼装结果</span>
+                                <span class="px-2.5 py-0.5 rounded-full bg-apple-green/15 text-apple-green text-[11px] font-bold">语法 100% 正确</span>
+                            </div>
+
+                            <!-- 积木视觉拼接展示 -->
+                            <div class="space-y-3 py-2">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span id="legoPreviewCore" class="px-3.5 py-2 rounded-2xl bg-apple-blue text-white font-extrabold text-lg sm:text-xl shadow-sm">Quiero</span>
+                                    <span class="text-xl font-bold text-apple-subtext">+</span>
+                                    <span id="legoPreviewAction" class="px-3.5 py-2 rounded-2xl bg-apple-orange text-white font-extrabold text-lg sm:text-xl shadow-sm">comer paella</span>
+                                </div>
+                                <p id="legoPreviewPhonetic" class="text-xs font-mono text-apple-subtext">发音提示：[Ki-e-ro ko-mer pa-e-ya]</p>
+                                <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
+                                    <p id="legoPreviewMeaning" class="text-lg font-bold">含义：我想吃海鲜饭。</p>
+                                    <p id="legoPreviewLiteral" class="text-xs text-apple-subtext mt-0.5">字面逻辑：我想 (Quiero) + 吃海鲜饭 (comer paella)</p>
+                                </div>
+                            </div>
+
+                            <button onclick="playCurrentLegoSentence()" class="w-full py-3.5 rounded-2xl bg-apple-blue hover:bg-blue-600 text-white font-bold text-sm shadow-lg shadow-apple-blue/20 flex items-center justify-center gap-2 active:scale-98 transition-all">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <span>朗读整句西语</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab B: 动词词尾变位透视镜 (-AR / -ER / -IR) -->
+                <div id="verbTabConj" class="hidden space-y-6">
+                    <p class="text-sm text-apple-subtext">
+                        西语所有动词原形都以 <strong>-ar</strong>、<strong>-er</strong> 或 <strong>-ir</strong> 结尾。变位其实就是<strong>「保留词干，把尾巴换成对应的人称暗号」</strong>。所以西语平时说话经常直接省略主语（我/你/他），因为听尾巴就知道是谁干的！
+                    </p>
+                    <div class="flex flex-wrap gap-2" id="conjVerbSelector">
+                        <button onclick="selectConjVerb('hablar')" class="conj-verb-btn px-4 py-2 rounded-xl text-xs font-bold bg-apple-orange text-white">Hablar (说话 · -AR代表)</button>
+                        <button onclick="selectConjVerb('comer')" class="conj-verb-btn px-4 py-2 rounded-xl text-xs font-bold bg-black/5 dark:bg-white/10">Comer (吃 · -ER代表)</button>
+                        <button onclick="selectConjVerb('vivir')" class="conj-verb-btn px-4 py-2 rounded-xl text-xs font-bold bg-black/5 dark:bg-white/10">Vivir (居住 · -IR代表)</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5" id="conjGrid">
+                        <!-- 由 JS 动态渲染 5 个核心人称词干+词尾染色卡片 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MODULE 3: 沉浸式图文生存场景 ==================== -->
+        <section id="scenarios" class="scroll-mt-20 space-y-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div class="space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-widest text-apple-green">Module 03 · Survival Scenarios</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">沉浸式图文生存场景</h2>
+                    <p class="text-apple-subtext text-sm sm:text-base max-w-2xl">
+                        精选 24 句最高频实用表达，每句均配有<strong>字面直译拆解</strong>与<strong>文化潜规则</strong>。学会一句即可点击右上角「标记掌握」点亮进度。
+                    </p>
+                </div>
+
+                <!-- 场景分类切换胶囊 -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-white dark:bg-apple-darkCard p-1.5 rounded-2xl border border-black/[0.06] dark:border-white/[0.08] shadow-sm" id="scenarioTabs">
+                    <button onclick="filterScenarios('greetings')" data-cat="greetings" class="scenario-tab px-4 py-2 rounded-xl text-xs font-bold bg-apple-text text-white dark:bg-white dark:text-apple-text shrink-0 transition-all">👋 破冰与寒暄</button>
+                    <button onclick="filterScenarios('dining')" data-cat="dining" class="scenario-tab px-4 py-2 rounded-xl text-xs font-bold text-apple-subtext hover:text-apple-text dark:hover:text-white shrink-0 transition-all">☕ 餐厅与点单</button>
+                    <button onclick="filterScenarios('transit')" data-cat="transit" class="scenario-tab px-4 py-2 rounded-xl text-xs font-bold text-apple-subtext hover:text-apple-text dark:hover:text-white shrink-0 transition-all">🚕 出行与问路</button>
+                    <button onclick="filterScenarios('shopping')" data-cat="shopping" class="scenario-tab px-4 py-2 rounded-xl text-xs font-bold text-apple-subtext hover:text-apple-text dark:hover:text-white shrink-0 transition-all">🛍️ 购物与应急</button>
+                </div>
+            </div>
+
+            <!-- 场景卡片网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="scenarioCardsContainer">
+                <!-- 由 JS 动态渲染带定制 SVG 图标、发音、字面拆解、掌握打卡的场景卡片 -->
+            </div>
+        </section>
+
+        <!-- ==================== MODULE 4: 3D 视觉翻转词卡与实战闯关 ==================== -->
+        <section id="practice" class="scroll-mt-20 space-y-8">
+            <div class="space-y-2">
+                <span class="text-xs font-bold uppercase tracking-widest text-apple-purple">Module 04 · Interactive Practice</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">3D 视觉词卡 & 情景直觉闯关</h2>
+                <p class="text-apple-subtext text-sm sm:text-base max-w-2xl">
+                    左边用 3D 翻转卡片巩固核心词汇，右边通过真实情景问答检验你的西语直觉。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 左侧：3D 翻转词卡 (占 6 列) -->
+                <div class="lg:col-span-6 bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-6 sm:p-8 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold">3D 视觉翻转词卡</h3>
+                            <p class="text-xs text-apple-subtext">点击卡片翻转查看拆解，支持键盘空格键翻转</p>
+                        </div>
+                        <span id="flashcardCounter" class="px-3 py-1 rounded-full bg-black/[0.05] dark:bg-white/[0.08] text-xs font-bold">1 / 10</span>
+                    </div>
+
+                    <!-- 3D 翻转卡片容器 -->
+                    <div class="perspective-1000 w-full h-72 sm:h-80 cursor-pointer select-none" onclick="flipFlashcard()">
+                        <div id="flashcardInner" class="w-full h-full relative transform-style-3d">
+                            <!-- 正面：西语 + 视觉插画 -->
+                            <div class="absolute inset-0 backface-hidden rounded-3xl bg-gradient-to-br from-apple-bg to-white dark:from-apple-darkElevated dark:to-apple-darkCard border border-black/[0.08] dark:border-white/[0.1] p-6 flex flex-col items-center justify-between text-center shadow-inner">
+                                <div class="w-full flex items-center justify-between text-xs text-apple-subtext">
+                                    <span id="fcCategoryBadge" class="px-2.5 py-0.5 rounded-full bg-apple-orange/10 text-apple-orange font-semibold">高频核心词</span>
+                                    <button onclick="event.stopPropagation(); speakCurrentFlashcard();" class="px-3 py-1 rounded-full bg-apple-blue/10 text-apple-blue font-bold hover:bg-apple-blue hover:text-white transition-all">
+                                        🔊 朗读发音
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3 my-auto">
+                                    <div id="fcSvgArt" class="w-20 h-20 mx-auto flex items-center justify-center rounded-2xl bg-white dark:bg-apple-darkCard shadow-sm text-4xl">
+                                        ☀️
+                                    </div>
+                                    <h4 id="fcSpanish" class="text-3xl sm:text-4xl font-extrabold tracking-tight">Por favor</h4>
+                                    <p id="fcPhonetic" class="text-xs font-mono text-apple-subtext">[Por fa-vor]</p>
+                                </div>
+
+                                <div class="text-xs text-apple-subtext flex items-center gap-1">
+                                    <span>👆 点击卡片任意位置翻转看背面</span>
+                                </div>
+                            </div>
+
+                            <!-- 背面：中文释义 + 拆解记忆法 + 例句 -->
+                            <div class="absolute inset-0 backface-hidden rotate-y-180 rounded-3xl bg-gradient-to-br from-apple-blue/10 to-apple-purple/10 dark:from-apple-blue/20 dark:to-apple-purple/20 border border-apple-blue/25 p-6 flex flex-col items-center justify-between text-center">
+                                <div class="w-full flex items-center justify-between text-xs">
+                                    <span class="font-bold text-apple-blue">中文含义与拆解</span>
+                                    <button onclick="event.stopPropagation(); speakCurrentFlashcardExample();" class="px-3 py-1 rounded-full bg-apple-blue text-white font-bold hover:opacity-90">
+                                        🔊 朗读例句
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3 my-auto max-w-md">
+                                    <h4 id="fcChinese" class="text-2xl sm:text-3xl font-extrabold text-apple-text dark:text-white">请 / 劳驾</h4>
+                                    <p id="fcMemoryTip" class="text-xs sm:text-sm text-apple-subtext bg-white/80 dark:bg-apple-darkCard/80 px-3.5 py-2 rounded-xl">
+                                        字面意思：“为了恩惠 (For favor)”。无论点单还是求助，加上它礼貌度拉满。
+                                    </p>
+                                    <div class="pt-2">
+                                        <p id="fcExampleEs" class="text-sm font-bold text-apple-blue">Un café con leche, por favor.</p>
+                                        <p id="fcExampleZh" class="text-xs text-apple-subtext">请给我一杯牛奶咖啡。</p>
+                                    </div>
+                                </div>
+
+                                <div class="text-xs text-apple-subtext">再次点击翻回正面</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 词卡底部控制按钮 -->
+                    <div class="flex items-center justify-between gap-2 pt-2">
+                        <button onclick="prevFlashcard()" class="px-4 py-2.5 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated hover:bg-black/10 dark:hover:bg-white/10 text-xs font-bold transition-all">
+                            ← 上一张
+                        </button>
+                        <button id="fcMasterBtn" onclick="toggleCurrentFlashcardMastered()" class="flex-1 py-2.5 rounded-2xl bg-apple-green/15 text-apple-green hover:bg-apple-green hover:text-white text-xs font-bold transition-all">
+                            ✓ 标记为已掌握
+                        </button>
+                        <button onclick="nextFlashcard()" class="px-4 py-2.5 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated hover:bg-black/10 dark:hover:bg-white/10 text-xs font-bold transition-all">
+                            下一张 →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 右侧：情景直觉闯关测验 (占 6 列) -->
+                <div class="lg:col-span-6 bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-6 sm:p-8 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold">情景直觉闯关 (5题实战)</h3>
+                            <p class="text-xs text-apple-subtext">用刚学的直觉法则解决真实旅行状况</p>
+                        </div>
+                        <span id="quizStepBadge" class="px-3 py-1 rounded-full bg-apple-purple/10 text-apple-purple text-xs font-bold">第 1 / 5 关</span>
+                    </div>
+
+                    <!-- 测验题目容器 -->
+                    <div id="quizContentArea" class="space-y-4 my-auto">
+                        <!-- 由 JS 动态渲染题目、选项与即时解析 -->
+                    </div>
+
+                    <!-- 测验底部进度条与下一题按钮 -->
+                    <div class="flex items-center justify-between pt-2 border-t border-black/[0.06] dark:border-white/[0.08]">
+                        <div class="text-xs text-apple-subtext">
+                            当前得分：<strong id="quizLiveScore" class="text-apple-text dark:text-white">0</strong> / 5
+                        </div>
+                        <button id="quizNextBtn" onclick="nextQuizQuestion()" class="hidden px-5 py-2.5 rounded-2xl bg-apple-blue text-white text-xs font-bold hover:bg-blue-600 transition-all">
+                            下一关 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== 页脚 Footer ==================== -->
+    <footer class="border-t border-black/[0.06] dark:border-white/[0.08] bg-white/60 dark:bg-apple-darkCard/60 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-apple-orange to-apple-red flex items-center justify-center text-white font-bold text-sm">H</div>
+                <div>
+                    <p class="text-sm font-bold">HolaKit · 西语直觉</p>
+                    <p class="text-xs text-apple-subtext">单文件零依赖构建 · 直接支持 GitHub Pages 托管</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-xs font-semibold">
+                <button onclick="openGithubModal()" class="px-4 py-2 rounded-full bg-apple-bg dark:bg-apple-darkElevated hover:bg-black/10 dark:hover:bg-white/10 transition-all">
+                    📦 如何将此网站免费发布到 GitHub Pages？
+                </button>
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="px-4 py-2 rounded-full bg-apple-bg dark:bg-apple-darkElevated hover:bg-black/10 dark:hover:bg-white/10 transition-all">
+                    ↑ 回到顶部
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== GITHUB PAGES 部署指南弹窗 ==================== -->
+    <div id="githubModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-apple-darkCard border border-black/[0.08] dark:border-white/[0.12] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6 animate-fadeIn">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-2xl bg-apple-text dark:bg-white text-white dark:text-apple-text flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-extrabold">60 秒上传到 GitHub Pages 指南</h3>
+                        <p class="text-xs text-apple-subtext">纯静态单文件架构，无需任何编译或服务器配置</p>
+                    </div>
+                </div>
+                <button onclick="closeGithubModal()" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-apple-subtext">✕</button>
+            </div>
+
+            <div class="space-y-3 text-xs sm:text-sm">
+                <div class="p-3.5 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated flex gap-3">
+                    <span class="w-6 h-6 rounded-full bg-apple-blue text-white font-bold text-xs flex items-center justify-center shrink-0">1</span>
+                    <div>
+                        <p class="font-bold">新建 GitHub 仓库</p>
+                        <p class="text-xs text-apple-subtext mt-0.5">登录 GitHub，点击右上角 <strong>+ → New repository</strong>，取名如 <code class="px-1 rounded bg-black/10 dark:bg-white/10">holakit-spanish</code>，勾选 Public。</p>
+                    </div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated flex gap-3">
+                    <span class="w-6 h-6 rounded-full bg-apple-blue text-white font-bold text-xs flex items-center justify-center shrink-0">2</span>
+                    <div>
+                        <p class="font-bold">直接上传本文件 (index.html)</p>
+                        <p class="text-xs text-apple-subtext mt-0.5">点击仓库里的 <strong>uploading an existing file</strong>，将本代码保存为 <code class="px-1 rounded bg-black/10 dark:bg-white/10">index.html</code> 拖入并点击 Commit changes。</p>
+                    </div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated flex gap-3">
+                    <span class="w-6 h-6 rounded-full bg-apple-green text-white font-bold text-xs flex items-center justify-center shrink-0">3</span>
+                    <div>
+                        <p class="font-bold">开启 GitHub Pages 免费全球访问</p>
+                        <p class="text-xs text-apple-subtext mt-0.5">进入仓库顶部的 <strong>Settings → Pages</strong>，在 Branch 下拉框选择 <strong>main</strong> 并点击 Save。等待 30 秒即可获得你的专属网址！</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="closeGithubModal()" class="px-6 py-2.5 rounded-full bg-apple-blue text-white text-xs font-bold hover:bg-blue-600 transition-all">
+                    明白了，开始学习
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 核心数据与交互脚本 ==================== -->
+    <script>
+        /********************************************************************
+         * 1. 全局状态与浏览器原生语音合成 (Web Speech API)
+         ********************************************************************/
+        let speechRate = 1.0; // 1.0 正常 / 0.75 慢速跟读
+        let toastTimeout = null;
+
+        // 本地存储状态结构
+        const STORAGE_KEY = 'holakit_spanish_progress_v1';
+        let userProgress = {
+            masteredPhrases: [], // 场景短语 ID 数组
+            masteredCards: [],   // 词卡 ID 数组
+            bestQuizScore: null
+        };
+
+        // 读取进度
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    userProgress = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.warn('LocalStorage 读取失败:', e);
+            }
+            updateDashboardStats();
+        }
+
+        // 保存进度
+        function saveProgress() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(userProgress));
+            } catch (e) {
+                console.warn('LocalStorage 保存失败:', e);
+            }
+            updateDashboardStats();
+        }
+
+        // 重置所有进度
+        function resetAllProgress() {
+            userProgress = { masteredPhrases: [], masteredCards: [], bestQuizScore: null };
+            saveProgress();
+            renderScenarios(currentScenarioCat);
+            renderFlashcard();
+            showSpeechToast('进度已重置', '所有学习打卡记录已归零');
+        }
+
+        // 调用浏览器原生西语 TTS 发音
+        function speakSpanish(text, subtitle = '西语原声朗读') {
+            showSpeechToast(text, subtitle);
+
+            if (!('speechSynthesis' in window)) {
+                return;
+            }
+            window.speechSynthesis.cancel();
+
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.rate = speechRate;
+            utter.pitch = 1.0;
+
+            // 优先匹配西班牙或拉美西语自然语音包
+            const voices = window.speechSynthesis.getVoices();
+            const esVoice = voices.find(v => v.lang === 'es-ES' && (v.name.includes('Monica') || v.name.includes('Paulina') || v.name.includes('Google') || v.name.includes('Luciana')))
+                         || voices.find(v => v.lang.startsWith('es-ES'))
+                         || voices.find(v => v.lang.startsWith('es'));
+            if (esVoice) {
+                utter.voice = esVoice;
+                utter.lang = esVoice.lang;
+            } else {
+                utter.lang = 'es-ES';
+            }
+
+            window.speechSynthesis.speak(utter);
+        }
+
+        // 显示右下角声波浮窗
+        function showSpeechToast(word, sub) {
+            const toast = document.getElementById('speechToast');
+            document.getElementById('speechToastWord').textContent = word;
+            document.getElementById('speechToastSub').textContent = `${sub} (${speechRate}x)`;
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4');
+            }, 2400);
+        }
+
+        // 切换语速
+        function toggleSpeechSpeed() {
+            speechRate = speechRate === 1.0 ? 0.75 : 1.0;
+            document.getElementById('speedLabel').textContent = speechRate === 1.0 ? '1.0x 正常' : '0.75x 慢速';
+            speakSpanish('Velocidad ajustada', speechRate === 1.0 ? '已切换至正常语速' : '已切换至 0.75 倍慢速跟读');
+        }
+
+        // 切换深色模式
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            document.getElementById('sunIcon').classList.toggle('hidden', !isDark);
+            document.getElementById('moonIcon').classList.toggle('hidden', isDark);
+        }
+
+        /********************************************************************
+         * 2. MODULE 1 数据与渲染：五大纯净元音 + 六大特殊辅音
+         ********************************************************************/
+        const vowelsData = [
+            {
+                letter: 'A a',
+                sound: '[a] 啊',
+                color: '#FF6B00',
+                mouthTip: '嘴巴自然张到最大，舌头平放，像看牙医时发出的短促“啊”',
+                word: 'Amigo',
+                meaning: '朋友',
+                phonetic: 'a-MI-go',
+                svgMouth: `<svg class="w-16 h-16 mx-auto" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="28" fill="#FF6B00" fill-opacity="0.1"/>
+                    <ellipse cx="32" cy="33" rx="16" ry="14" fill="#FF6B00" fill-opacity="0.2" stroke="#FF6B00" stroke-width="3"/>
+                    <path d="M22 23 Q32 27 42 23" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                letter: 'E e',
+                sound: '[e] 诶',
+                color: '#FF9500',
+                mouthTip: '嘴角向两边微微拉开，开口度比 A 小一半，发纯粹的单音“诶”',
+                word: 'Café',
+                meaning: '咖啡',
+                phonetic: 'ka-FE',
+                svgMouth: `<svg class="w-16 h-16 mx-auto" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="28" fill="#FF9500" fill-opacity="0.1"/>
+                    <ellipse cx="32" cy="33" rx="18" ry="8.5" fill="#FF9500" fill-opacity="0.2" stroke="#FF9500" stroke-width="3"/>
+                    <path d="M20 29 Q32 31 44 29" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                letter: 'I i',
+                sound: '[i] 衣',
+                color: '#34C759',
+                mouthTip: '上下齿靠近呈微笑扁平状，发短促有力的“衣”（切勿拖长音）',
+                word: 'Sí',
+                meaning: '是的',
+                phonetic: 'si',
+                svgMouth: `<svg class="w-16 h-16 mx-auto" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="28" fill="#34C759" fill-opacity="0.1"/>
+                    <ellipse cx="32" cy="33" rx="19" ry="4.5" fill="#34C759" fill-opacity="0.2" stroke="#34C759" stroke-width="3"/>
+                </svg>`
+            },
+            {
+                letter: 'O o',
+                sound: '[o] 哦',
+                color: '#0071E3',
+                mouthTip: '双唇拢成标准的圆形，绝不要像英语那样滑向“欧(ou)”，保持嘴型不动',
+                word: 'Hola',
+                meaning: '你好 (H不发音)',
+                phonetic: 'O-la',
+                svgMouth: `<svg class="w-16 h-16 mx-auto" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="28" fill="#0071E3" fill-opacity="0.1"/>
+                    <circle cx="32" cy="33" r="11" fill="#0071E3" fill-opacity="0.2" stroke="#0071E3" stroke-width="3"/>
+                </svg>`
+            },
+            {
+                letter: 'U u',
+                sound: '[u] 乌',
+                color: '#AF52DE',
+                mouthTip: '双唇嘟起缩成最小圆孔，像吹口哨一样发出纯净的“乌”',
+                word: 'Uno',
+                meaning: '数字 1',
+                phonetic: 'U-no',
+                svgMouth: `<svg class="w-16 h-16 mx-auto" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="28" fill="#AF52DE" fill-opacity="0.1"/>
+                    <circle cx="32" cy="33" r="6.5" fill="#AF52DE" fill-opacity="0.25" stroke="#AF52DE" stroke-width="3"/>
+                </svg>`
+            }
+        ];
+
+        const consonantsData = [
+            {
+                symbol: 'H h',
+                tag: '隐形透明人',
+                color: 'text-sky-500 bg-sky-500/10',
+                rule: '永远<strong>完全不发音</strong>！看到它直接当空气跳过，直接读后面的元音。',
+                examples: [
+                    { es: 'Hola', zh: '你好 [读 O-la]' },
+                    { es: 'Hotel', zh: '酒店 [读 O-tel]' }
+                ],
+                svg: `<svg class="w-10 h-10 text-sky-500" viewBox="0 0 40 40" fill="none">
+                    <path d="M12 32V18C12 12.477 15.582 8 20 8C24.418 8 28 12.477 28 18V32L24 29L20 32L16 29L12 32Z" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2"/>
+                    <circle cx="17" cy="18" r="1.5" fill="currentColor"/>
+                    <circle cx="23" cy="18" r="1.5" fill="currentColor"/>
+                </svg>`
+            },
+            {
+                symbol: 'Ñ ñ',
+                tag: '西语国宝字母',
+                color: 'text-apple-orange bg-apple-orange/10',
+                rule: '头顶小波浪，发鼻音<strong>「涅 (ni-)」</strong>，就像中文“捏”的前半截。',
+                examples: [
+                    { es: 'España', zh: '西班牙 [Es-pa-nya]' },
+                    { es: 'Mañana', zh: '明天/早晨' }
+                ],
+                svg: `<svg class="w-10 h-10 text-apple-orange" viewBox="0 0 40 40" fill="none">
+                    <rect x="4" y="4" width="32" height="32" rx="10" fill="currentColor" fill-opacity="0.12"/>
+                    <path d="M12 13C15 9 19 17 22 13C25 9 27 13 28 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <text x="13" y="30" fill="currentColor" font-size="16" font-weight="bold">N</text>
+                </svg>`
+            },
+            {
+                symbol: 'J j',
+                tag: '哈气清嗓音',
+                color: 'text-amber-500 bg-amber-500/10',
+                rule: '千万别读成“勾”！它在西语里发中文<strong>「喝 (h)」</strong>或轻轻清嗓子的声音。',
+                examples: [
+                    { es: 'Jamón', zh: '火腿 [Ha-mon]' },
+                    { es: 'J스 / Jefe', zh: '老板 [He-fe]' }
+                ],
+                svg: `<svg class="w-10 h-10 text-amber-500" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="16" fill="currentColor" fill-opacity="0.12"/>
+                    <path d="M12 16C18 16 22 12 28 12M12 22C19 22 23 20 29 20M12 28C17 28 21 26 26 26" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                symbol: 'LL / Y',
+                tag: '双胞胎半元音',
+                color: 'text-emerald-500 bg-emerald-500/10',
+                rule: '两个 L 连写成一个字母，和 Y 一样发类似中文<strong>「耶 (y)」</strong>的音。',
+                examples: [
+                    { es: 'Paella', zh: '海鲜饭 [Pa-e-ya]' },
+                    { es: 'Me llamo', zh: '我叫... [Me ya-mo]' }
+                ],
+                svg: `<svg class="w-10 h-10 text-emerald-500" viewBox="0 0 40 40" fill="none">
+                    <rect x="4" y="4" width="32" height="32" rx="10" fill="currentColor" fill-opacity="0.12"/>
+                    <path d="M15 12V28M23 12V28" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                symbol: 'C(e/i) & Z',
+                tag: '西班牙 vs 拉美口音标志',
+                color: 'text-purple-500 bg-purple-500/10',
+                rule: '在西班牙本土发英语 <em>thank</em> 的<strong>咬舌音 [θ]</strong>；在拉美则直接读作普通 <strong>[s]</strong>，两种都完全标准！',
+                examples: [
+                    { es: 'Gracias', zh: '谢谢 [Gra-sias]' },
+                    { es: 'Cerveza', zh: '啤酒 [Ser-ve-sa]' }
+                ],
+                svg: `<svg class="w-10 h-10 text-purple-500" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="16" fill="currentColor" fill-opacity="0.12"/>
+                    <path d="M12 20H28M20 12C15 16 15 24 20 28M20 12C25 16 25 24 20 28" stroke="currentColor" stroke-width="2"/>
+                </svg>`
+            }
+        ];
+
+        function renderPronunciationLab() {
+            // 渲染五大元音
+            const vowelGrid = document.getElementById('vowelGrid');
+            vowelGrid.innerHTML = vowelsData.map(v => `
+                <div onclick="speakSpanish('${v.letter.split(' ')[0]}, ${v.word}', '${v.word} (${v.meaning})')" class="bento-card cursor-pointer rounded-3xl bg-white dark:bg-apple-darkCard p-5 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between space-y-4 group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-2xl font-extrabold" style="color:${v.color}">${v.letter}</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold" style="background:${v.color}18; color:${v.color}">${v.sound}</span>
+                    </div>
+                    <div class="py-1 group-hover:scale-105 transition-transform">
+                        ${v.svgMouth}
+                    </div>
+                    <p class="text-xs text-apple-subtext leading-relaxed">${v.mouthTip}</p>
+                    <div class="pt-3 border-t border-black/[0.05] dark:border-white/[0.06] flex items-center justify-between">
+                        <div>
+                            <span class="text-sm font-bold block">${v.word} <span class="text-xs font-normal text-apple-subtext">(${v.meaning})</span></span>
+                            <span class="text-[11px] font-mono text-apple-subtext">[${v.phonetic}]</span>
+                        </div>
+                        <span class="w-8 h-8 rounded-full bg-apple-bg dark:bg-apple-darkElevated flex items-center justify-center text-xs group-hover:bg-apple-blue group-hover:text-white transition-colors">🔊</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // 渲染特殊辅音
+            const consonantGrid = document.getElementById('consonantGrid');
+            consonantGrid.innerHTML = consonantsData.map((c, idx) => `
+                <div class="${idx === 4 ? 'sm:col-span-2' : ''} bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-5 border border-black/[0.06] dark:border-white/[0.08] shadow-apple flex flex-col justify-between space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            ${c.svg}
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="text-xl font-extrabold">${c.symbol}</h4>
+                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${c.color}">${c.tag}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-apple-subtext leading-relaxed">${c.rule}</p>
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        ${c.examples.map(ex => `
+                            <button onclick="speakSpanish('${ex.es.replace('J스 / ', '')}', '${ex.zh}')" class="p-2.5 rounded-xl bg-apple-bg dark:bg-apple-darkElevated hover:ring-1 hover:ring-apple-blue text-left transition-all flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-bold block">${ex.es.replace('J스 / ', '')}</span>
+                                    <span class="text-[10px] text-apple-subtext">${ex.zh}</span>
+                                </div>
+                                <span class="text-xs text-apple-blue">🔊</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /********************************************************************
+         * 3. MODULE 2 数据与交互：Ser vs Estar 对比 + 动词乐高拼图
+         ********************************************************************/
+        const serEstarDemos = [
+            {
+                adj: 'rico',
+                serEs: 'Él es rico.',
+                serZh: '他是个有钱人（永久身份财富）',
+                estarEs: '¡La paella está rica!',
+                estarZh: '这海鲜饭真好吃！（当前口感状态）'
+            },
+            {
+                adj: 'aburrido',
+                serEs: 'El profesor es aburrido.',
+                serZh: '这教授是个无趣的人（性格本性）',
+                estarEs: 'Estoy aburrido en casa.',
+                estarZh: '我现在待在家里觉得很闷（当前心情）'
+            },
+            {
+                adj: 'listo',
+                serEs: 'Tu hijo es muy listo.',
+                serZh: '你儿子真聪明机灵（天生头脑）',
+                estarEs: '¿Estás listo? ¡Vamos!',
+                estarZh: '你准备好了吗？我们走吧！（当前状态）'
+            }
+        ];
+
+        function selectSerEstarDemo(index) {
+            const d = serEstarDemos[index];
+            const btns = document.querySelectorAll('.ser-demo-btn');
+            btns.forEach((btn, i) => {
+                if (i === index) {
+                    btn.className = 'ser-demo-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-apple-blue text-white transition-all';
+                } else {
+                    btn.className = 'ser-demo-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-black/5 dark:bg-white/10 transition-all';
+                }
+            });
+
+            document.getElementById('serEstarCompareBox').innerHTML = `
+                <div onclick="speakSpanish('${d.serEs}', '${d.serZh}')" class="cursor-pointer p-3 rounded-xl bg-white dark:bg-apple-darkCard border border-indigo-500/30 flex items-center justify-between hover:scale-[1.01] transition-transform">
+                    <div>
+                        <span class="text-[11px] font-bold text-indigo-500 block">搭配 SER (本质属性)</span>
+                        <span class="font-bold text-sm">${d.serEs}</span>
+                        <span class="text-xs text-apple-subtext block">${d.serZh}</span>
+                    </div>
+                    <span class="text-indigo-500 font-bold">🔊</span>
+                </div>
+                <div onclick="speakSpanish('${d.estarEs}', '${d.estarZh}')" class="cursor-pointer p-3 rounded-xl bg-white dark:bg-apple-darkCard border border-emerald-500/30 flex items-center justify-between hover:scale-[1.01] transition-transform">
+                    <div>
+                        <span class="text-[11px] font-bold text-emerald-500 block">搭配 ESTAR (当前状态)</span>
+                        <span class="font-bold text-sm">${d.estarEs}</span>
+                        <span class="text-xs text-apple-subtext block">${d.estarZh}</span>
+                    </div>
+                    <span class="text-emerald-500 font-bold">🔊</span>
+                </div>
+            `;
+        }
+
+        // 动词乐高积木数据
+        const legoCores = [
+            { es: 'Quiero', zh: '我想...', phonetic: 'Ki-e-ro' },
+            { es: 'Puedo', zh: '我能/可以...', phonetic: 'Pu-e-do' },
+            { es: 'Necesito', zh: '我需要...', phonetic: 'Ne-se-si-to' },
+            { es: 'Voy a', zh: '我打算去...', phonetic: 'Voy a' }
+        ];
+
+        const legoActions = [
+            { es: 'comer paella', zh: '吃海鲜饭', phonetic: 'ko-mer pa-e-ya' },
+            { es: 'tomar un café', zh: '喝一杯咖啡', phonetic: 'to-mar un ka-fe' },
+            { es: 'pagar con tarjeta', zh: '刷卡付钱', phonetic: 'pa-gar kon tar-he-ta' },
+            { es: 'ir al baño', zh: '去洗手间', phonetic: 'ir al ba-nyo' },
+            { es: 'comprar esto', zh: '买这个', phonetic: 'kom-prar es-to' },
+            { es: 'hablar español', zh: '说西班牙语', phonetic: 'a-blar es-pa-nyol' }
+        ];
+
+        let selectedCoreIdx = 0;
+        let selectedActionIdx = 0;
+
+        function renderVerbLego() {
+            const coreContainer = document.getElementById('legoCoreBtns');
+            coreContainer.innerHTML = legoCores.map((c, idx) => `
+                <button onclick="selectLegoCore(${idx})" class="p-3 rounded-2xl text-left border transition-all ${idx === selectedCoreIdx ? 'bg-apple-blue text-white border-apple-blue shadow-md' : 'bg-apple-bg dark:bg-apple-darkElevated border-transparent hover:border-apple-blue/40'}">
+                    <span class="font-extrabold text-sm block">${c.es}</span>
+                    <span class="text-[11px] ${idx === selectedCoreIdx ? 'text-white/80' : 'text-apple-subtext'}">${c.zh}</span>
+                </button>
+            `).join('');
+
+            const actionContainer = document.getElementById('legoActionBtns');
+            actionContainer.innerHTML = legoActions.map((a, idx) => `
+                <button onclick="selectLegoAction(${idx})" class="p-3 rounded-2xl text-left border transition-all ${idx === selectedActionIdx ? 'bg-apple-orange text-white border-apple-orange shadow-md' : 'bg-apple-bg dark:bg-apple-darkElevated border-transparent hover:border-apple-orange/40'}">
+                    <span class="font-extrabold text-sm block">${a.es}</span>
+                    <span class="text-[11px] ${idx === selectedActionIdx ? 'text-white/80' : 'text-apple-subtext'}">${a.zh}</span>
+                </button>
+            `).join('');
+
+            // 更新右侧预览屏
+            const core = legoCores[selectedCoreIdx];
+            const act = legoActions[selectedActionIdx];
+            document.getElementById('legoPreviewCore').textContent = core.es;
+            document.getElementById('legoPreviewAction').textContent = act.es;
+            document.getElementById('legoPreviewPhonetic').textContent = `发音提示：[${core.phonetic} ${act.phonetic}]`;
+            document.getElementById('legoPreviewMeaning').textContent = `含义：${core.zh.replace('...', '')}${act.zh}。`;
+            document.getElementById('legoPreviewLiteral').textContent = `字面逻辑：${core.zh.replace('...', '')} (${core.es}) + ${act.zh} (${act.es})`;
+        }
+
+        function selectLegoCore(idx) {
+            selectedCoreIdx = idx;
+            renderVerbLego();
+            playCurrentLegoSentence();
+        }
+
+        function selectLegoAction(idx) {
+            selectedActionIdx = idx;
+            renderVerbLego();
+            playCurrentLegoSentence();
+        }
+
+        function playCurrentLegoSentence() {
+            const core = legoCores[selectedCoreIdx];
+            const act = legoActions[selectedActionIdx];
+            speakSpanish(`${core.es} ${act.es}`, `${core.zh.replace('...', '')}${act.zh}`);
+        }
+
+        // 切换动词 Tab
+        function switchVerbTab(tab) {
+            const isLazy = tab === 'lazy';
+            document.getElementById('verbTabLazy').classList.toggle('hidden', !isLazy);
+            document.getElementById('verbTabConj').classList.toggle('hidden', isLazy);
+
+            document.getElementById('tabLazyBtn').className = isLazy
+                ? 'px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-apple-darkCard shadow-sm transition-all'
+                : 'px-4 py-2 rounded-xl text-xs font-bold text-apple-subtext hover:text-apple-text dark:hover:text-white transition-all';
+            document.getElementById('tabConjBtn').className = !isLazy
+                ? 'px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-apple-darkCard shadow-sm transition-all'
+                : 'px-4 py-2 rounded-xl text-xs font-bold text-apple-subtext hover:text-apple-text dark:hover:text-white transition-all';
+        }
+
+        // 动词词尾变位数据
+        const conjugationsData = {
+            hablar: {
+                stem: 'Habl',
+                meaning: '说 / 讲',
+                forms: [
+                    { pronoun: 'Yo (我)', ending: 'o', full: 'Hablo español', zh: '我说西语' },
+                    { pronoun: 'Tú (你)', ending: 'as', full: '¿Hablas inglés?', zh: '你说英语吗？' },
+                    { pronoun: 'Él / Ella (他/她)', ending: 'a', full: 'Ella habla bien', zh: '她说得很好' },
+                    { pronoun: 'Nosotros (我们)', ending: 'amos', full: 'Hablamos mañana', zh: '我们明天聊' },
+                    { pronoun: 'Ellos (他们)', ending: 'an', full: 'Hablan rápido', zh: '他们说得很快' }
+                ]
+            },
+            comer: {
+                stem: 'Com',
+                meaning: '吃',
+                forms: [
+                    { pronoun: 'Yo (我)', ending: 'o', full: 'Como tapas', zh: '我吃小吃' },
+                    { pronoun: 'Tú (你)', ending: 'es', full: '¿Qué comes?', zh: '你在吃什么？' },
+                    { pronoun: 'Él / Ella (他/她)', ending: 'e', full: 'Él come carne', zh: '他吃肉' },
+                    { pronoun: 'Nosotros (我们)', ending: 'emos', full: 'Comemos juntos', zh: '我们一起吃' },
+                    { pronoun: 'Ellos (他们)', ending: 'en', full: 'Comen aquí', zh: '他们在这吃' }
+                ]
+            },
+            vivir: {
+                stem: 'Viv',
+                meaning: '居住 / 生活',
+                forms: [
+                    { pronoun: 'Yo (我)', ending: 'o', full: 'Vivo en Madrid', zh: '我住在马德里' },
+                    { pronoun: 'Tú (你)', ending: 'es', full: '¿Dónde vives?', zh: '你住在哪里？' },
+                    { pronoun: 'Él / Ella (他/她)', ending: 'e', full: 'Vive cerca', zh: '他住得很近' },
+                    { pronoun: 'Nosotros (我们)', ending: 'imos', full: 'Vivimos felices', zh: '我们生活幸福' },
+                    { pronoun: 'Ellos (他们)', ending: 'en', full: 'Viven en España', zh: '他们住在西班牙' }
+                ]
+            }
+        };
+
+        function selectConjVerb(verbKey) {
+            const data = conjugationsData[verbKey];
+            const btns = document.querySelectorAll('.conj-verb-btn');
+            const keys = ['hablar', 'comer', 'vivir'];
+            btns.forEach((b, i) => {
+                b.className = keys[i] === verbKey
+                    ? 'conj-verb-btn px-4 py-2 rounded-xl text-xs font-bold bg-apple-orange text-white transition-all'
+                    : 'conj-verb-btn px-4 py-2 rounded-xl text-xs font-bold bg-black/5 dark:bg-white/10 transition-all';
+            });
+
+            document.getElementById('conjGrid').innerHTML = data.forms.map(f => `
+                <div onclick="speakSpanish('${f.full}', '${f.zh}')" class="cursor-pointer p-4 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated hover:ring-2 hover:ring-apple-orange transition-all space-y-2">
+                    <div class="flex items-center justify-between text-xs text-apple-subtext">
+                        <span class="font-semibold">${f.pronoun}</span>
+                        <span class="text-apple-orange font-bold">🔊</span>
+                    </div>
+                    <div class="text-2xl font-extrabold tracking-tight">
+                        <span>${data.stem}</span><span class="text-apple-orange underline decoration-2 underline-offset-4">${f.ending}</span>
+                    </div>
+                    <div class="pt-1 border-t border-black/[0.05] dark:border-white/[0.06] text-xs">
+                        <p class="font-bold">${f.full}</p>
+                        <p class="text-apple-subtext">${f.zh}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /********************************************************************
+         * 4. MODULE 3 数据与渲染：24 个图文生存场景卡片
+         ********************************************************************/
+        const scenariosData = [
+            // 1. 破冰与寒暄 (greetings)
+            { id: 'g1', cat: 'greetings', icon: '👋', es: '¡Hola! ¿Qué tal?', phonetic: 'O-la, ke tal', zh: '你好！最近怎么样？', literal: 'Hola (你好) + Qué (什么) + tal (怎么样)', tip: '西语最地道的万能打招呼，比 ¿Cómo estás? 更口语自然。' },
+            { id: 'g2', cat: 'greetings', icon: '☀️', es: '¡Buenas!', phonetic: 'Bwe-nas', zh: '嗨！日安！（全天候通用）', literal: 'Buenas (好的[时光] - 省略了早/午/晚)', tip: '懒人福音！不想区分早上好(Buenos días)还是下午好(Buenas tardes)，进店直接喊一声 ¡Buenas! 即可。' },
+            { id: 'g3', cat: 'greetings', icon: '😊', es: 'Muy bien, gracias. ¿Y tú?', phonetic: 'Muy byen, gra-sias. i tu', zh: '挺好的，谢谢。你呢？', literal: 'Muy (非常) + bien (好) + gracias (谢谢) + Y tú (以及你？)', tip: '回答别人问候的黄金标准句式。' },
+            { id: 'g4', cat: 'greetings', icon: '🏷️', es: 'Me llamo Alex. Mucho gusto.', phonetic: 'Me ya-mo Alex. Mu-cho gus-to', zh: '我叫 Alex。很高兴认识你。', literal: 'Me (我自己) + llamo (称呼为) + Mucho gusto (很多高兴)', tip: '注意 ll 发 y 的音，读作 Me ya-mo。' },
+            { id: 'g5', cat: 'greetings', icon: '🐢', es: 'Más despacio, por favor.', phonetic: 'Mas des-pa-sio, por fa-vor', zh: '请说慢一点。', literal: 'Más (更) + despacio (慢) + por favor (请)', tip: '火遍全球的神曲《Despacito》原形就是 despacio（慢一点）！' },
+            { id: 'g6', cat: 'greetings', icon: '👋', es: '¡Hasta luego!', phonetic: 'As-ta lwe-go', zh: '回见！待会儿见！', literal: 'Hasta (直到) + luego (稍后)', tip: 'H 不发音，所以 Hasta 读作 As-ta。比 Adiós 更温和常用。' },
+
+            // 2. 餐厅与点单 (dining)
+            { id: 'd1', cat: 'dining', icon: '🪑', es: 'Una mesa para dos, por favor.', phonetic: 'U-na me-sa pa-ra dos, por fa-vor', zh: '请给我们一张两人桌。', literal: 'Una mesa (一张桌子) + para (为了) + dos (两个人)', tip: '进餐厅第一句话，如果是 1 个人就把 dos 换成 uno，3 个人换成 tres。' },
+            { id: 'd2', cat: 'dining', icon: '☕', es: 'Un café con leche, por favor.', phonetic: 'Un ka-fe kon le-che, por fa-vor', zh: '请来一杯牛奶咖啡（拿铁）。', literal: 'Un café (一杯咖啡) + con (带有) + leche (牛奶)', tip: '相反，如果不加奶的黑咖啡叫 Café solo（孤独的咖啡），加冰块叫 con hielo。' },
+            { id: 'd3', cat: 'dining', icon: '🥘', es: 'Para mí, la paella.', phonetic: 'Pa-ra mi, la pa-e-ya', zh: '我的话，点这份海鲜饭。', literal: 'Para mí (对于我来说) + la paella (那份海鲜饭)', tip: '连 Quiero 都不用说，指着菜单说 Para mí + 菜名，极其地道！' },
+            { id: 'd4', cat: 'dining', icon: '💧', es: 'Agua sin gas, por favor.', phonetic: 'A-gwa sin gas, por fa-vor', zh: '请给我不带气的普通矿泉水。', literal: 'Agua (水) + sin (没有) + gas (气体)', tip: '欧洲餐厅点水必考：带气泡水是 con gas，普通纯净水是 sin gas。' },
+            { id: 'd5', cat: 'dining', icon: '😋', es: '¡Está riquísimo!', phonetic: 'Es-ta rri-ki-si-mo', zh: '太美味了！超级好吃！', literal: 'Está (当前状态是) + riquísimo (极其美味)', tip: '词尾加上 -ísimo 就代表“超级/极其”，大厨听到会非常开心。' },
+            { id: 'd6', cat: 'dining', icon: '🧾', es: 'La cuenta, por favor.', phonetic: 'La kwen-ta, por fa-vor', zh: '劳驾，买单！', literal: 'La cuenta (那张账单) + por favor (请)', tip: '在西班牙餐厅，服务员绝不会主动催你结账，必须主动举手示意说这句话。' },
+
+            // 3. 出行与问路 (transit)
+            { id: 't1', cat: 'transit', icon: '🚻', es: 'Disculpe, ¿dónde está el baño?', phonetic: 'Dis-kul-pe, don-de es-ta el ba-nyo', zh: '打扰一下，洗手间在哪里？', literal: 'Disculpe (打扰) + dónde (哪里) + está (位于) + el baño (洗手间)', tip: '寻找任何地点都可用 ¿Dónde está + 地点？比如 ¿Dónde está el metro?（地铁在哪）。' },
+            { id: 't2', cat: 'transit', icon: '🚇', es: 'Un billete para Madrid, por favor.', phonetic: 'Un bi-ye-te pa-ra Ma-drid', zh: '请给我一张去马德里的票。', literal: 'Un billete (一张票) + para (去往) + Madrid', tip: '在火车站或地铁买票直接套用。' },
+            { id: 't3', cat: 'transit', icon: '🚕', es: 'A este hotel, por favor.', phonetic: 'A es-te o-tel, por fa-vor', zh: '（对司机）请去这家酒店。', literal: 'A (去往) + este (这个) + hotel (酒店)', tip: '上出租车打开手机地图指给司机看，同时说这句话即可。' },
+            { id: 't4', cat: 'transit', icon: '🧭', es: '¿Está lejos o cerca?', phonetic: 'Es-ta le-hos o ser-ka', zh: '离这儿远还是近？', literal: 'Está (位置状态是) + lejos (远) + o (或者) + cerca (近)', tip: '问路后确认步行能不能到的神器。' },
+            { id: 't5', cat: 'transit', icon: '🛑', es: 'Aquí está bien, gracias.', phonetic: 'A-ki es-ta byen, gra-sias', zh: '停在这儿就好，谢谢。', literal: 'Aquí (这里) + está bien (状态很好)', tip: '下出租车或让同伴停下时非常实用。' },
+            { id: 't6', cat: 'transit', icon: '✈️', es: 'Busco la estación de tren.', phonetic: 'Bus-ko la es-ta-sion de tren', zh: '我在找火车站。', literal: 'Busco (我寻找) + la estación (车站) + de tren (火车的)', tip: '西语用 A de B 表示“B的A”。' },
+
+            // 4. 购物与应急 (shopping)
+            { id: 's1', cat: 'shopping', icon: '🏷️', es: '¿Cuánto cuesta esto?', phonetic: 'Kwan-to kwes-ta es-to', zh: '这个多少钱？', literal: 'Cuánto (多少) + cuesta (花费) + esto (这个)', tip: '指着任何商品问价的万能句，也可简化成 ¿Cuánto es?。' },
+            { id: 's2', cat: 'shopping', icon: '💳', es: '¿Puedo pagar con tarjeta?', phonetic: 'Pwe-do pa-gar kon tar-he-ta', zh: '我能刷卡支付吗？', literal: 'Puedo (我能) + pagar (付钱) + con tarjeta (用卡片)', tip: '如果付现金则是 en efectivo。' },
+            { id: 's3', cat: 'shopping', icon: '👀', es: 'Solo estoy mirando, gracias.', phonetic: 'So-lo es-toy mi-ran-do, gra-sias', zh: '我只是随便看看，谢谢。', literal: 'Solo (只是) + estoy mirando (我正在看)', tip: '店员热情询问时，用这句话礼貌拒绝推销。' },
+            { id: 's4', cat: 'shopping', icon: '🛍️', es: '¿Tiene una bolsa?', phonetic: 'Tye-ne u-na bol-sa', zh: '请问有购物袋吗？', literal: 'Tiene (您有) + una bolsa (一个袋子)', tip: '超市结账要塑料袋必用。' },
+            { id: 's5', cat: 'shopping', icon: '📶', es: '¿Cuál es la clave del WiFi?', phonetic: 'Kwal es la kla-ve del WiFi', zh: 'WiFi 密码是多少？', literal: 'Cuál es (是什么) + la clave (密码/钥匙) + del WiFi', tip: '密码也可以说 contraseña，但 clave 短小好记！' },
+            { id: 's6', cat: 'shopping', icon: '🆘', es: '¿Puede ayudarme, por favor?', phonetic: 'Pwe-de a-yu-dar-me, por fa-vor', zh: '请问您能帮帮我吗？', literal: 'Puede (您能) + ayudarme (帮助我)', tip: '遇到紧急情况寻求路人或警察协助的礼貌句式。' }
+        ];
+
+        let currentScenarioCat = 'greetings';
+
+        function filterScenarios(cat) {
+            currentScenarioCat = cat;
+            document.querySelectorAll('.scenario-tab').forEach(btn => {
+                const isSelected = btn.getAttribute('data-cat') === cat;
+                btn.className = isSelected
+                    ? 'scenario-tab px-4 py-2 rounded-xl text-xs font-bold bg-apple-text text-white dark:bg-white dark:text-apple-text shrink-0 transition-all'
+                    : 'scenario-tab px-4 py-2 rounded-xl text-xs font-bold text-apple-subtext hover:text-apple-text dark:hover:text-white shrink-0 transition-all';
+            });
+            renderScenarios(cat);
+        }
+
+        function renderScenarios(cat) {
+            const container = document.getElementById('scenarioCardsContainer');
+            const filtered = scenariosData.filter(item => item.cat === cat);
+
+            container.innerHTML = filtered.map(item => {
+                const isMastered = userProgress.masteredPhrases.includes(item.id);
+                return `
+                    <div class="bento-card rounded-3xl bg-white dark:bg-apple-darkCard p-6 border ${isMastered ? 'border-apple-green/50 ring-1 ring-apple-green/20' : 'border-black/[0.06] dark:border-white/[0.08]'} shadow-apple flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="w-10 h-10 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated flex items-center justify-center text-xl">${item.icon}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="speakSpanish('${item.es.replace(/'/g, "\\'")}', '${item.zh}')" class="px-3 py-1.5 rounded-full bg-apple-blue/10 text-apple-blue hover:bg-apple-blue hover:text-white text-xs font-bold transition-all flex items-center gap-1">
+                                        <span>🔊 发音</span>
+                                    </button>
+                                    <button onclick="togglePhraseMastered('${item.id}')" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all ${isMastered ? 'bg-apple-green text-white' : 'bg-black/[0.05] dark:bg-white/[0.08] text-apple-subtext hover:text-apple-text dark:hover:text-white'}">
+                                        ${isMastered ? '✓ 已掌握' : '+ 标记掌握'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div onclick="speakSpanish('${item.es.replace(/'/g, "\\'")}', '${item.zh}')" class="cursor-pointer group">
+                                <h4 class="text-xl font-extrabold group-hover:text-apple-blue transition-colors">${item.es}</h4>
+                                <p class="text-xs font-mono text-apple-subtext mt-0.5">[${item.phonetic}]</p>
+                                <p class="text-sm font-bold mt-1.5">${item.zh}</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-black/[0.05] dark:border-white/[0.06] space-y-2 text-xs">
+                            <div class="p-2.5 rounded-xl bg-apple-bg dark:bg-apple-darkElevated">
+                                <span class="font-bold text-apple-blue">🧩 字面直译：</span>
+                                <span class="text-apple-subtext">${item.literal}</span>
+                            </div>
+                            <p class="text-apple-subtext leading-relaxed">
+                                <strong class="text-apple-orange">💡 文化锦囊：</strong>${item.tip}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function togglePhraseMastered(id) {
+            const idx = userProgress.masteredPhrases.indexOf(id);
+            if (idx > -1) {
+                userProgress.masteredPhrases.splice(idx, 1);
+            } else {
+                userProgress.masteredPhrases.push(id);
+            }
+            saveProgress();
+            renderScenarios(currentScenarioCat);
+        }
+
+        /********************************************************************
+         * 5. MODULE 4 数据与交互：3D 翻转词卡 + 情景闯关测验
+         ********************************************************************/
+        const flashcardsData = [
+            { id: 'c1', cat: '礼貌万能词', emoji: '🙏', es: 'Por favor', phonetic: 'Por fa-vor', zh: '请 / 劳驾', tip: '字面意思：“为了恩惠 (For favor)”。点单、问路放句尾礼貌度满分。', exEs: 'La cuenta, por favor.', exZh: '劳驾，请买单。' },
+            { id: 'c2', cat: '高频致谢', emoji: '💖', es: 'Muchas gracias', phonetic: 'Mu-chas gra-sias', zh: '非常感谢', tip: 'Gracias 是阴性复数，所以搭配 Muchas（很多）。', exEs: 'Muchas gracias por tu ayuda.', exZh: '非常感谢你的帮助。' },
+            { id: 'c3', cat: '核心意愿', emoji: '✨', es: 'Quiero', phonetic: 'Ki-e-ro', zh: '我想要 / 我爱', tip: '既能加名词（Quiero café），也能直接加动词原形（Quiero comer）。还可用于表白 Te quiero！', exEs: 'Quiero un café con leche.', exZh: '我想要一杯拿铁。' },
+            { id: 'c4', cat: '生存必问', emoji: '📍', es: '¿Dónde está...?', phonetic: 'Don-de es-ta', zh: '...在哪里？', tip: '因为位置属于状态，所以用 Estar 的第三人称 está。', exEs: '¿Dónde está el metro?', exZh: '地铁站在哪里？' },
+            { id: 'c5', cat: '美食赞美', emoji: '🥘', es: '¡Qué rico!', phonetic: 'Ke rri-ko', zh: '真好吃！太香了！', tip: '吃到美食时脱口而出的赞叹，服务员听到会非常高兴。', exEs: '¡Qué rico está el jamón!', exZh: '这火腿太好吃了！' },
+            { id: 'c6', cat: '时间概念', emoji: '🌅', es: 'Mañana', phonetic: 'Ma-nya-na', zh: '明天 / 早晨', tip: '带波浪号的 ñ 发“涅”音。¡Hasta mañana! 就是“明天见！”', exEs: 'Nos vemos mañana.', exZh: '我们明天见。' },
+            { id: 'c7', cat: '干杯祝酒', emoji: '🥂', es: '¡Salud!', phonetic: 'Sa-lud', zh: '干杯！/ 祝健康！', tip: '字面意思是“健康”。此外别人打喷嚏时也说 ¡Salud! 表示祝福。', exEs: '¡Salud, amigos!', exZh: '干杯，朋友们！' },
+            { id: 'c8', cat: '紧急沟通', emoji: '🤷', es: 'No entiendo', phonetic: 'No en-tyen-do', zh: '我听不懂 / 我不明白', tip: '否定极其简单，直接在动词前面放一个 No 即可！', exEs: 'Lo siento, no entiendo.', exZh: '抱歉，我没听懂。' },
+            { id: 'c9', cat: '高频肯定', emoji: '👍', es: '¡Claro!', phonetic: 'Kla-ro', zh: '当然！没问题！', tip: '字面意思是“清晰明亮的”，母语者回应请求时比 Sí 更爱用 ¡Claro!。', exEs: '¡Claro que sí!', exZh: '那当然啦！' },
+            { id: 'c10', cat: '道别祝福', emoji: '🌟', es: '¡Buen viaje!', phonetic: 'Bwen vya-he', zh: '旅途愉快！一路顺风！', tip: 'Viaje 里的 j 发 h 的音，读作 vya-he。', exEs: '¡Adiós y buen viaje!', exZh: '再见，祝你旅途愉快！' }
+        ];
+
+        let currentCardIdx = 0;
+        let isCardFlipped = false;
+
+        function renderFlashcard() {
+            const card = flashcardsData[currentCardIdx];
+            const inner = document.getElementById('flashcardInner');
+            isCardFlipped = false;
+            inner.classList.remove('rotate-y-180');
+
+            document.getElementById('flashcardCounter').textContent = `${currentCardIdx + 1} / ${flashcardsData.length}`;
+            document.getElementById('fcCategoryBadge').textContent = card.cat;
+            document.getElementById('fcSvgArt').textContent = card.emoji;
+            document.getElementById('fcSpanish').textContent = card.es;
+            document.getElementById('fcPhonetic').textContent = `[${card.phonetic}]`;
+            document.getElementById('fcChinese').textContent = card.zh;
+            document.getElementById('fcMemoryTip').textContent = card.tip;
+            document.getElementById('fcExampleEs').textContent = card.exEs;
+            document.getElementById('fcExampleZh').textContent = card.exZh;
+
+            const isMastered = userProgress.masteredCards.includes(card.id);
+            const masterBtn = document.getElementById('fcMasterBtn');
+            if (isMastered) {
+                masterBtn.textContent = '✓ 已收入掌握词库';
+                masterBtn.className = 'flex-1 py-2.5 rounded-2xl bg-apple-green text-white text-xs font-bold transition-all';
+            } else {
+                masterBtn.textContent = '+ 标记为已掌握';
+                masterBtn.className = 'flex-1 py-2.5 rounded-2xl bg-apple-green/15 text-apple-green hover:bg-apple-green hover:text-white text-xs font-bold transition-all';
+            }
+        }
+
+        function flipFlashcard() {
+            isCardFlipped = !isCardFlipped;
+            document.getElementById('flashcardInner').classList.toggle('rotate-y-180', isCardFlipped);
+        }
+
+        function nextFlashcard() {
+            currentCardIdx = (currentCardIdx + 1) % flashcardsData.length;
+            renderFlashcard();
+        }
+
+        function prevFlashcard() {
+            currentCardIdx = (currentCardIdx - 1 + flashcardsData.length) % flashcardsData.length;
+            renderFlashcard();
+        }
+
+        function speakCurrentFlashcard() {
+            const card = flashcardsData[currentCardIdx];
+            speakSpanish(card.es, card.zh);
+        }
+
+        function speakCurrentFlashcardExample() {
+            const card = flashcardsData[currentCardIdx];
+            speakSpanish(card.exEs, card.exZh);
+        }
+
+        function toggleCurrentFlashcardMastered() {
+            const card = flashcardsData[currentCardIdx];
+            const idx = userProgress.masteredCards.indexOf(card.id);
+            if (idx > -1) {
+                userProgress.masteredCards.splice(idx, 1);
+            } else {
+                userProgress.masteredCards.push(card.id);
+            }
+            saveProgress();
+            renderFlashcard();
+        }
+
+        // 键盘空格翻转词卡支持
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && document.activeElement.tagName !== 'BUTTON') {
+                const rect = document.getElementById('practice').getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    e.preventDefault();
+                    flipFlashcard();
+                }
+            }
+        });
+
+        // 情景直觉闯关 5 道题
+        const quizQuestions = [
+            {
+                q: '你在马德里一家露天咖啡馆喝完咖啡，想请服务员拿账单结账，最地道的说法是？',
+                options: [
+                    { text: 'La cuenta, por favor.', correct: true, explain: '太棒了！La cuenta 就是账单，配上手势写字动作，服务员秒懂。' },
+                    { text: 'Hola, ¿qué tal?', correct: false, explain: '这是刚见面打招呼用的“你好，最近怎么样？”哦。' },
+                    { text: 'Mucho gusto.', correct: false, explain: '这是初次见面说的“很高兴认识你”。' }
+                ]
+            },
+            {
+                q: '看到西语单词「Hotel（酒店）」和「Hola（你好）」，开头的字母 H 应该怎么发音？',
+                options: [
+                    { text: '发重重的“喝 (h)”音', correct: false, explain: '在西语里发“喝”音的是字母 J（比如 Jamón），不是 H 哦！' },
+                    { text: '完全隐形不发音，直接读后面的元音', correct: true, explain: '直觉满分！西语的 H 永远是透明人，Hola 读 O-la，Hotel 读 O-tel。' },
+                    { text: '发大舌音颤音', correct: false, explain: '大舌音是 R / RR 的专属技能。' }
+                ]
+            },
+            {
+                q: '你想夸眼前的西班牙海鲜饭“真好吃！”，应该用哪个“是”来搭配 rico？',
+                options: [
+                    { text: 'La paella es rica. (用 SER)', correct: false, explain: '用 es 搭配 rico 会变成“这盘饭是个有钱的富翁”！' },
+                    { text: '¡La paella está rica! (用 ESTAR)', correct: true, explain: '完全正确！食物好吃属于品尝时的“当前状态”，用 está rica 表示美味！' },
+                    { text: 'La paella quiero rica.', correct: false, explain: 'Quiero 是“我想要”，不是“是”哦。' }
+                ]
+            },
+            {
+                q: '运用「零基础偷懒双核公式」，如果你想说“我能刷卡付钱吗？”，下面哪句语法完全正确？',
+                options: [
+                    { text: '¿Puedo pagar con tarjeta?', correct: true, explain: '漂亮！Puedo (我能) 后面直接拼接动词原形 pagar (付钱)，简单又地道！' },
+                    { text: '¿Dónde está el baño?', correct: false, explain: '这句意思是“洗手间在哪里？”。' },
+                    { text: 'Soy de China.', correct: false, explain: '这句意思是“我来自中国”。' }
+                ]
+            },
+            {
+                q: '西语里名词有阴阳之分。观察词尾，下面哪一组搭配是完全正确的？',
+                options: [
+                    { text: 'La libro (书) / El casa (房子)', correct: false, explain: '阴阳冠词反啦！-o 结尾通常配阳性 El，-a 结尾配阴性 La。' },
+                    { text: 'El libro (书) / La casa (房子)', correct: true, explain: '直觉敏锐！认准 El 配 -o、La 配 -a，你已经掌握了 90% 的名词性别规律！' },
+                    { text: 'El cerveza (啤酒)', correct: false, explain: 'Cerveza 以 -a 结尾，是阴性名词，应该说 La cerveza。' }
+                ]
+            }
+        ];
+
+        let currentQuizIdx = 0;
+        let currentQuizScore = 0;
+        let quizAnswered = false;
+
+        function renderQuiz() {
+            const area = document.getElementById('quizContentArea');
+            const nextBtn = document.getElementById('quizNextBtn');
+            const badge = document.getElementById('quizStepBadge');
+
+            if (currentQuizIdx >= quizQuestions.length) {
+                // 通关结算画面
+                badge.textContent = '闯关完成 🎉';
+                nextBtn.classList.add('hidden');
+                if (userProgress.bestQuizScore === null || currentQuizScore > userProgress.bestQuizScore) {
+                    userProgress.bestQuizScore = currentQuizScore;
+                    saveProgress();
+                }
+                area.innerHTML = `
+                    <div class="p-6 rounded-3xl bg-gradient-to-br from-apple-green/15 to-apple-blue/15 text-center space-y-4">
+                        <div class="text-5xl">🏆</div>
+                        <h4 class="text-2xl font-extrabold">太棒了！你的直觉闯关得分：${currentQuizScore} / 5</h4>
+                        <p class="text-xs sm:text-sm text-apple-subtext max-w-md mx-auto">
+                            ${currentQuizScore === 5 ? '满分通关！你已经彻底掌握了西语拼读、阴阳词性、Ser/Estar 区分与万能造句公式！' : '表现非常出色！西语入门的核心逻辑已经在你脑海中建立起来了。'}
+                        </p>
+                        <div class="pt-2 flex justify-center gap-3">
+                            <button onclick="speakSpanish('¡Felicidades! Hablas español muy bien.', '祝贺你！你的西语棒极了！')" class="px-5 py-2.5 rounded-full bg-apple-blue text-white text-xs font-bold">
+                                🔊 听西语通关祝贺
+                            </button>
+                            <button onclick="restartQuiz()" class="px-5 py-2.5 rounded-full bg-white dark:bg-apple-darkCard text-xs font-bold border border-black/10 dark:border-white/10">
+                                ↻ 再挑战一次
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const qObj = quizQuestions[currentQuizIdx];
+            badge.textContent = `第 ${currentQuizIdx + 1} / ${quizQuestions.length} 关`;
+            document.getElementById('quizLiveScore').textContent = currentQuizScore;
+            nextBtn.classList.add('hidden');
+            quizAnswered = false;
+
+            area.innerHTML = `
+                <div class="p-4 rounded-2xl bg-apple-bg dark:bg-apple-darkElevated">
+                    <p class="font-bold text-sm sm:text-base leading-relaxed">${qObj.q}</p>
+                </div>
+                <div class="space-y-2.5" id="quizOptionsList">
+                    ${qObj.options.map((opt, idx) => `
+                        <button onclick="answerQuiz(${idx})" class="quiz-opt-btn w-full p-3.5 rounded-2xl border border-black/[0.08] dark:border-white/[0.1] bg-white dark:bg-apple-darkCard hover:border-apple-blue text-left text-xs sm:text-sm font-semibold transition-all flex items-center justify-between">
+                            <span>${opt.text}</span>
+                            <span class="w-5 h-5 rounded-full border border-black/20 dark:border-white/20 flex items-center justify-center text-[10px]"></span>
+                        </button>
+                    `).join('')}
+                </div>
+                <div id="quizFeedbackBox" class="hidden p-3.5 rounded-2xl text-xs leading-relaxed"></div>
+            `;
+        }
+
+        function answerQuiz(optIdx) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const qObj = quizQuestions[currentQuizIdx];
+            const chosen = qObj.options[optIdx];
+            const btns = document.querySelectorAll('.quiz-opt-btn');
+
+            if (chosen.correct) {
+                currentQuizScore++;
+                document.getElementById('quizLiveScore').textContent = currentQuizScore;
+                speakSpanish(chosen.text.split('(')[0], '回答正确！');
+            }
+
+            btns.forEach((btn, idx) => {
+                const isRight = qObj.options[idx].correct;
+                if (isRight) {
+                    btn.className = 'quiz-opt-btn w-full p-3.5 rounded-2xl border-2 border-apple-green bg-apple-green/10 text-left text-xs sm:text-sm font-bold flex items-center justify-between';
+                    btn.querySelector('span:last-child').innerHTML = '✓';
+                    btn.querySelector('span:last-child').className = 'w-5 h-5 rounded-full bg-apple-green text-white flex items-center justify-center text-xs';
+                } else if (idx === optIdx && !chosen.correct) {
+                    btn.className = 'quiz-opt-btn w-full p-3.5 rounded-2xl border-2 border-apple-red bg-apple-red/10 text-left text-xs sm:text-sm font-bold flex items-center justify-between';
+                    btn.querySelector('span:last-child').innerHTML = '✕';
+                    btn.querySelector('span:last-child').className = 'w-5 h-5 rounded-full bg-apple-red text-white flex items-center justify-center text-xs';
+                } else {
+                    btn.className = 'quiz-opt-btn w-full p-3.5 rounded-2xl border border-black/[0.05] dark:border-white/[0.05] opacity-50 text-left text-xs sm:text-sm flex items-center justify-between';
+                }
+            });
+
+            const fb = document.getElementById('quizFeedbackBox');
+            fb.classList.remove('hidden');
+            fb.className = `p-3.5 rounded-2xl text-xs leading-relaxed ${chosen.correct ? 'bg-apple-green/15 text-apple-text dark:text-white border border-apple-green/30' : 'bg-apple-orange/15 text-apple-text dark:text-white border border-apple-orange/30'}`;
+            fb.innerHTML = `<strong>${chosen.correct ? '🎉 直觉精准：' : '💡 直觉点拨：'}</strong>${chosen.explain}`;
+
+            const nextBtn = document.getElementById('quizNextBtn');
+            nextBtn.textContent = currentQuizIdx === quizQuestions.length - 1 ? '查看通关成绩 →' : '下一关 →';
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIdx++;
+            renderQuiz();
+        }
+
+        function restartQuiz() {
+            currentQuizIdx = 0;
+            currentQuizScore = 0;
+            renderQuiz();
+        }
+
+        /********************************************************************
+         * 6. 仪表盘统计与弹窗控制
+         ********************************************************************/
+        function updateDashboardStats() {
+            const pCount = userProgress.masteredPhrases.length;
+            const cCount = userProgress.masteredCards.length;
+            const totalItems = scenariosData.length + flashcardsData.length; // 24 + 10 = 34
+            const doneItems = pCount + cCount;
+            const percent = Math.min(100, Math.round((doneItems / totalItems) * 100));
+
+            document.getElementById('navMasteryCount').textContent = doneItems;
+            document.getElementById('statPhrases').textContent = `${pCount} / ${scenariosData.length}`;
+            document.getElementById('statCards').textContent = `${cCount} / ${flashcardsData.length}`;
+            document.getElementById('statQuiz').textContent = userProgress.bestQuizScore !== null ? `${userProgress.bestQuizScore} / 5 分` : '未挑战';
+
+            document.getElementById('heroProgressPercent').textContent = `${percent}%`;
+            const circle = document.getElementById('heroProgressCircle');
+            const circumference = 163.36;
+            circle.style.strokeDashoffset = circumference - (percent / 100) * circumference;
+        }
+
+        function openGithubModal() {
+            const modal = document.getElementById('githubModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeGithubModal() {
+            const modal = document.getElementById('githubModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // 页面初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            // 预热语音列表
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+            }
+            loadProgress();
+            renderPronunciationLab();
+            selectSerEstarDemo(0);
+            renderVerbLego();
+            selectConjVerb('hablar');
+            renderScenarios('greetings');
+            renderFlashcard();
+            renderQuiz();
+        });
+    </script>
+</body>
+</html>
